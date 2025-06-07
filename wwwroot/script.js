@@ -16,8 +16,8 @@ $.get('/User/CheckSession')
     .done(function (response) {
         if (response.userID !== -1) {
             // Be van jelentkezve
-            const username = 'Ismeretlen';
-            const role = response.role || 'unknown';
+            const username = response.username;
+            const role = response.role;
             user = { id: response.userID, role: role };
 
             document.getElementById('login').classList.add('hidden');
