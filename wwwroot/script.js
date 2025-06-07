@@ -20,6 +20,8 @@ function register() {
     $.post('/User/Create', { username, password, role })
         .done(function (response) {
             alert(response);
+            $("#regUsername").val('');
+            $("#regPassword").val('');
             showLogin();
         })
         .fail(function (xhr) {
