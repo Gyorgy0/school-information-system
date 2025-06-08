@@ -3,6 +3,7 @@ using SchoolAPI.Models;
 using SchoolAPI.Models.Subject;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System;
 
 namespace SchoolAPI.Controllers
 {
@@ -15,7 +16,6 @@ namespace SchoolAPI.Controllers
         {
             List<TimetableEntry> timetable = new List<TimetableEntry>();
             string sql = "SELECT * FROM Timetable";
-
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
                 using (var cmd = new SQLiteCommand(sql, connection))
@@ -79,7 +79,7 @@ namespace SchoolAPI.Controllers
         {
             if (CheckForConflicts(day, hour, subject, room, teacherID))
             {
-                return BadRequest("Az adott idõpontban ütközés van a tanár, tantárgy, vagy terem miatt!");
+                return BadRequest("Az adott idï¿½pontban ï¿½tkï¿½zï¿½s van a tanï¿½r, tantï¿½rgy, vagy terem miatt!");
             }
 
             string sql = "INSERT INTO Timetable (Day, Hour, Subject, Room, TeacherID, ClassID) VALUES (@Day, @Hour, @Subject, @Room, @TeacherID, @ClassID)";
@@ -98,7 +98,7 @@ namespace SchoolAPI.Controllers
                 }
             }
 
-            return Ok("Órarend sikeresen létrehozva");
+            return Ok("ï¿½rarend sikeresen lï¿½trehozva");
         }
 
         [HttpPost]
@@ -107,7 +107,7 @@ namespace SchoolAPI.Controllers
             if ((day != null || hour != null || subject != null || room != null || teacherID != null) &&
                 CheckForConflicts(day ?? "", hour ?? "", subject ?? "", room ?? "", teacherID ?? 0))
             {
-                return BadRequest("Az új beállítások ütközést okoznak!");
+                return BadRequest("Az ï¿½j beï¿½llï¿½tï¿½sok ï¿½tkï¿½zï¿½st okoznak!");
             }
 
             string sql = @"
@@ -132,9 +132,9 @@ namespace SchoolAPI.Controllers
                     cmd.Parameters.AddWithValue("@TeacherID", teacherID ?? (object)DBNull.Value);
 
                     if (cmd.ExecuteNonQuery() == 0)
-                        return NotFound("Órarend bejegyzés nem található");
+                        return NotFound("ï¿½rarend bejegyzï¿½s nem talï¿½lhatï¿½");
 
-                    return Ok("Órarend bejegyzés sikeresen frissítve");
+                    return Ok("ï¿½rarend bejegyzï¿½s sikeresen frissï¿½tve");
                 }
             }
         }
@@ -234,7 +234,7 @@ namespace SchoolAPI.Controllers
         [HttpGet]
         public IActionResult GetSubjectIdByName(string name)
         {
-            // Mivel nincs Subject tábla, megkeressük, hogy szerepel-e a tantárgy a Timetable-ben
+            // Mivel nincs Subject tï¿½bla, megkeressï¿½k, hogy szerepel-e a tantï¿½rgy a Timetable-ben
             string sql = "SELECT DISTINCT Subject FROM Timetable WHERE Subject = @Name";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
@@ -244,9 +244,9 @@ namespace SchoolAPI.Controllers
                 var result = cmd.ExecuteScalar();
 
                 if (result == null)
-                    return NotFound("Nincs ilyen tantárgy");
+                    return NotFound("Nincs ilyen tantï¿½rgy");
 
-                // Az ID-t generálni kell ugyanúgy, mint az elõzõ metódusban — itt egy egyszerû megoldás, hogy lekérdezzük az összes tantárgyat és megtaláljuk az indexét
+                // Az ID-t generï¿½lni kell ugyanï¿½gy, mint az elï¿½zï¿½ metï¿½dusban ï¿½ itt egy egyszerï¿½ megoldï¿½s, hogy lekï¿½rdezzï¿½k az ï¿½sszes tantï¿½rgyat ï¿½s megtalï¿½ljuk az indexï¿½t
                 string sqlAll = "SELECT DISTINCT Subject FROM Timetable ORDER BY Subject";
                 List<string> allSubjects = new List<string>();
 
@@ -259,7 +259,7 @@ namespace SchoolAPI.Controllers
                     }
                 }
 
-                int subjectId = allSubjects.IndexOf(name) + 1; // +1 mert az ID-k 1-tõl kezdõdnek
+                int subjectId = allSubjects.IndexOf(name) + 1; // +1 mert az ID-k 1-tï¿½l kezdï¿½dnek
 
                 return Json(new { subjectID = subjectId });
             }

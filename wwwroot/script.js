@@ -12,7 +12,7 @@ function showLogin() {
     document.getElementById('showRegisterBtn').classList.remove('hidden');
 }
 
-$.get('/User/CheckSession')
+/*$.get('/User/CheckSession')
     .done(function (response) {
         if (response.userID !== -1) {
             // Be van jelentkezve
@@ -38,7 +38,7 @@ $.get('/User/CheckSession')
     .fail(function () {
         console.error('Session check failed.');
     });
-
+*/
 function register() {
     const username = $('#regUsername').val();
     const password = $('#regPassword').val();
@@ -74,11 +74,7 @@ function login() {
             document.getElementById('showRegisterBtn').classList.add('hidden');
 
             setRoleBasedView(role);
-
-            if (role === 'student') {
-            } else if (role === 'teacher') {
-            } else if (role === 'admin') {
-            }
+            $.get('')
         })
         .fail(function (xhr) {
             alert('Hibás felhasználónév vagy jelszó!');
@@ -108,6 +104,5 @@ function setRoleBasedView(role) {
     } else if (role === 'teacher') {
        
     } else if (role === 'admin') {
-        
     }
 }
