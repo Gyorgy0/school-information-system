@@ -1,10 +1,6 @@
 {
   "Files": [
     {
-      "Id": "/home/gyorgy/Desktop/C# projektek/school-information-system/obj/Debug/net8.0/scopedcss/projectbundle/Edupage.bundle.scp.css",
-      "PackagePath": "staticwebassets/Edupage.bundle.scp.css"
-    },
-    {
       "Id": "/home/gyorgy/Desktop/C# projektek/school-information-system/wwwroot/index.html",
       "PackagePath": "staticwebassets/index.html"
     },

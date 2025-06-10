@@ -43,8 +43,8 @@ public class MaterialController : Controller
     [HttpPost]
     public IActionResult UploadMaterial([FromBody] Material request)
     {
-        // Feltételezzük, hogy a request.Subject már tartalmazza a tantárgy nevét, 
-        // nem próbáljuk meg lekérdezni külön Subject táblából
+        // Feltï¿½telezzï¿½k, hogy a request.Subject mï¿½r tartalmazza a tantï¿½rgy nevï¿½t, 
+        // nem prï¿½bï¿½ljuk meg lekï¿½rdezni kï¿½lï¿½n Subject tï¿½blï¿½bï¿½l
 
         try
         {
@@ -74,11 +74,11 @@ public class MaterialController : Controller
                 }
             }
 
-            return Ok("Anyag sikeresen feltöltve");
+            return Ok("Anyag sikeresen feltï¿½ltve");
         }
         catch (Exception ex)
         {
-            return BadRequest($"Hiba történt a feltöltés során: {ex.Message}");
+            return BadRequest($"Hiba tï¿½rtï¿½nt a feltï¿½ltï¿½s sorï¿½n: {ex.Message}");
         }
     }
 }

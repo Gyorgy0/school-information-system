@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Edupage")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0294da9b93ba27d7206b67aaddd807554a61dfb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+84558c487da2f7d7a905cc13a00126d7b5c89d53")]
 [assembly: System.Reflection.AssemblyProductAttribute("Edupage")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Edupage")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
