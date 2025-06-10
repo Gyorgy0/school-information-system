@@ -14,10 +14,21 @@ namespace SchoolAPI.Controllers
         public ContentResult main()
         {
             string role = RoleManager.CheckRole(Request.Cookies["id"]);
-            if (role == "") {
+            if (role == "")
+            {
                 return base.Content("<script>window.location.href = '/';</script>", "text/html");
             }
             var html = System.IO.File.ReadAllText($"./assets/{role}/mainpage.html");
+            return base.Content(html, "text/html");
+        }
+        
+        public ContentResult courses()
+        {
+            string role = RoleManager.CheckRole(Request.Cookies["id"]);
+            if (role == "") {
+                return base.Content("<script>window.location.href = '/';</script>", "text/html");
+            }
+            var html = System.IO.File.ReadAllText($"./assets/{role}/courses.html");
             return base.Content(html, "text/html");
         }
     }

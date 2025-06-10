@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>My Courses (Teacher)</title>
+  <style>table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:8px;text-align:left}form{margin-top:20px}label{display:inline-block;width:80px}</style>
+</head>
+<body>
+  <h1>My Courses</h1>
+  <table id="coursesTable">
+    <thead><tr><th>ID</th><th>Name</th><th>Visible</th></tr></thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>Create Course</h2>
+  <form id="createCourseForm">
+    <label>Name:</label><input id="courseName" required/><br/>
+    <label>Visible:</label><input id="courseVisible" type="checkbox" checked/><br/>
+    <button type="submit">Create</button>
+  </form>
+
+  <script>
+    const creds = { credentials: 'include' };
+    let teacherId;
+
+    fetch('/Course/GetMyTeacherId', creds)
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(d => {
+        teacherId = d.teacherId;
+        loadCourses();
+      });
+
+    function loadCourses() {
+      fetch('/Course/GetCourses', creds)
+        .then(r=>r.ok?r.json():Promise.reject())
+        .then(data=>{
+          const tbody=document.querySelector('#coursesTable tbody');
+          tbody.innerHTML='';
+          data.filter(c=>c.teacherID===teacherId).forEach(c=>{
+            const tr=document.createElement('tr');
+            tr.innerHTML=`<td>${c.courseID}</td><td>${c.name}</td><td>${c.visible}</td>`;
+            tbody.appendChild(tr);
+          });
+        });
+    }
+
+    document.getElementById('createCourseForm').addEventListener('submit',e=>{
+      e.preventDefault();
+      const f=new FormData();
+      f.append('name',document.getElementById('courseName').value);
+      f.append('teacherID',teacherId);
+      f.append('visible',document.getElementById('courseVisible').checked);
+      fetch('/Course/CreateCourse',{method:'POST',...creds,body:f})
+        .then(()=>{loadCourses();e.target.reset();});
+    });
+
+    loadCourses();
+  </script>
+</body>
+</html>

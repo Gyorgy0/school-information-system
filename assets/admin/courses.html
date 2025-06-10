@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Courses (Admin)</title>
+  <style>
+    table{border-collapse:collapse;width:100%}
+    th,td{border:1px solid #ccc;padding:8px;text-align:left}
+    form{margin-top:20px}
+    label{display:inline-block;width:80px}
+    .entries-row{display:none;background:#f9f9f9}
+    .entries-row ul{margin:5px 0 10px 20px;padding:0}
+    .entries-row li{list-style:disc inside}
+  </style>
+</head>
+<body>
+  <h2>Create Course</h2>
+  <form id="createCourseForm">
+    <label>Name:</label><input id="courseName" required/><br/>
+    <label>TeacherID:</label><input id="courseTeacherId" type="number" required/><br/>
+    <label>Visible:</label><input id="courseVisible" type="checkbox" checked/><br/>
+    <button type="submit">Create</button>
+  </form>
+
+  <h1>All Courses</h1>
+  <table id="coursesTable">
+    <thead>
+      <tr>
+        <th>ID</th><th>Name</th><th>TeacherID</th><th>Visible</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const creds = { credentials: 'include' };
+
+    function loadCourses() {
+      fetch('/Course/GetCourses', creds)
+        .then(r=>r.ok?r.json():Promise.reject())
+        .then(data=>{
+          const tbody = document.querySelector('#coursesTable tbody');
+          tbody.innerHTML = '';
+          data.forEach(c=>{
+            const tr = document.createElement('tr');
+            tr.dataset.id = c.courseID;
+            tr.innerHTML = `
+              <td>${c.courseID}</td>
+              <td>${c.name}</td>
+              <td>${c.teacherID}</td>
+              <td>${c.visible}</td>
+              <td>
+                <button class="toggle-btn" data-id="${c.courseID}">Show Entries</button>
+                <button class="edit-btn">Edit</button>
+                <button class="delete-btn">Delete</button>
+              </td>`;
+            tbody.appendChild(tr);
+
+            const er = document.createElement('tr');
+            er.className = 'entries-row';
+            er.innerHTML = `
+              <td colspan="5">
+                <ul id="entries-${c.courseID}"></ul>
+                <input type="text" id="newEntry-${c.courseID}" placeholder="New entry"/>
+                <button class="add-entry-btn" data-id="${c.courseID}">Add Entry</button>
+              </td>`;
+            tbody.appendChild(er);
+          });
+        })
+        .then(attachHandlers);
+    }
+
+    function attachHandlers() {
+      document.querySelectorAll('.toggle-btn')
+        .forEach(b=>b.onclick=toggleEntries);
+      document.querySelectorAll('.add-entry-btn')
+        .forEach(b=>b.onclick=addEntry);
+      document.querySelectorAll('.edit-btn')
+        .forEach(b=>b.onclick=editCourse);
+      document.querySelectorAll('.delete-btn')
+        .forEach(b=>b.onclick=deleteCourse);
+    }
+
+    function toggleEntries(e) {
+      e.stopPropagation();
+      const id = this.dataset.id;
+      const er = this.closest('tr').nextElementSibling;
+      if(er.style.display==='table-row'){
+        er.style.display='none';
+        this.textContent='Show Entries';
+      } else {
+        loadEntries(id).then(()=>{
+          er.style.display='table-row';
+          this.textContent='Hide Entries';
+        });
+      }
+    }
+
+    function loadEntries(courseID) {
+      return fetch(`/Course/GetCourseEntries?courseId=${courseID}`, creds)
+        .then(r=>r.ok?r.json():Promise.reject())
+        .then(list=>{
+          const ul = document.getElementById(`entries-${courseID}`);
+          ul.innerHTML='';
+          list.forEach(text=>{
+            const li=document.createElement('li');
+            li.textContent=text;
+            ul.appendChild(li);
+          });
+        });
+    }
+
+    function addEntry(e) {
+      const id = this.dataset.id;
+      const input = document.getElementById(`newEntry-${id}`);
+      const text = input.value.trim();
+      if(!text) return;
+      const f = new FormData();
+      f.append('courseId', id);
+      f.append('content', text);
+      fetch('/Course/AddCourseEntry',{method:'POST',...creds,body:f})
+        .then(()=>{
+          input.value='';
+          return loadEntries(id);
+        });
+    }
+
+    function editCourse(e) {
+      e.stopPropagation();
+      const tr = this.closest('tr');
+      const id = tr.dataset.id;
+      const name = prompt('Name', tr.children[1].textContent);
+      const teacher = prompt('TeacherID', tr.children[2].textContent);
+      const visible = confirm('Visible?');
+      if(!name||teacher===null) return;
+      const f=new FormData();
+      f.append('courseID', id);
+      f.append('name', name);
+      f.append('teacherID', teacher);
+      f.append('visible', visible);
+      fetch('/Course/EditCourse',{method:'POST',...creds,body:f})
+        .then(loadCourses);
+    }
+
+    function deleteCourse(e) {
+      e.stopPropagation();
+      const id = this.closest('tr').dataset.id;
+      const f=new FormData();
+      f.append('id', id);
+      fetch('/Course/DeleteCourse',{method:'POST',...creds,body:f})
+        .then(loadCourses);
+    }
+
+    document.getElementById('createCourseForm').addEventListener('submit',e=>{
+      e.preventDefault();
+      const f=new FormData();
+      f.append('name',document.getElementById('courseName').value);
+      f.append('teacherID',document.getElementById('courseTeacherId').value);
+      f.append('visible',document.getElementById('courseVisible').checked);
+      fetch('/Course/CreateCourse',{method:'POST',...creds,body:f})
+        .then(()=>{loadCourses();e.target.reset();});
+    });
+
+    loadCourses();
+  </script>
+</body>
+</html>
