@@ -33,6 +33,26 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
     "`PasswordSalt` TEXT NOT NULL, " +
     "`Role` TEXT NOT NULL);" +
 
+    "CREATE TABLE IF NOT EXISTS `Roles` (" +
+    "`Role` TEXT PRIMARY KEY," +
+    "`ModifyUser` INTEGER NOT NULL," +
+    "`ModifyEvent` INTEGER NOT NULL," +
+    "`AddSubject` INTEGER NOT NULL," +
+    "`RemoveSubject` INTEGER NOT NULL," +
+    "`ModifySubject` INTEGER NOT NULL," +
+    "`SeeSchedule` INTEGER NOT NULL," +
+    "`SeeAllSchedule` INTEGER NOT NULL," +
+    "`ModifySchedule` INTEGER NOT NULL," +
+    "`SeeOwnGrades` INTEGER NOT NULL," +
+    "`SeeGrades` INTEGER NOT NULL," +
+    "`ModifyGrades` INTEGER NOT NULL," +
+    "`SeeOwnStatistics` INTEGER NOT NULL," +
+    "`SeeStatistics` INTEGER NOT NULL," +
+    "`ModifyStatistics` INTEGER NOT NULL," +
+    "`SeeCourses` INTEGER NOT NULL," +
+    "`ModifyCourses` INTEGER NOT NULL," +
+    "`ModifyLunchTable` INTEGER NOT NULL);" +
+
     "CREATE TABLE IF NOT EXISTS `Grade` (" +
     "`GradeID` INTEGER NOT NULL PRIMARY KEY, " +
     "`UserID` INTEGER NOT NULL, " +

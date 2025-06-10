@@ -1,5 +1,3 @@
-let user = null;
-
 function showRegister() {
     document.getElementById('login').classList.add('hidden');
     document.getElementById('register').classList.remove('hidden');
@@ -11,34 +9,7 @@ function showLogin() {
     document.getElementById('login').classList.remove('hidden');
     document.getElementById('showRegisterBtn').classList.remove('hidden');
 }
-
-/*$.get('/User/CheckSession')
-    .done(function (response) {
-        if (response.userID !== -1) {
-            // Be van jelentkezve
-            const username = response.username;
-            const role = response.role;
-            user = { id: response.userID, role: role };
-
-            document.getElementById('login').classList.add('hidden');
-            document.getElementById('userInfo').innerText = `Bejelentkezve: ${username} (${role})`;
-            document.getElementById('logoutBtn').classList.remove('hidden');
-            document.getElementById('showRegisterBtn').classList.add('hidden');
-
-            setRoleBasedView(role);
-        } else {
-            // Nincs bejelentkezve, üres állapot
-            user = null;
-            document.getElementById('login').classList.remove('hidden');
-            document.getElementById('userInfo').innerText = '';
-            document.getElementById('logoutBtn').classList.add('hidden');
-            document.getElementById('showRegisterBtn').classList.remove('hidden');
-        }
-    })
-    .fail(function () {
-        console.error('Session check failed.');
-    });
-*/
+    
 function register() {
     const username = $('#regUsername').val();
     const password = $('#regPassword').val();
@@ -64,45 +35,9 @@ function login() {
     $.post('/User/Login', { username, password, role })
         .done(function (response) {
             alert(response.message);
-            $("#username").val('');
-            $("#password").val('');
-            const role = response.role;
-            user = { name: username, role: role };
-            document.getElementById('login').classList.add('hidden');
-            document.getElementById('userInfo').innerText = `Bejelentkezve: ${username}(${role})`;
-            document.getElementById('logoutBtn').classList.remove('hidden');
-            document.getElementById('showRegisterBtn').classList.add('hidden');
-
-            setRoleBasedView(role);
-            $.get('')
+            window.location.assign('/main');
         })
         .fail(function (xhr) {
-            alert('Hibás felhasználónév vagy jelszó!');
+            alert(xhr.responseText);
         });
-}
-
-function logout() {
-    $.post('/User/Logout')
-        .done(function (response) {
-            user = null;
-            document.getElementById('login').classList.remove('hidden');
-            document.getElementById('userInfo').innerText = '';
-            document.getElementById('logoutBtn').classList.add('hidden');
-            document.getElementById('showRegisterBtn').classList.remove('hidden');
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('role').value = 'student';
-        })
-        .fail(function (xhr) {
-            alert('Hiba a kijelentkezés során: ' + xhr.responseText);
-        });
-}
-
-function setRoleBasedView(role) {
-    if (role === 'student') {
-        
-    } else if (role === 'teacher') {
-       
-    } else if (role === 'admin') {
-    }
 }

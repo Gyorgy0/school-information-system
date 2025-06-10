@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Verification Successful</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Ez a student profil oldala</h1>
+    <p>Köszi, hogy az EduPage-ünket használod!</p>
+    <button id="logoutBtn" onclick="logout()">Kijelentkezés</button>
+</body>
+</html>
+<script>
+    function logout() {
+    $.post('/User/Logout')
+        .done(function (response) {
+            window.location.href = '/';
+        })
+        .fail(function (xhr) {
+            alert('Hiba a kijelentkezés során: ' + xhr.responseText);
+        });
+}
+</script>

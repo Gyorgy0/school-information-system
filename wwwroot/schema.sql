@@ -6,7 +6,29 @@ CREATE TABLE IF NOT EXISTS `User` (
     `Username` TEXT NOT NULL,
     `PasswordHash` TEXT NOT NULL,
     `PasswordSalt` TEXT NOT NULL,
-    `Role` TEXT NOT NULL  -- 'student', 'teacher', 'admin'
+    FOREIGN KEY (`Role`) REFERENCES `Roles` (`Role`)  -- 'student', 'teacher', 'admin'
+);
+
+-- Create Roles Table
+CREATE TABLE IF NOT EXISTS `Roles` (
+    `Role` TEXT PRIMARY KEY, -- 'student', 'teacher', 'admin'
+    `ModifyUser` INTEGER NOT NULL,
+    `ModifyEvent` INTEGER NOT NULL,
+    `AddSubject` INTEGER NOT NULL,
+    `RemoveSubject` INTEGER NOT NULL,
+    `ModifySubject` INTEGER NOT NULL,
+    `SeeSchedule` INTEGER NOT NULL,
+    `SeeAllSchedule` INTEGER NOT NULL,
+    `ModifySchedule` INTEGER NOT NULL,
+    `SeeOwnGrades` INTEGER NOT NULL,
+    `SeeGrades` INTEGER NOT NULL,
+    `ModifyGrades` INTEGER NOT NULL,
+    `SeeOwnStatistics` INTEGER NOT NULL,
+    `SeeStatistics` INTEGER NOT NULL,
+    `ModifyStatistics` INTEGER NOT NULL,
+    `SeeCourses` INTEGER NOT NULL,
+    `ModifyCourses` INTEGER NOT NULL,
+    `ModifyLunchTable` INTEGER NOT NULL,
 );
 
 -- Create Grades Table
