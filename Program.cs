@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Http.HttpResults;
 using System.Data.SQLite;
+using SchoolAPI.Controllers;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,7 +72,7 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
     "`Subject` TEXT NOT NULL, " +
     "`GradeValue` INTEGER NOT NULL, " +
     "`Date` TEXT NOT NULL, " +
-    "FOREIGN KEY (`UserID`) REFERENCES `User` (`UserID`));" +
+    "FOREIGN KEY (`UserID`) REFERENCES `Users` (`UserID`));" +
 
     "CREATE TABLE IF NOT EXISTS `Homework` (" +
     "`HomeworkID` INTEGER NOT NULL PRIMARY KEY, " +
@@ -77,7 +80,7 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
     "`Subject` TEXT NOT NULL, " +
     "`Description` TEXT NOT NULL, " +
     "`DueDate` TEXT NOT NULL, " +
-    "FOREIGN KEY (`UserID`) REFERENCES `User` (`UserID`));" +
+    "FOREIGN KEY (`UserID`) REFERENCES `Users` (`UserID`));" +
 
     "CREATE TABLE IF NOT EXISTS `Message` (" +
     "`MessageID` INTEGER NOT NULL PRIMARY KEY, " +
@@ -85,8 +88,8 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
     "`ReceiverID` INTEGER NOT NULL, " +
     "`MessageText` TEXT NOT NULL, " +
     "`Timestamp` TEXT NOT NULL, " +
-    "FOREIGN KEY (`SenderID`) REFERENCES `User` (`UserID`), " +
-    "FOREIGN KEY (`ReceiverID`) REFERENCES `User` (`UserID`));" +
+    "FOREIGN KEY (`SenderID`) REFERENCES `Users` (`UserID`), " +
+    "FOREIGN KEY (`ReceiverID`) REFERENCES `Users` (`UserID`));" +
 
     "CREATE TABLE IF NOT EXISTS `Timetable` (" +
     "`TimetableID` INTEGER NOT NULL PRIMARY KEY, " +
@@ -95,12 +98,7 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
     "`Subject` TEXT NOT NULL, " +
     "`Room` TEXT NOT NULL, " +
     "`TeacherID` INTEGER NOT NULL, " +
-    "FOREIGN KEY (`TeacherID`) REFERENCES `User` (`UserID`));" +
-
-    "CREATE TABLE IF NOT EXISTS `Lunch` (" +
-    "`LunchID` INTEGER NOT NULL PRIMARY KEY, " +
-    "`Day` TEXT NOT NULL, " +
-    "`Meal` TEXT NOT NULL);" +
+    "FOREIGN KEY (`TeacherID`) REFERENCES `Users` (`UserID`));" +
 
     "CREATE TABLE IF NOT EXISTS `Course` (" +
     "CourseID INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -155,9 +153,35 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
     "EventType TEXT NOT NULL, " +
     "EventDate DATETIME NOT NULL, " +
     "Description TEXT" +
-    ");";
+    ");" +
+
+    "CREATE TABLE IF NOT EXISTS `Soup` (" +
+    "`SoupID` INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    "`Name` TEXT NOT NULL);" +
+
+    "CREATE TABLE IF NOT EXISTS `MainDish` (" +
+    "`MainDishID` INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    "`Name` TEXT NOT NULL);" +
+
+    "CREATE TABLE IF NOT EXISTS `Dessert` (" +
+    "`DessertID` INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    "`Name` TEXT NOT NULL);" +
+
+    "CREATE TABLE IF NOT EXISTS `Lunch` (" +
+    "`LunchID` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
+    "`Day` TEXT NOT NULL, " +
+    "`SoupID` INTEGER NOT NULL, " +
+    "`MainDishID` INTEGER NOT NULL, " +
+    "`DessertID` INTEGER NOT NULL, " +
+    "FOREIGN KEY (`SoupID`) REFERENCES `Soup`(`SoupID`), " +
+    "FOREIGN KEY (`MainDishID`) REFERENCES `MainDish`(`MainDishID`), " +
+    "FOREIGN KEY (`DessertID`) REFERENCES `Dessert`(`DessertID`))";
 
 command.ExecuteNonQuery();
+
+LunchGenerator.InsertSampleData(connection);
+LunchGenerator.GenerateWeeklyLunch(connection);
+
 command.Dispose();
 
 app.Run();

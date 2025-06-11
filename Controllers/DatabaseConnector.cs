@@ -13,15 +13,15 @@ public static class DatabaseConnector
 
             if (projectRoot == null)
             {
-                throw new InvalidOperationException("Nem sikerï¿½lt meghatï¿½rozni a projekt gyï¿½kï¿½rkï¿½nyvtï¿½rï¿½t!");
+                throw new InvalidOperationException("Nem sikerült meghatározni a projekt gyökérkönyvtárát!");
             }
 
             string dbPath = Path.Combine(projectRoot, "database", "edupage.sqlite3");
 
             if (!File.Exists(dbPath))
             {
-                Console.WriteLine("HIBA: Az adatbï¿½zis fï¿½jl nem talï¿½lhatï¿½!");
-                throw new FileNotFoundException("Az adatbï¿½zis nem talï¿½lhatï¿½ a megadott helyen.", dbPath);
+                Console.WriteLine("HIBA: Az adatbázis fájl nem található!");
+                throw new FileNotFoundException("Az adatbázis nem található a megadott helyen.", dbPath);
             }
 
             conn = new SQLiteConnection($"Data Source={dbPath}");
@@ -41,7 +41,7 @@ public static class DatabaseConnector
 
         if (projectRoot == null)
         {
-            throw new InvalidOperationException("Nem sikerï¿½lt meghatï¿½rozni a projekt gyï¿½kï¿½rkï¿½nyvtï¿½rï¿½t!");
+            throw new InvalidOperationException("Nem sikerült meghatározni a projekt gyökérkönyvtárát!");
         }
 
         string dbPath = Path.Combine(projectRoot, "database", "edupage.sqlite3");

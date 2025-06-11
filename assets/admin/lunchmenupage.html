@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Verification Successful</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div id="lunchMenu" class="hidden">
+        <h2>Heti Ebéd Menű</h2>
+        <table border="1">
+            <thead>
+                <tr><th>Nap</th><th>Leves</th><th>Főétel</th><th>Desszert</th></tr>
+            </thead>
+            <tbody id="lunchTable"></tbody>
+        </table>
+        <button id="regenerateBtn" onclick="regenerateLunch()">Újragenerálás</button>
+    </div>
+
+    <div id="manualSelection">
+        <h3>Válaszd ki a menüt kézzel</h3>
+
+        <label>
+            Nap:
+            <select id="daySelect">
+                <option value="">-- válassz napot --</option>
+            </select>
+        </label>
+        <br />
+
+        <label>
+            Leves:
+            <select id="soupSelect">
+                <option value="">-- válassz --</option>
+            </select>
+        </label>
+        <br />
+        <label>
+            Főétel:
+            <select id="mainDishSelect">
+                <option value="">-- válassz --</option>
+            </select>
+        </label>
+        <br />
+        <label>
+            Desszert:
+            <select id="dessertSelect">
+                <option value="">-- válassz --</option>
+            </select>
+        </label>
+        <br />
+        <button onclick="submitManualSelection()">Mentés</button>
+    </div>
+</body>
+</html>
+<script>
+    const allDays = ["Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek"];
+    const allSoups = ["Gulyásleves", "Paradicsomleves", "Zöldségleves", "Húsleves"];
+    const allMainDishes = ["Rántott Hús", "Spagetti", "Grill Csirke", "Töltött Csirke", "Halrudacska"];
+    const allDesserts = ["Túrós rétes", "Puding", "Palacsinta", "Gyümölcssaláta", "Fagyi", "Süti", "Krémes"];
+
+    function logout() {
+        $.post('/User/Logout')
+            .done(function (response) {
+                window.location.href = '/';
+            })
+            .fail(function (xhr) {
+                alert('Hiba a kijelentkezés során: ' + xhr.responseText);
+            });
+    }
+
+    function showLunchMenu() {
+        document.getElementById('lunchMenu').classList.remove('hidden');
+        loadLunch();
+    }
+
+    function populateStaticDropdowns() {
+        const soupSelect = document.getElementById('soupSelect');
+        const mainDishSelect = document.getElementById('mainDishSelect');
+        const dessertSelect = document.getElementById('dessertSelect');
+
+        soupSelect.innerHTML = '<option value="">-- válassz --</option>';
+        mainDishSelect.innerHTML = '<option value="">-- válassz --</option>';
+        dessertSelect.innerHTML = '<option value="">-- válassz --</option>';
+
+        allDays.forEach(day => {
+            daySelect.innerHTML += `<option value="${day}">${day}</option>`;
+        });
+
+        allSoups.forEach(soup => {
+            soupSelect.innerHTML += `<option value="${soup}">${soup}</option>`;
+        });
+
+        allMainDishes.forEach(main => {
+            mainDishSelect.innerHTML += `<option value="${main}">${main}</option>`;
+        });
+
+        allDesserts.forEach(dessert => {
+            dessertSelect.innerHTML += `<option value="${dessert}">${dessert}</option>`;
+        });
+    }
+
+    async function submitManualSelection() {
+        const selectedDay = document.getElementById('daySelect').value;
+        const selectedSoup = document.getElementById('soupSelect').value;
+        const selectedMain = document.getElementById('mainDishSelect').value;
+        const selectedDessert = document.getElementById('dessertSelect').value;
+
+        if (!selectedDay || !selectedSoup || !selectedMain || !selectedDessert) {
+            alert("Kérlek válassz ki minden mezőt!");
+            return;
+        }
+
+        const rows = document.querySelectorAll('#lunchTable tr');
+        let updated = false;
+
+        rows.forEach(row => {
+            const dayCell = row.cells[0];
+            if (dayCell && dayCell.textContent === selectedDay) {
+                row.cells[1].textContent = selectedSoup;
+                row.cells[2].textContent = selectedMain;
+                row.cells[3].textContent = selectedDessert;
+                updated = true;
+            }
+        });
+
+        alert("Menü frissítve!");
+
+        try {
+            const res = await fetch('/Lunch/UpdateDayMenu', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    Day: selectedDay,
+                    Soup: selectedSoup,
+                    MainDish: selectedMain,
+                    Dessert: selectedDessert
+                })
+            });
+
+            if (!res.ok) throw new Error("Mentés nem sikerült");
+            await loadLunch();
+        } catch (err) {
+            console.error(err);
+            alert("Hiba történt mentés közben.");
+        }
+    }
+
+    async function loadLunch() {
+        try {
+            const res = await fetch('/Lunch/GetMenu');
+            if (!res.ok) throw new Error('Failed to load lunch menu');
+            const data = await res.json();
+            const table = document.getElementById('lunchTable');
+            table.innerHTML = "";
+            data.forEach(item => {
+                table.innerHTML += `<tr>
+                <td>${item.day}</td>
+                <td>${item.soup}</td>
+                <td>${item.mainDish}</td>
+                <td>${item.dessert}</td>
+            </tr>`;
+            });
+        } catch (error) {
+            console.error(error);
+            alert('Nem sikerült betölteni az ebéd menüt.');
+        }
+    }
+
+    async function regenerateLunch() {
+        try {
+            const res = await fetch('/Lunch/Regenerate', { method: 'POST' });
+            if (!res.ok) throw new Error('Failed to regenerate lunch menu');
+            await loadLunch();
+            alert('Ebéd menü újragenerálva.');
+        } catch (error) {
+            console.error(error);
+            alert('Nem sikerült újragenerálni az ebéd menüt.');
+        }
+    }
+
+    window.onload = function () {
+        populateStaticDropdowns();
+        showLunchMenu();
+    };
+</script>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Verification Successful</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div id="lunchMenu" class="hidden">
+        <h2>Heti Ebéd Menű</h2>
+        <table border="1">
+            <thead>
+                <tr><th>Nap</th><th>Leves</th><th>Főétel</th><th>Desszert</th></tr>
+            </thead>
+            <tbody id="lunchTable"></tbody>
+        </table>
+    </div>
+</body>
+</html>
+<script>
+    function logout() {
+        $.post('/User/Logout')
+            .done(function (response) {
+                window.location.href = '/';
+            })
+            .fail(function (xhr) {
+                alert('Hiba a kijelentkezés során: ' + xhr.responseText);
+            });
+    }
+
+    function showLunchMenu() {
+        document.getElementById('lunchMenu').classList.remove('hidden');
+        loadLunch();
+    }
+
+    async function loadLunch() {
+        try {
+            const res = await fetch('/Lunch/GetMenu');
+            if (!res.ok) throw new Error('Failed to load lunch menu');
+            const data = await res.json();
+            const table = document.getElementById('lunchTable');
+            table.innerHTML = "";
+            data.forEach(item => {
+                table.innerHTML += `<tr>
+                <td>${item.day}</td>
+                <td>${item.soup}</td>
+                <td>${item.mainDish}</td>
+                <td>${item.dessert}</td>
+            </tr>`;
+            });
+        } catch (error) {
+            console.error(error);
+            alert('Nem sikerült betölteni az ebéd menüt.');
+        }
+    }
+
+    window.onload = function () {
+        showLunchMenu();
+    };
+</script>

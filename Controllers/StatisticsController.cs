@@ -22,9 +22,9 @@ public class StatisticsController : Controller
 
             int studentID = GetUserID(username, connection);
             if (studentID == -1)
-                return NotFound("Felhasználó nem található.");
+                return NotFound("Felhasznï¿½lï¿½ nem talï¿½lhatï¿½.");
 
-            // Jegyek lekérdezése
+            // Jegyek lekï¿½rdezï¿½se
             string sqlGrades = @"
                 SELECT g.TaskID, g.StudentGrade, g.Date, t.Title AS TaskTitle
                 FROM Grade g
@@ -49,7 +49,7 @@ public class StatisticsController : Controller
                 }
             }
 
-            // Hiányzások lekérdezése
+            // Hiï¿½nyzï¿½sok lekï¿½rdezï¿½se
             string sqlAbsences = @"
                 SELECT AbsenceID, TimetableID, Date
                 FROM Absence
@@ -78,7 +78,7 @@ public class StatisticsController : Controller
             var students = new List<object>();
             int teacherID = GetUserID(username, connection);
             if (teacherID == -1)
-                return NotFound("Tanár nem található.");
+                return NotFound("Tanï¿½r nem talï¿½lhatï¿½.");
 
             string sql = @"
                 SELECT DISTINCT u.UserID, u.Username
@@ -99,7 +99,7 @@ public class StatisticsController : Controller
                     var studentGrades = new List<GradeModel>();
                     int absenceCount = 0;
 
-                    // Jegyek lekérdezése
+                    // Jegyek lekï¿½rdezï¿½se
                     string gradeSql = @"
                         SELECT g.TaskID, g.StudentGrade, g.Date, t.Title
                         FROM Grade g
@@ -125,7 +125,7 @@ public class StatisticsController : Controller
                         }
                     }
 
-                    // Hiányzások száma
+                    // Hiï¿½nyzï¿½sok szï¿½ma
                     string absenceSql = "SELECT COUNT(*) FROM Absence WHERE StudentID = @StudentID";
                     using (var absenceCmd = new SQLiteCommand(absenceSql, connection))
                     {
@@ -160,7 +160,7 @@ public class StatisticsController : Controller
                 studentsCount = Convert.ToInt32(cmd.ExecuteScalar());
             }
 
-            // ClassID alapján csoportosított lekérdezés a User táblából
+            // ClassID alapjï¿½n csoportosï¿½tott lekï¿½rdezï¿½s a User tï¿½blï¿½bï¿½l
             string classSql = @"
                 SELECT ClassID, COUNT(*) AS StudentCount
                 FROM User
@@ -186,7 +186,7 @@ public class StatisticsController : Controller
             return Json(new { teachersCount, studentsCount, classes });
         }
 
-        return BadRequest("Ismeretlen szerepkör.");
+        return BadRequest("Ismeretlen szerepkï¿½r.");
     }
 
     private int GetUserID(string username, SQLiteConnection connection)

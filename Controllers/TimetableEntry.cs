@@ -2,12 +2,13 @@ namespace SchoolAPI.Models
 {
     public class TimetableEntry
     {
-        public int TimetableID { get; set; }
+        public Int64 TimetableID { get; set; }
         public string? Day { get; set; }
+        public Int64 DayCount { get; set; }
         public string? Hour { get; set; }
         public string? Subject { get; set; }
         public string? Room { get; set; }
-        public int TeacherID { get; set; }
-        public int ClassID { get; set; }
+        public Int64 TeacherID { get; set; }
+        public Int64 ClassID { get; set; }
     }
 }

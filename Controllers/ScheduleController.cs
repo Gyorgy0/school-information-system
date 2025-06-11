@@ -15,7 +15,7 @@ namespace SchoolAPI.Controllers
         public IActionResult GetTimetableAction()
         {
             List<TimetableEntry> timetable = new List<TimetableEntry>();
-            string sql = "SELECT * FROM Timetable";
+            string sql = "SELECT * FROM Timetable ORDER BY DayCount";
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
                 using (var cmd = new SQLiteCommand(sql, connection))
@@ -25,13 +25,14 @@ namespace SchoolAPI.Controllers
                     {
                         timetable.Add(new TimetableEntry
                         {
-                            TimetableID = reader.GetInt32(0),
+                            TimetableID = reader.GetInt64(0),
                             Day = reader.GetString(1),
-                            Hour = reader.GetString(2),
-                            Subject = reader.GetString(3),
-                            Room = reader.GetString(4),
-                            TeacherID = reader.GetInt32(5),
-                            ClassID = reader.GetInt32(6)
+                            DayCount = reader.GetInt64(2),
+                            Hour = reader.GetString(3),
+                            Subject = reader.GetString(4),
+                            Room = reader.GetString(5),
+                            TeacherID = reader.GetInt64(6),
+                            ClassID = Convert.ToInt64(reader["ClassID"])
                         });
                     }
                 }
@@ -92,20 +93,21 @@ namespace SchoolAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateTimetable([FromForm] string day, [FromForm] string hour, [FromForm] string subject, [FromForm] string room, [FromForm] int teacherID, [FromForm] int classID)
+        public IActionResult CreateTimetable([FromForm] string day, [FromForm] int dayCount, [FromForm] string hour, [FromForm] string subject, [FromForm] string room, [FromForm] int teacherID, [FromForm] int classID)
         {
             if (CheckForConflicts(day, hour, subject, room, teacherID))
             {
                 return BadRequest("Az adott id�pontban �tk�z�s van a tan�r, tant�rgy, vagy terem miatt!");
             }
 
-            string sql = "INSERT INTO Timetable (Day, Hour, Subject, Room, TeacherID, ClassID) VALUES (@Day, @Hour, @Subject, @Room, @TeacherID, @ClassID)";
+            string sql = "INSERT INTO Timetable (Day, DayCount, Hour, Subject, Room, TeacherID, ClassID) VALUES (@Day, @DayCount, @Hour, @Subject, @Room, @TeacherID, @ClassID)";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
                 using (var cmd = new SQLiteCommand(sql, connection))
                 {
                     cmd.Parameters.AddWithValue("@Day", day);
+                    cmd.Parameters.AddWithValue("@DayCount", dayCount);
                     cmd.Parameters.AddWithValue("@Hour", hour);
                     cmd.Parameters.AddWithValue("@Subject", subject);
                     cmd.Parameters.AddWithValue("@Room", room);

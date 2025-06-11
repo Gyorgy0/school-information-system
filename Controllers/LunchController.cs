@@ -3,6 +3,7 @@ using SchoolAPI.Models.Lunch;
 using SchoolAPI.Models;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using SchoolAPI.Controllers;
 
 namespace SchoolAPI.Controllers
 {
@@ -13,8 +14,26 @@ namespace SchoolAPI.Controllers
         [HttpGet]
         public IActionResult GetMenu()
         {
-            List<LunchItem> menu = new List<LunchItem>();
-            string sql = "SELECT * FROM Lunch";
+            var menu = new List<object>();
+
+            string sql = @"
+                SELECT 
+                    Lunch.LunchID,
+                    Lunch.Day,
+                    Soup.Name AS Soup,
+                    MainDish.Name AS MainDish,
+                    Dessert.Name AS Dessert
+                FROM Lunch
+                JOIN Soup ON Lunch.SoupID = Soup.SoupID
+                JOIN MainDish ON Lunch.MainDishID = MainDish.MainDishID
+                JOIN Dessert ON Lunch.DessertID = Dessert.DessertID
+                ORDER BY CASE 
+                    WHEN Lunch.Day = 'H�tf�' THEN 1
+                    WHEN Lunch.Day = 'Kedd' THEN 2
+                    WHEN Lunch.Day = 'Szerda' THEN 3
+                    WHEN Lunch.Day = 'Cs�t�rt�k' THEN 4
+                    WHEN Lunch.Day = 'P�ntek' THEN 5
+                    ELSE 6 END";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             using (var cmd = new SQLiteCommand(sql, connection))
@@ -22,11 +41,13 @@ namespace SchoolAPI.Controllers
                 var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    menu.Add(new LunchItem
+                    menu.Add(new
                     {
                         LunchID = reader.GetInt32(0),
                         Day = reader.GetString(1),
-                        Meal = reader.GetString(2)
+                        Soup = reader.GetString(2),
+                        MainDish = reader.GetString(3),
+                        Dessert = reader.GetString(4)
                     });
                 }
             }
@@ -35,59 +56,60 @@ namespace SchoolAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateLunch([FromForm] string day, [FromForm] string meal)
+        public IActionResult Regenerate()
         {
-            string sql = "INSERT INTO Lunch (Day, Meal) VALUES (@Day, @Meal)";
-
-            using (var connection = DatabaseConnector.CreateNewConnection())
-            using (var cmd = new SQLiteCommand(sql, connection))
-            {
-                cmd.Parameters.AddWithValue("@Day", day);
-                cmd.Parameters.AddWithValue("@Meal", meal);
-                cmd.ExecuteNonQuery();
-            }
-
-            return Ok("Lunch entry created successfully");
+            using var conn = DatabaseConnector.CreateNewConnection();
+            LunchGenerator.GenerateWeeklyLunch(conn);
+            return Ok("Lunch menu regenerated");
         }
 
         [HttpPost]
-        public IActionResult UpdateLunch([FromForm] int lunchID, [FromForm] string? day, [FromForm] string? meal)
+        public IActionResult UpdateDayMenu([FromBody] DayMenuUpdateDto update)
         {
-            string sql = @"
-                UPDATE Lunch
-                SET
-                    Day = COALESCE(@Day, Day),
-                    Meal = COALESCE(@Meal, Meal)
-                WHERE LunchID = @LunchID";
+            using var conn = DatabaseConnector.CreateNewConnection();
 
-            using (var connection = DatabaseConnector.CreateNewConnection())
-            using (var cmd = new SQLiteCommand(sql, connection))
+            int? soupId = GetIdByName(conn, "Soup", update.Soup);
+            int? mainDishId = GetIdByName(conn, "MainDish", update.MainDish);
+            int? dessertId = GetIdByName(conn, "Dessert", update.Dessert);
+
+            if (soupId == null || mainDishId == null || dessertId == null)
             {
-                cmd.Parameters.AddWithValue("@LunchID", lunchID);
-                cmd.Parameters.AddWithValue("@Day", day ?? (object)DBNull.Value);
-                cmd.Parameters.AddWithValue("@Meal", meal ?? (object)DBNull.Value);
-
-                if (cmd.ExecuteNonQuery() == 0)
-                    return NotFound("Lunch entry not found");
-
-                return Ok("Lunch updated successfully");
+                return BadRequest("�tel nem tal�lhat� az adatb�zisban.");
             }
+
+            var cmd = new SQLiteCommand(@"
+            UPDATE Lunch 
+            SET SoupID = @soupId, MainDishID = @mainId, DessertID = @dessertId 
+            WHERE Day = @day", conn);
+
+            cmd.Parameters.AddWithValue("@soupId", soupId);
+            cmd.Parameters.AddWithValue("@mainId", mainDishId);
+            cmd.Parameters.AddWithValue("@dessertId", dessertId);
+            cmd.Parameters.AddWithValue("@day", update.Day);
+
+            int rowsAffected = cmd.ExecuteNonQuery();
+
+            if (rowsAffected == 0)
+            {
+                return NotFound("A megadott nap nem tal�lhat�.");
+            }
+
+            return Ok("Ment�s sikeres.");
         }
 
-        [HttpPost]
-        public IActionResult DeleteLunch([FromForm] int lunchID)
+        private int? GetIdByName(SQLiteConnection conn, string table, string name)
         {
-            string sql = "DELETE FROM Lunch WHERE LunchID = @LunchID";
-
-            using (var connection = DatabaseConnector.CreateNewConnection())
-            using (var cmd = new SQLiteCommand(sql, connection))
-            {
-                cmd.Parameters.AddWithValue("@LunchID", lunchID);
-                if (cmd.ExecuteNonQuery() == 0)
-                    return NotFound("Lunch entry not found");
-
-                return Ok("Lunch deleted successfully");
-            }
+            var cmd = new SQLiteCommand($"SELECT {table}ID FROM {table} WHERE Name = @name", conn);
+            cmd.Parameters.AddWithValue("@name", name);
+            var result = cmd.ExecuteScalar();
+            return result != null ? Convert.ToInt32(result) : (int?)null;
         }
+    }
+    public class DayMenuUpdateDto
+    {
+        public string Day { get; set; }
+        public string Soup { get; set; }
+        public string MainDish { get; set; }
+        public string Dessert { get; set; }
     }
 }

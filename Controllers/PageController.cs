@@ -22,23 +22,36 @@ namespace SchoolAPI.Controllers
             return base.Content(html, "text/html");
         }
         [HttpGet]
-        public ContentResult courses()
-        {
-            string role = RoleManager.CheckRole(Request.Cookies["id"]);
-            if (role == "") {
-                return base.Content("<script>window.location.href = '/';</script>", "text/html");
-            }
-            var html = System.IO.File.ReadAllText($"./assets/{role}/courses.html");
-            return base.Content(html, "text/html");
-        }
-        [HttpGet]
         public ContentResult timetable()
         {
             string role = RoleManager.CheckRole(Request.Cookies["id"]);
-            if (role == "") {
+            if (role == "")
+            {
                 return base.Content("<script>window.location.href = '/';</script>", "text/html");
             }
             var html = System.IO.File.ReadAllText($"./assets/{role}/timetable.html");
+            return base.Content(html, "text/html");
+        }
+        [HttpGet]
+        public ContentResult lunchmenupage()
+        {
+            string role = RoleManager.CheckRole(Request.Cookies["id"]);
+            if (role == "")
+            {
+                return base.Content("<script>window.location.href = '/';</script>", "text/html");
+            }
+            var html = System.IO.File.ReadAllText($"./assets/{role}/lunchmenupage.html");
+            return base.Content(html, "text/html");
+        }
+        [HttpGet]
+        public ContentResult courses()
+        {
+            string role = RoleManager.CheckRole(Request.Cookies["id"]);
+            if (role == "")
+            {
+                return base.Content("<script>window.location.href = '/';</script>", "text/html");
+            }
+            var html = System.IO.File.ReadAllText($"./assets/{role}/courses.html");
             return base.Content(html, "text/html");
         }
     }

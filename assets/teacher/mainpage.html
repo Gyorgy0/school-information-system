@@ -2,34 +2,32 @@
 <html>
 <head>
     <meta charset="utf-8" />
-<<<<<<< HEAD
-    <title>Verification Successful</title>
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
-=======
     <title>Főoldal</title>
->>>>>>> main
+        <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <h1>Ez az admin profil oldala</h1>
+    <h1>Ez a tanár profil oldala</h1>
     <p>Köszi, hogy az EduPage-ünket használod!</p>
     <button id="coursesBtn" onclick="courses()">Kurzusok</button>
+    <button id="timetableBtn" onclick="window.location.href = '/timetable'">Órarend</button>
+    <button id="lunchmenuBtn" onclick="window.location.href = '/lunchmenupage'">Étlap</button>
     <button id="logoutBtn" onclick="logout()">Kijelentkezés</button>
-<<<<<<< HEAD
     <div id="calendar" style="max-width:900px;margin:40px auto;"></div>
-=======
-    <button id="timetablebtn" onclick="window.location.href = '/timetable'">Órarend</button>
-
->>>>>>> main
 </body>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+</html>
 <script>
     function logout() {
-        $.post('/User/Logout')
-         .done(() => window.location.href = '/')
-         .fail(xhr => alert('Hiba a kijelentkezés során: ' + xhr.responseText));
-    }
-    function courses() {
+    $.post('/User/Logout')
+        .done(function (response) {
+            window.location.href = '/';
+        })
+        .fail(function (xhr) {
+            alert('Hiba a kijelentkezés során: ' + xhr.responseText);
+        });
+}
+function courses() {
         window.location.assign('/courses');
     }
     document.addEventListener('DOMContentLoaded', () => {
@@ -72,4 +70,3 @@
         calendar.render();
     });
 </script>
-</html>

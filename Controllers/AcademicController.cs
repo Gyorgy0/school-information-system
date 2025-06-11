@@ -64,7 +64,7 @@ namespace SchoolAPI.Controllers
                 }
             }
 
-            return Ok("Hiányzás sikeresen rögzítve");
+            return Ok("Hiï¿½nyzï¿½s sikeresen rï¿½gzï¿½tve");
         }
 
         [HttpPost]
@@ -84,7 +84,7 @@ namespace SchoolAPI.Controllers
                 }
             }
 
-            return Ok("Értékelés hozzáadva");
+            return Ok("ï¿½rtï¿½kelï¿½s hozzï¿½adva");
         }
 
         [HttpGet]
@@ -133,7 +133,7 @@ namespace SchoolAPI.Controllers
         {
             var averageResponse = GetStudentAverage(studentID) as OkObjectResult;
             if (averageResponse == null)
-                return BadRequest("Hiba történt az átlag kiszámításakor.");
+                return BadRequest("Hiba tï¿½rtï¿½nt az ï¿½tlag kiszï¿½mï¿½tï¿½sakor.");
 
             double average = Convert.ToDouble(averageResponse.Value);
 
@@ -187,7 +187,7 @@ namespace SchoolAPI.Controllers
             }
             else
             {
-                return BadRequest("Érvénytelen szerepkör vagy hiányzó azonosító.");
+                return BadRequest("ï¿½rvï¿½nytelen szerepkï¿½r vagy hiï¿½nyzï¿½ azonosï¿½tï¿½.");
             }
 
             var grades = new List<GradeModel>();
@@ -225,7 +225,7 @@ namespace SchoolAPI.Controllers
         public IActionResult AddWarningOrPraise(int studentID, string type, string description)
         {
             if (type != "Warning" && type != "Praise")
-                return BadRequest("Érvénytelen típus");
+                return BadRequest("ï¿½rvï¿½nytelen tï¿½pus");
 
             string sql = "INSERT INTO WarningsAndPraises (StudentID, Type, Description, Date) VALUES (@StudentID, @Type, @Description, @Date)";
 
@@ -241,7 +241,7 @@ namespace SchoolAPI.Controllers
                 }
             }
 
-            return Ok("Megrovó vagy dícséret hozzáadva");
+            return Ok("Megrovï¿½ vagy dï¿½csï¿½ret hozzï¿½adva");
         }
 
         [HttpPost]
@@ -262,7 +262,7 @@ namespace SchoolAPI.Controllers
                 }
             }
 
-            return Ok("Feladat sikeresen hozzáadva");
+            return Ok("Feladat sikeresen hozzï¿½adva");
         }
 
         [HttpGet]
@@ -364,7 +364,7 @@ namespace SchoolAPI.Controllers
                     var result = cmd.ExecuteScalar();
 
                     if (result == null)
-                        return BadRequest("Nem található ilyen tantárgy ezzel a tanárral az órarendben.");
+                        return BadRequest("Nem talï¿½lhatï¿½ ilyen tantï¿½rgy ezzel a tanï¿½rral az ï¿½rarendben.");
 
                     timetableID = Convert.ToInt32(result);
                 }
@@ -381,7 +381,7 @@ namespace SchoolAPI.Controllers
                 }
             }
 
-            return Ok("Feladat sikeresen hozzáadva");
+            return Ok("Feladat sikeresen hozzï¿½adva");
         }
 
         [HttpGet]
@@ -434,7 +434,7 @@ namespace SchoolAPI.Controllers
                 }
             }
 
-            return Ok("Témakör sikeresen hozzáadva");
+            return Ok("Tï¿½makï¿½r sikeresen hozzï¿½adva");
         }
     }
 }
