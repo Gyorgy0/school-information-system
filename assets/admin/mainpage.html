@@ -52,20 +52,7 @@ function courses() {
                     failureCallback();
                 });
             },
-            dateClick: info => {
-                const title = prompt('Enter event title:');
-                if (!title) return;
-                $.ajax({
-                    url: '/SchoolEvent/AddEvent',
-                    method: 'POST',
-                    data: {
-                        timetableID: 0,
-                        eventType: title,
-                        eventDate: info.dateStr,
-                        description: title
-                    }
-                }).done(() => calendar.refetchEvents());
-            }
+
         });
         calendar.render();
     });

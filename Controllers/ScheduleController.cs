@@ -97,7 +97,7 @@ namespace SchoolAPI.Controllers
         {
             if (CheckForConflicts(day, hour, subject, room, teacherID))
             {
-                return BadRequest("Az adott id�pontban �tk�z�s van a tan�r, tant�rgy, vagy terem miatt!");
+                return BadRequest("Az adott időpontban ütközés van a tanár, tantárgy, vagy terem miatt!");
             }
 
             string sql = "INSERT INTO Timetable (Day, DayCount, Hour, Subject, Room, TeacherID, ClassID) VALUES (@Day, @DayCount, @Hour, @Subject, @Room, @TeacherID, @ClassID)";
@@ -117,7 +117,7 @@ namespace SchoolAPI.Controllers
                 }
             }
 
-            return Ok("�rarend sikeresen l�trehozva");
+            return Ok("Órarend sikeresen létrehozva");
         }
 
         [HttpPost]
@@ -126,7 +126,7 @@ namespace SchoolAPI.Controllers
             if ((day != null || hour != null || subject != null || room != null || teacherID != null) &&
                 CheckForConflicts(day ?? "", hour ?? "", subject ?? "", room ?? "", teacherID ?? 0))
             {
-                return BadRequest("Az �j be�ll�t�sok �tk�z�st okoznak!");
+                return BadRequest("Az új beállítások ütközést okoznak!");
             }
 
             string sql = @"
@@ -151,9 +151,9 @@ namespace SchoolAPI.Controllers
                     cmd.Parameters.AddWithValue("@TeacherID", teacherID ?? (object)DBNull.Value);
 
                     if (cmd.ExecuteNonQuery() == 0)
-                        return NotFound("�rarend bejegyz�s nem tal�lhat�");
+                        return NotFound("Órarend bejegyzés nem található");
 
-                    return Ok("�rarend bejegyz�s sikeresen friss�tve");
+                    return Ok("Órarend bejegyzés sikeresen frissítve");
                 }
             }
         }
@@ -254,7 +254,7 @@ namespace SchoolAPI.Controllers
         [HttpGet]
         public IActionResult GetSubjectIdByName(string name)
         {
-            // Mivel nincs Subject t�bla, megkeress�k, hogy szerepel-e a tant�rgy a Timetable-ben
+            // Mivel nincs Subject tábla, megkeressük, hogy szerepel-e a tantárgy a Timetable-ben
             string sql = "SELECT DISTINCT Subject FROM Timetable WHERE Subject = @Name";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
@@ -264,9 +264,9 @@ namespace SchoolAPI.Controllers
                 var result = cmd.ExecuteScalar();
 
                 if (result == null)
-                    return NotFound("Nincs ilyen tant�rgy");
+                    return NotFound("Nincs ilyen tantárgy");
 
-                // Az ID-t gener�lni kell ugyan�gy, mint az el�z� met�dusban � itt egy egyszer� megold�s, hogy lek�rdezz�k az �sszes tant�rgyat �s megtal�ljuk az index�t
+                // Az ID-t generálni kell ugyanúgy, mint az előző metódusban és itt egy egyszerű megoldás, hogy lekérdezzük az összes tantárgyat és megtaláljuk az indexét
                 string sqlAll = "SELECT DISTINCT Subject FROM Timetable ORDER BY Subject";
                 List<string> allSubjects = new List<string>();
 
@@ -279,7 +279,7 @@ namespace SchoolAPI.Controllers
                     }
                 }
 
-                int subjectId = allSubjects.IndexOf(name) + 1; // +1 mert az ID-k 1-t�l kezd�dnek
+                int subjectId = allSubjects.IndexOf(name) + 1; // +1 mert az ID-k 1-től kezdődnek
 
                 return Json(new { subjectID = subjectId });
             }

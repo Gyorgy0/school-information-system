@@ -23,16 +23,16 @@ namespace SchoolAPI.Controllers
                     Soup.Name AS Soup,
                     MainDish.Name AS MainDish,
                     Dessert.Name AS Dessert
-                FROM Lunch
-                JOIN Soup ON Lunch.SoupID = Soup.SoupID
-                JOIN MainDish ON Lunch.MainDishID = MainDish.MainDishID
-                JOIN Dessert ON Lunch.DessertID = Dessert.DessertID
-                ORDER BY CASE 
-                    WHEN Lunch.Day = 'H�tf�' THEN 1
+                    FROM Lunch
+                    JOIN Soup ON Lunch.SoupID = Soup.SoupID
+                    JOIN MainDish ON Lunch.MainDishID = MainDish.MainDishID
+                    JOIN Dessert ON Lunch.DessertID = Dessert.DessertID
+                    ORDER BY CASE 
+                    WHEN Lunch.Day = 'Hétfő' THEN 1
                     WHEN Lunch.Day = 'Kedd' THEN 2
                     WHEN Lunch.Day = 'Szerda' THEN 3
-                    WHEN Lunch.Day = 'Cs�t�rt�k' THEN 4
-                    WHEN Lunch.Day = 'P�ntek' THEN 5
+                    WHEN Lunch.Day = 'Csütörtök' THEN 4
+                    WHEN Lunch.Day = 'Péntek' THEN 5
                     ELSE 6 END";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
@@ -74,7 +74,7 @@ namespace SchoolAPI.Controllers
 
             if (soupId == null || mainDishId == null || dessertId == null)
             {
-                return BadRequest("�tel nem tal�lhat� az adatb�zisban.");
+                return BadRequest("Étel nem található az adatbázisban.");
             }
 
             var cmd = new SQLiteCommand(@"
@@ -91,10 +91,10 @@ namespace SchoolAPI.Controllers
 
             if (rowsAffected == 0)
             {
-                return NotFound("A megadott nap nem tal�lhat�.");
+                return NotFound("A megadott nap nem található.");
             }
 
-            return Ok("Ment�s sikeres.");
+            return Ok("Mentés sikeres.");
         }
 
         private int? GetIdByName(SQLiteConnection conn, string table, string name)

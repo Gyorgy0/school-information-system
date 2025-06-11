@@ -12,7 +12,7 @@ public class UserController : Controller
     {
         using (var connection = DatabaseConnector.CreateNewConnection())
         {
-            // Ellenőrizz�k, hogy a felhaszn�l�n�v m�r l�tezik-e
+            // Ellenőrizzük, hogy a felhasználónév már létezik-e
             string checkUserSql = "SELECT COUNT(*) FROM User WHERE Username = @Username";
             using (var checkCmd = new SQLiteCommand(checkUserSql, connection))
             {
@@ -24,7 +24,7 @@ public class UserController : Controller
                 }
             }
 
-            // Jelsz� hashel�se �s ment�se
+            // Jelszó hashelése és mentése
             string salt = PasswordManager.GenerateSalt();
             string hashedPassword = PasswordManager.GeneratePasswordHash(password, salt);
 
@@ -48,7 +48,7 @@ public class UserController : Controller
         Int64 userID = -1;
         string? role = null;
 
-        // Csak az olvas�sra haszn�ljuk a DB kapcsolatot, majd bez�rjuk
+        // Csak az olvasásra használjuk a DB kapcsolatot, majd bezárjuk
         using (SQLiteConnection connection = DatabaseConnector.CreateNewConnection())
         {
             // Megnézzük, hogy be van-e jelentkezve már az éppen bejelentkezni kívánó felhasználó
@@ -106,7 +106,7 @@ public class UserController : Controller
         {
             return Unauthorized("Helytelen felhasználónév vagy jelszó!");
         }
-        // Itt m�r nincs megnyitva m�sik kapcsolat, mehet az �r�s
+        // Itt már nincs megnyitva másik kapcsolat, mehet az írás
         SessionManager.InvalidateAllSessions(userID);
         string sessionCookie = SessionManager.CreateSession(userID);
 
@@ -118,7 +118,7 @@ public class UserController : Controller
             Expires = DateTime.UtcNow.AddHours(1)
         });
 
-        return Ok(new { message = "Login successful", role = role });
+        return Ok(new { message = "Bejelentkezés sikeres!", role = role });
     }
 
     [HttpPost]
@@ -131,7 +131,7 @@ public class UserController : Controller
         }
         SessionManager.InvalidateSession(currentsessioncookie);
         Response.Cookies.Delete("id");
-        return Ok("Logout successful");
+        return Ok("Kijelentkezés sikeres!");
     }
 
     static public bool IsLoggedIn(string SessionCookie)
@@ -152,7 +152,7 @@ public class UserController : Controller
         catch (UnauthorizedAccessException)
         {
             Response.Cookies.Delete("id");
-            return Unauthorized("Session expired or invalid");
+            return Unauthorized("Munkamenet lejárt, vagy érvénytelen.");
         }
     }
 
