@@ -69,7 +69,7 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
     "`Subject` TEXT NOT NULL, " +
     "`GradeValue` INTEGER NOT NULL, " +
     "`Date` TEXT NOT NULL, " +
-    "FOREIGN KEY (`UserID`) REFERENCES `Users` (`UserID`));" +
+    "FOREIGN KEY (`UserID`) REFERENCES `User` (`UserID`));" +
 
     "CREATE TABLE IF NOT EXISTS `Homework` (" +
     "`HomeworkID` INTEGER NOT NULL PRIMARY KEY, " +
@@ -77,7 +77,7 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
     "`Subject` TEXT NOT NULL, " +
     "`Description` TEXT NOT NULL, " +
     "`DueDate` TEXT NOT NULL, " +
-    "FOREIGN KEY (`UserID`) REFERENCES `Users` (`UserID`));" +
+    "FOREIGN KEY (`UserID`) REFERENCES `User` (`UserID`));" +
 
     "CREATE TABLE IF NOT EXISTS `Message` (" +
     "`MessageID` INTEGER NOT NULL PRIMARY KEY, " +
@@ -85,8 +85,8 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
     "`ReceiverID` INTEGER NOT NULL, " +
     "`MessageText` TEXT NOT NULL, " +
     "`Timestamp` TEXT NOT NULL, " +
-    "FOREIGN KEY (`SenderID`) REFERENCES `Users` (`UserID`), " +
-    "FOREIGN KEY (`ReceiverID`) REFERENCES `Users` (`UserID`));" +
+    "FOREIGN KEY (`SenderID`) REFERENCES `User` (`UserID`), " +
+    "FOREIGN KEY (`ReceiverID`) REFERENCES `User` (`UserID`));" +
 
     "CREATE TABLE IF NOT EXISTS `Timetable` (" +
     "`TimetableID` INTEGER NOT NULL PRIMARY KEY, " +
@@ -95,12 +95,67 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
     "`Subject` TEXT NOT NULL, " +
     "`Room` TEXT NOT NULL, " +
     "`TeacherID` INTEGER NOT NULL, " +
-    "FOREIGN KEY (`TeacherID`) REFERENCES `Users` (`UserID`));" +
+    "FOREIGN KEY (`TeacherID`) REFERENCES `User` (`UserID`));" +
 
     "CREATE TABLE IF NOT EXISTS `Lunch` (" +
     "`LunchID` INTEGER NOT NULL PRIMARY KEY, " +
     "`Day` TEXT NOT NULL, " +
-    "`Meal` TEXT NOT NULL);";
+    "`Meal` TEXT NOT NULL);" +
+
+    "CREATE TABLE IF NOT EXISTS `Course` (" +
+    "CourseID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    "Name TEXT NOT NULL, " +
+    "TeacherID INTEGER NOT NULL, " +
+    "Visible INTEGER NOT NULL DEFAULT 1, " +
+    "FOREIGN KEY(TeacherID) REFERENCES `User` (`UserID`));" +
+
+    "CREATE TABLE IF NOT EXISTS `CourseStudent` (" +
+    "CourseID INTEGER NOT NULL, " +
+    "StudentID INTEGER NOT NULL, " +
+    "EnrolledAt DATETIME NOT NULL DEFAULT (datetime('now')), " +
+    "PRIMARY KEY(CourseID,StudentID), " +
+    "FOREIGN KEY(CourseID) REFERENCES Course(CourseID), " +
+    "FOREIGN KEY(StudentID) REFERENCES `User` (`UserID`));" +
+
+    "CREATE TABLE IF NOT EXISTS `CourseMaterial` (" +
+    "MaterialID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    "CourseID INTEGER NOT NULL, " +
+    "Title TEXT NOT NULL, " +
+    "Url TEXT, " +
+    "UploadedAt DATETIME NOT NULL DEFAULT (datetime('now')), " +
+    "FOREIGN KEY(CourseID) REFERENCES `Course`(`CourseID`));" +
+
+    "CREATE TABLE IF NOT EXISTS `CourseEntries` (" +
+    "`EntryID`    INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    "`CourseID`   INTEGER NOT NULL, " +
+    "`Content`    TEXT    NOT NULL, " +
+    "`CreatedAt`  DATETIME NOT NULL DEFAULT (datetime('now')), " +
+    "FOREIGN KEY(`CourseID`) REFERENCES `Course`(`CourseID`)" +
+    ");" +
+
+    "CREATE TABLE IF NOT EXISTS `CourseTest` (" +
+    "TestID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    "CourseID INTEGER NOT NULL, " +
+    "Title TEXT NOT NULL, " +
+    "Description TEXT, " +
+    "DueDate DATETIME, " +
+    "FOREIGN KEY(CourseID) REFERENCES `Course`(`CourseID`));" +
+
+    "CREATE TABLE IF NOT EXISTS `Assignment` (" +
+    "AssignmentID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    "CourseID INTEGER NOT NULL, " +
+    "Title TEXT NOT NULL, " +
+    "Description TEXT, " +
+    "DueDate DATETIME, " +
+    "FOREIGN KEY(CourseID) REFERENCES `Course`(`CourseID`));" +
+
+    "CREATE TABLE IF NOT EXISTS `SchoolEvent` (" +
+    "EventID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    "TimetableID INTEGER NOT NULL, " +
+    "EventType TEXT NOT NULL, " +
+    "EventDate DATETIME NOT NULL, " +
+    "Description TEXT" +
+    ");";
 
 command.ExecuteNonQuery();
 command.Dispose();

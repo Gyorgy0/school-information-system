@@ -21,14 +21,23 @@ namespace SchoolAPI.Controllers
             var html = System.IO.File.ReadAllText($"./assets/{role}/mainpage.html");
             return base.Content(html, "text/html");
         }
+<<<<<<< HEAD
+        
+        public ContentResult courses()
+=======
         [HttpGet]
         public ContentResult timetable()
+>>>>>>> main
         {
             string role = RoleManager.CheckRole(Request.Cookies["id"]);
             if (role == "") {
                 return base.Content("<script>window.location.href = '/';</script>", "text/html");
             }
+<<<<<<< HEAD
+            var html = System.IO.File.ReadAllText($"./assets/{role}/courses.html");
+=======
             var html = System.IO.File.ReadAllText($"./assets/{role}/timetable.html");
+>>>>>>> main
             return base.Content(html, "text/html");
         }
     }

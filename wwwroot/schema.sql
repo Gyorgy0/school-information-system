@@ -79,3 +79,69 @@ CREATE TABLE IF NOT EXISTS `Lunch` (
     `Day` TEXT NOT NULL,
     `Meal` TEXT NOT NULL
 );
+
+-- Courses
+CREATE TABLE IF NOT EXISTS `Course` (
+    `CourseID` INTEGER PRIMARY KEY AUTOINCREMENT,
+    `Name` TEXT NOT NULL,
+    `TeacherID` INTEGER NOT NULL,
+    `Visible` INTEGER NOT NULL DEFAULT 1, -- 1=public, 0=private
+    FOREIGN KEY (`TeacherID`) REFERENCES `User`(`UserID`)
+);
+
+-- Enrollments
+CREATE TABLE IF NOT EXISTS `CourseStudent` (
+    `CourseID` INTEGER NOT NULL,
+    `StudentID` INTEGER NOT NULL,
+    `EnrolledAt` DATETIME NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (`CourseID`,`StudentID`),
+    FOREIGN KEY (`CourseID`) REFERENCES `Course`(`CourseID`),
+    FOREIGN KEY (`StudentID`) REFERENCES `User`(`UserID`)
+);
+
+-- Materials
+CREATE TABLE IF NOT EXISTS `CourseMaterial` (
+    `MaterialID` INTEGER PRIMARY KEY AUTOINCREMENT,
+    `CourseID` INTEGER NOT NULL,
+    `Title` TEXT NOT NULL,
+    `Url` TEXT,
+    `UploadedAt` DATETIME NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (`CourseID`) REFERENCES `Course`(`CourseID`)
+);
+
+CREATE TABLE IF NOT EXISTS `CourseEntries` (
+  `EntryID`    INTEGER PRIMARY KEY AUTOINCREMENT,
+  `CourseID`   INTEGER NOT NULL,
+  `Content`    TEXT    NOT NULL,
+  `CreatedAt`  DATETIME NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (`CourseID`) REFERENCES `Course`(`CourseID`)
+);
+
+-- Tests
+CREATE TABLE IF NOT EXISTS `CourseTest` (
+    `TestID` INTEGER PRIMARY KEY AUTOINCREMENT,
+    `CourseID` INTEGER NOT NULL,
+    `Title` TEXT NOT NULL,
+    `Description` TEXT,
+    `DueDate` DATETIME,
+    FOREIGN KEY (`CourseID`) REFERENCES `Course`(`CourseID`)
+);
+
+-- Assignments / Projects
+CREATE TABLE IF NOT EXISTS `Assignment` (
+    `AssignmentID` INTEGER PRIMARY KEY AUTOINCREMENT,
+    `CourseID` INTEGER NOT NULL,
+    `Title` TEXT NOT NULL,
+    `Description` TEXT,
+    `DueDate` DATETIME,
+    FOREIGN KEY (`CourseID`) REFERENCES `Course`(`CourseID`)
+);
+
+-- Create Events table
+CREATE TABLE IF NOT EXISTS `SchoolEvent` (
+    `EventID`    INTEGER PRIMARY KEY AUTOINCREMENT,
+    `TimetableID` INTEGER NOT NULL,
+    `EventType`  TEXT NOT NULL,
+    `EventDate`  DATETIME NOT NULL,
+    `Description` TEXT
+);

@@ -1641,24 +1641,31 @@
     ]
   },
   "packageFolders": {
-    "/home/gyorgy/.nuget/packages/": {}
+    "C:\\Users\\szaka\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/gyorgy/Desktop/C# projektek/school-information-system/Edupage.csproj",
+      "projectUniqueName": "C:\\Users\\szaka\\Documents\\selye\\annus\\school-information-system\\Edupage.csproj",
       "projectName": "Edupage",
-      "projectPath": "/home/gyorgy/Desktop/C# projektek/school-information-system/Edupage.csproj",
-      "packagesPath": "/home/gyorgy/.nuget/packages/",
-      "outputPath": "/home/gyorgy/Desktop/C# projektek/school-information-system/obj/",
+      "projectPath": "C:\\Users\\szaka\\Documents\\selye\\annus\\school-information-system\\Edupage.csproj",
+      "packagesPath": "C:\\Users\\szaka\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\szaka\\Documents\\selye\\annus\\school-information-system\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/home/gyorgy/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\szaka\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -1671,7 +1678,13 @@
         "warnAsError": [
           "NU1605"
         ]
-      }
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      },
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net8.0": {
@@ -1705,7 +1718,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.116/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Courses</title>
+  <style>
+    table { border-collapse: collapse; width: 100% }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left }
+    .entries-row { display: none; background: #f9f9f9 }
+    .entries-row ul { margin: 5px 0 10px 20px; padding: 0 }
+    .entries-row li { list-style: disc inside }
+  </style>
+</head>
+<body>
+  <h1>All Courses</h1>
+  <table id="coursesTable">
+    <thead>
+      <tr>
+        <th>ID</th><th>Name</th><th>TeacherID</th><th>Visible</th><th>Entries</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const creds = { credentials: 'include' };
+
+    function loadCourses() {
+      fetch('/Course/GetCourses', creds)
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(data => {
+          const tbody = document.querySelector('#coursesTable tbody');
+          tbody.innerHTML = '';
+          data.forEach(c => {
+            const tr = document.createElement('tr');
+            tr.dataset.id = c.courseID;
+            tr.innerHTML = `
+              <td>${c.courseID}</td>
+              <td>${c.name}</td>
+              <td>${c.teacherID}</td>
+              <td>${c.visible}</td>
+              <td><button class="toggle-btn" data-id="${c.courseID}">Show Entries</button></td>`;
+            tbody.appendChild(tr);
+
+            const er = document.createElement('tr');
+            er.className = 'entries-row';
+            er.innerHTML = `
+              <td colspan="5">
+                <ul id="entries-${c.courseID}"></ul>
+              </td>`;
+            tbody.appendChild(er);
+          });
+        })
+        .then(attachHandlers);
+    }
+
+    function attachHandlers() {
+      document.querySelectorAll('.toggle-btn')
+        .forEach(b => b.onclick = toggleEntries);
+    }
+
+    function toggleEntries(e) {
+      e.stopPropagation();
+      const id = this.dataset.id;
+      const er = this.closest('tr').nextElementSibling;
+      if (er.style.display === 'table-row') {
+        er.style.display = 'none';
+        this.textContent = 'Show Entries';
+      } else {
+        loadEntries(id).then(() => {
+          er.style.display = 'table-row';
+          this.textContent = 'Hide Entries';
+        });
+      }
+    }
+
+    function loadEntries(courseID) {
+      return fetch(`/Course/GetCourseEntries?courseId=${courseID}`, creds)
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(list => {
+          const ul = document.getElementById(`entries-${courseID}`);
+          ul.innerHTML = '';
+          list.forEach(text => {
+            const li = document.createElement('li');
+            li.textContent = text;
+            ul.appendChild(li);
+          });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadCourses);
+  </script>
+</body>
+</html>
