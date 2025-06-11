@@ -53,6 +53,16 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
     "`ModifyCourses` INTEGER NOT NULL," +
     "`ModifyLunchTable` INTEGER NOT NULL);" +
 
+    "CREATE TABLE IF NOT EXISTS `Subjects` (" +
+    "`SubjectID` INTEGER NOT NULL PRIMARY KEY, " +
+    "`Name` TEXT NOT NULL);" +
+
+    "CREATE TABLE IF NOT EXISTS `Classes` (" +
+    "`ClassID` INTEGER NOT NULL PRIMARY KEY, " +
+    "`Name` TEXT NOT NULL, " +
+    "`StudentID` INTEGER NOT NULL, " +
+    "`StudentName` TEXT NOT NULL);" +
+
     "CREATE TABLE IF NOT EXISTS `Grade` (" +
     "`GradeID` INTEGER NOT NULL PRIMARY KEY, " +
     "`UserID` INTEGER NOT NULL, " +

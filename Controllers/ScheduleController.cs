@@ -73,6 +73,23 @@ namespace SchoolAPI.Controllers
 
             return Json(entry);
         }
+        [HttpPost]
+        public IActionResult CreateSubject([FromForm] int subjectId, [FromForm] string subjectname)
+        {
+            string sql = "INSERT INTO Subjects (SubjectID, Name) VALUES (@SubjectID, @Name)";
+
+            using (var connection = DatabaseConnector.CreateNewConnection())
+            {
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.Parameters.AddWithValue("@SubjectID", subjectId);
+                    cmd.Parameters.AddWithValue("@Name", subjectname);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            return Ok();
+        }
 
         [HttpPost]
         public IActionResult CreateTimetable([FromForm] string day, [FromForm] string hour, [FromForm] string subject, [FromForm] string room, [FromForm] int teacherID, [FromForm] int classID)
@@ -212,22 +229,23 @@ namespace SchoolAPI.Controllers
         public IActionResult GetSubjects()
         {
             List<SubjectModel> subjects = new List<SubjectModel>();
-            string sql = "SELECT SubjectID, Name FROM Subject ORDER BY Name";
+            string sql = "SELECT SubjectID, Name FROM Subjects ORDER BY SubjectID";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
-            using (var cmd = new SQLiteCommand(sql, connection))
             {
-                var reader = cmd.ExecuteReader();
-                while (reader.Read())
+                using (var cmd = new SQLiteCommand(sql, connection))
                 {
-                    subjects.Add(new SubjectModel
+                    var reader = cmd.ExecuteReader();
+                    while (reader.Read())
                     {
-                        SubjectID = reader.GetInt32(0),
-                        Name = reader.GetString(1)
-                    });
+                        subjects.Add(new SubjectModel
+                        {
+                            SubjectID = reader.GetInt32(0),
+                            Name = reader.GetString(1)
+                        });
+                    }
                 }
             }
-
             return Json(subjects);
         }
 
