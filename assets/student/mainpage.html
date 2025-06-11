@@ -3,26 +3,51 @@
 <head>
     <meta charset="utf-8" />
     <title>Verification Successful</title>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <h1>Ez a student profil oldala</h1>
+    <h1>Ez az admin profil oldala</h1>
     <p>Köszi, hogy az EduPage-ünket használod!</p>
     <button id="coursesBtn" onclick="courses()">Kurzusok</button>
     <button id="logoutBtn" onclick="logout()">Kijelentkezés</button>
+    <div id="calendar" style="max-width:900px;margin:40px auto;"></div>
 </body>
-</html>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 <script>
     function logout() {
-    $.post('/User/Logout')
-        .done(function (response) {
-            window.location.href = '/';
-        })
-        .fail(function (xhr) {
-            alert('Hiba a kijelentkezés során: ' + xhr.responseText);
-        });
-}
+        $.post('/User/Logout')
+         .done(() => window.location.href = '/')
+         .fail(xhr => alert('Hiba a kijelentkezés során: ' + xhr.responseText));
+    }
     function courses() {
-    window.location.assign('/courses')
-}
+        window.location.assign('/courses');
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        const calendarEl = document.getElementById('calendar');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            selectable: true,
+            events: function(fetchInfo, successCallback, failureCallback) {
+                $.ajax({
+                    url: '/SchoolEvent/GetEvents',
+                    method: 'GET',
+                    dataType: 'json'
+                }).done(data => {
+                    const evts = data.map(e => ({
+                        id: e.eventID,
+                        title: e.eventType,
+                        start: e.eventDate,
+                        description: e.description
+                    }));
+                    successCallback(evts);
+                }).fail(() => {
+                    failureCallback();
+                });
+            },
+
+        });
+        calendar.render();
+    });
 </script>
+</html>

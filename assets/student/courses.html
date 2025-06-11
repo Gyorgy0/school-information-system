@@ -2,14 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <title>Courses (Admin)</title>
+  <title>Courses</title>
   <style>
-    table{border-collapse:collapse;width:100%}
-    th,td{border:1px solid #ccc;padding:8px;text-align:left}
-    form{margin-top:20px}
-    label{display:inline-block;width:80px}
-    .entry-list{margin:10px 0;padding:0 20px}
-    .entry-item{border-top:1px solid #eee;padding:5px 0}
+    table { border-collapse: collapse; width: 100% }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left }
+    .entries-row { display: none; background: #f9f9f9 }
+    .entries-row ul { margin: 5px 0 10px 20px; padding: 0 }
+    .entries-row li { list-style: disc inside }
   </style>
 </head>
 <body>
@@ -17,28 +16,19 @@
   <table id="coursesTable">
     <thead>
       <tr>
-        <th>ID</th><th>Name</th><th>TeacherID</th><th>Visible</th>
-        <th>Actions</th>
+        <th>ID</th><th>Name</th><th>TeacherID</th><th>Visible</th><th>Entries</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
-
-  <h2>Create Course</h2>
-  <form id="createCourseForm">
-    <label>Name:</label><input id="courseName" required/><br/>
-    <label>TeacherID:</label><input id="courseTeacherId" type="number" required/><br/>
-    <label>Visible:</label><input id="courseVisible" type="checkbox" checked/><br/>
-    <button type="submit">Create</button>
-  </form>
 
   <script>
     const creds = { credentials: 'include' };
 
     function loadCourses() {
       fetch('/Course/GetCourses', creds)
-        .then(r=>r.ok?r.json():Promise.reject())
-        .then(data=>{
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(data => {
           const tbody = document.querySelector('#coursesTable tbody');
           tbody.innerHTML = '';
           data.forEach(c => {
@@ -49,130 +39,56 @@
               <td>${c.name}</td>
               <td>${c.teacherID}</td>
               <td>${c.visible}</td>
-              <td>
-                <button class="edit-btn">Edit</button>
-                <button class="delete-btn">Delete</button>
-              </td>`;
+              <td><button class="toggle-btn" data-id="${c.courseID}">Show Entries</button></td>`;
             tbody.appendChild(tr);
 
-            // detail row
-            const detailTr = document.createElement('tr');
-            detailTr.classList.add('detail-row');
-            detailTr.style.display = 'none';
-            detailTr.innerHTML = `<td colspan="5">
-              <div class="entry-list" id="entries-${c.courseID}"></div>
-              <form class="add-entry-form">
-                <label>New Entry:</label>
-                <input type="text" name="text" required/>
-                <button type="submit">Add</button>
-              </form>
-            </td>`;
-            tbody.appendChild(detailTr);
+            const er = document.createElement('tr');
+            er.className = 'entries-row';
+            er.innerHTML = `
+              <td colspan="5">
+                <ul id="entries-${c.courseID}"></ul>
+              </td>`;
+            tbody.appendChild(er);
           });
         })
-        .then(() => attachRowHandlers());
+        .then(attachHandlers);
     }
 
-    function deleteCourse(e) {
+    function attachHandlers() {
+      document.querySelectorAll('.toggle-btn')
+        .forEach(b => b.onclick = toggleEntries);
+    }
+
+    function toggleEntries(e) {
       e.stopPropagation();
-      const id = this.closest('tr').dataset.id;
-      const f = new FormData();
-      f.append('id', id);
-      fetch('/Course/DeleteCourse', {
-        method: 'POST',
-        ...creds,
-        body: f
-      }).then(() => loadCourses());
-    }
-
-    function attachRowHandlers() {
-      document.querySelectorAll('#coursesTable .delete-btn')
-        .forEach(btn => btn.onclick = deleteCourse);
-      document.querySelectorAll('#coursesTable .edit-btn')
-        .forEach(btn => btn.onclick = editCourse);
-      document.querySelectorAll('#coursesTable tr[data-id]')
-        .forEach(tr => tr.onclick = toggleDetails);
-      document.querySelectorAll('.add-entry-form')
-        .forEach(f => f.onsubmit = addEntry);
-    }
-
-    function editCourse(e) {
-      e.stopPropagation();
-      const tr = this.closest('tr');
-      const courseID = tr.dataset.id;
-      const name     = prompt('Name',     tr.children[1].textContent);
-      const teacherID= prompt('TeacherID',tr.children[2].textContent);
-      const visible  = confirm('Visible?');
-
-      if (!name || teacherID === null) return;
-
-      const f = new FormData();
-      f.append('courseID',  courseID);
-      f.append('name',      name);
-      f.append('teacherID', teacherID);
-      f.append('visible',   visible);
-
-      fetch('/Course/EditCourse', {
-        method: 'POST',
-        credentials: 'include',
-        body: f
-      }).then(() => loadCourses());
-    }
-
-    document.querySelectorAll('.edit-btn')
-      .forEach(btn => btn.addEventListener('click', editCourse));
-
-    function toggleDetails(e) {
-      if (e.target.tagName==='BUTTON') return;
-      const tr = this;
-      const detail = tr.nextElementSibling;
-      const id = tr.dataset.id;
-      if(detail.style.display==='none') {
-        loadEntries(id).then(()=> detail.style.display = '');
+      const id = this.dataset.id;
+      const er = this.closest('tr').nextElementSibling;
+      if (er.style.display === 'table-row') {
+        er.style.display = 'none';
+        this.textContent = 'Show Entries';
       } else {
-        detail.style.display = 'none';
+        loadEntries(id).then(() => {
+          er.style.display = 'table-row';
+          this.textContent = 'Hide Entries';
+        });
       }
     }
 
     function loadEntries(courseID) {
-      return fetch(`/Course/GetEntries?courseID=${courseID}`, creds)
-        .then(r=>r.ok?r.json():Promise.reject())
-        .then(entries=>{
-          const div = document.getElementById(`entries-${courseID}`);
-          div.innerHTML = '';
-          entries.forEach(e=>{
-            const d = document.createElement('div');
-            d.className = 'entry-item';
-            d.textContent = e.text;
-            div.appendChild(d);
+      return fetch(`/Course/GetCourseEntries?courseId=${courseID}`, creds)
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(list => {
+          const ul = document.getElementById(`entries-${courseID}`);
+          ul.innerHTML = '';
+          list.forEach(text => {
+            const li = document.createElement('li');
+            li.textContent = text;
+            ul.appendChild(li);
           });
         });
     }
 
-    function addEntry(e) {
-      e.preventDefault();
-      const form = e.target;
-      const courseID = form.closest('tr').previousElementSibling.dataset.id;
-      const text = form.text.value;
-      const f = new FormData();
-      f.append('courseID', courseID);
-      f.append('text', text);
-      fetch('/Course/AddEntry', {method:'POST', ...creds, body: f})
-        .then(()=> loadEntries(courseID))
-        .then(()=> form.reset());
-    }
-
-    document.getElementById('createCourseForm').addEventListener('submit', e=>{
-      e.preventDefault();
-      const f=new FormData();
-      f.append('name',document.getElementById('courseName').value);
-      f.append('teacherID',document.getElementById('courseTeacherId').value);
-      f.append('visible',document.getElementById('courseVisible').checked);
-      fetch('/Course/CreateCourse',{method:'POST',...creds,body:f})
-        .then(()=>{ loadCourses(); e.target.reset(); });
-    });
-
-    loadCourses();
+    document.addEventListener('DOMContentLoaded', loadCourses);
   </script>
 </body>
 </html>

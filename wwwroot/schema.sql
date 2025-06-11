@@ -136,3 +136,12 @@ CREATE TABLE IF NOT EXISTS `Assignment` (
     `DueDate` DATETIME,
     FOREIGN KEY (`CourseID`) REFERENCES `Course`(`CourseID`)
 );
+
+-- Create Events table
+CREATE TABLE IF NOT EXISTS `SchoolEvent` (
+    `EventID`    INTEGER PRIMARY KEY AUTOINCREMENT,
+    `TimetableID` INTEGER NOT NULL,
+    `EventType`  TEXT NOT NULL,
+    `EventDate`  DATETIME NOT NULL,
+    `Description` TEXT
+);

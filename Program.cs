@@ -137,7 +137,15 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
     "Title TEXT NOT NULL, " +
     "Description TEXT, " +
     "DueDate DATETIME, " +
-    "FOREIGN KEY(CourseID) REFERENCES `Course`(`CourseID`));";
+    "FOREIGN KEY(CourseID) REFERENCES `Course`(`CourseID`));" +
+
+    "CREATE TABLE IF NOT EXISTS `SchoolEvent` (" +
+    "EventID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    "TimetableID INTEGER NOT NULL, " +
+    "EventType TEXT NOT NULL, " +
+    "EventDate DATETIME NOT NULL, " +
+    "Description TEXT" +
+    ");";
 
 command.ExecuteNonQuery();
 command.Dispose();
