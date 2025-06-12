@@ -157,15 +157,15 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
 
     "CREATE TABLE IF NOT EXISTS `Soup` (" +
     "`SoupID` INTEGER PRIMARY KEY AUTOINCREMENT, " +
-    "`Name` TEXT NOT NULL);" +
+    "`Name` TEXT NOT NULL UNIQUE);" +
 
     "CREATE TABLE IF NOT EXISTS `MainDish` (" +
     "`MainDishID` INTEGER PRIMARY KEY AUTOINCREMENT, " +
-    "`Name` TEXT NOT NULL);" +
+    "`Name` TEXT NOT NULL UNIQUE);" +
 
     "CREATE TABLE IF NOT EXISTS `Dessert` (" +
     "`DessertID` INTEGER PRIMARY KEY AUTOINCREMENT, " +
-    "`Name` TEXT NOT NULL);" +
+    "`Name` TEXT NOT NULL UNIQUE);" +
 
     "CREATE TABLE IF NOT EXISTS `Lunch` (" +
     "`LunchID` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
