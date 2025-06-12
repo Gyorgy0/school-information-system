@@ -97,6 +97,102 @@ namespace SchoolAPI.Controllers
             return Ok("Mentés sikeres.");
         }
 
+        [HttpPost]
+        public IActionResult AddFoodItem([FromBody] AddFoodDto newItem)
+        {
+            using var conn = DatabaseConnector.CreateNewConnection();
+
+            SQLiteCommand cmd;
+
+            if (newItem.Type == "Soup")
+                cmd = new SQLiteCommand("INSERT INTO Soup (Name) VALUES (@name)", conn);
+            else if (newItem.Type == "MainDish")
+                cmd = new SQLiteCommand("INSERT INTO MainDish (Name) VALUES (@name)", conn);
+            else if (newItem.Type == "Dessert")
+                cmd = new SQLiteCommand("INSERT INTO Dessert (Name) VALUES (@name)", conn);
+            else
+                return BadRequest("Érvénytelen kategória.");
+
+            cmd.Parameters.AddWithValue("@name", newItem.Name);
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+                return Ok("Sikeres hozzáadás.");
+            }
+            catch (SQLiteException ex) when (ex.ResultCode == SQLiteErrorCode.Constraint)
+            {
+                return BadRequest("Ez az étel már létezik.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Hiba: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        public IActionResult DeleteFoodItem([FromBody] AddFoodDto itemToDelete)
+        {
+            using var conn = DatabaseConnector.CreateNewConnection();
+
+            string table = itemToDelete.Type switch
+            {
+                "Soup" => "Soup",
+                "MainDish" => "MainDish",
+                "Dessert" => "Dessert",
+                _ => null
+            };
+
+            if (table == null)
+                return BadRequest("Érvénytelen kategória.");
+
+            // Delete command
+            var cmd = new SQLiteCommand($"DELETE FROM {table} WHERE Name = @name", conn);
+            cmd.Parameters.AddWithValue("@name", itemToDelete.Name);
+
+            try
+            {
+                int rowsAffected = cmd.ExecuteNonQuery();
+                if (rowsAffected == 0)
+                    return NotFound("Nem található az étel a megadott kategóriában.");
+
+                return Ok("Sikeres törlés.");
+            }
+            catch (SQLiteException ex)
+            {
+                return BadRequest("Hiba történt törlés közben: " + ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public IActionResult GetFoodOptions()
+        {
+            using var conn = DatabaseConnector.CreateNewConnection();
+
+            var soups = new List<string>();
+            var mainDishes = new List<string>();
+            var desserts = new List<string>();
+
+            using (var cmd = new SQLiteCommand("SELECT Name FROM Soup", conn))
+            using (var reader = cmd.ExecuteReader())
+                while (reader.Read()) soups.Add(reader.GetString(0));
+
+            using (var cmd = new SQLiteCommand("SELECT Name FROM MainDish", conn))
+            using (var reader = cmd.ExecuteReader())
+                while (reader.Read()) mainDishes.Add(reader.GetString(0));
+
+            using (var cmd = new SQLiteCommand("SELECT Name FROM Dessert", conn))
+            using (var reader = cmd.ExecuteReader())
+                while (reader.Read()) desserts.Add(reader.GetString(0));
+
+            return Ok(new
+            {
+                Soups = soups,
+                MainDishes = mainDishes,
+                Desserts = desserts
+            });
+        }
+
         private int? GetIdByName(SQLiteConnection conn, string table, string name)
         {
             var cmd = new SQLiteCommand($"SELECT {table}ID FROM {table} WHERE Name = @name", conn);
@@ -105,11 +201,18 @@ namespace SchoolAPI.Controllers
             return result != null ? Convert.ToInt32(result) : (int?)null;
         }
     }
+
     public class DayMenuUpdateDto
     {
         public string Day { get; set; }
         public string Soup { get; set; }
         public string MainDish { get; set; }
         public string Dessert { get; set; }
+    }
+
+    public class AddFoodDto
+    {
+        public string Type { get; set; }
+        public string Name { get; set; }
     }
 }

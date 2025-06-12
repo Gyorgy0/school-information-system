@@ -17,7 +17,7 @@ namespace SchoolAPI.Controllers
 
             if (IsEmpty("Soup"))
             {
-                var soups = new[] { "Húsleves", "Paradicsomleves", "Zöldségleves", "Gulyásleves" };
+                var soups = new[] { "Húsleves", "Paradicsomleves", "Zöldségleves", "Gulyásleves", "Lencseleves" };
                 foreach (var s in soups)
                 {
                     new SQLiteCommand("INSERT INTO Soup (Name) VALUES (@name)", conn)
@@ -63,19 +63,35 @@ namespace SchoolAPI.Controllers
 
             new SQLiteCommand("DELETE FROM Lunch", conn).ExecuteNonQuery();
 
-            foreach (var day in weekdays)
+            // Shuffle lists
+            soups = ShuffleList(soups, rand);
+            mains = ShuffleList(mains, rand);
+            desserts = ShuffleList(desserts, rand);
+
+            for (int i = 0; i < weekdays.Length; i++)
             {
-                int soupId = soups[rand.Next(soups.Count)];
-                int mainId = mains[rand.Next(mains.Count)];
-                int dessertId = desserts[rand.Next(desserts.Count)];
+                int soupId = soups[i % soups.Count];       // If fewer than 5 items, repeat but only if needed
+                int mainId = mains[i % mains.Count];
+                int dessertId = desserts[i % desserts.Count];
 
                 var cmd = new SQLiteCommand("INSERT INTO Lunch (Day, SoupID, MainDishID, DessertID) VALUES (@day, @soup, @main, @dessert)", conn);
-                cmd.Parameters.AddWithValue("@day", day);
+                cmd.Parameters.AddWithValue("@day", weekdays[i]);
                 cmd.Parameters.AddWithValue("@soup", soupId);
                 cmd.Parameters.AddWithValue("@main", mainId);
                 cmd.Parameters.AddWithValue("@dessert", dessertId);
                 cmd.ExecuteNonQuery();
             }
+        }
+
+        private static List<int> ShuffleList(List<int> list, Random rand)
+        {
+            var shuffled = new List<int>(list);
+            for (int i = shuffled.Count - 1; i > 0; i--)
+            {
+                int j = rand.Next(i + 1);
+                (shuffled[i], shuffled[j]) = (shuffled[j], shuffled[i]);
+            }
+            return shuffled;
         }
 
         private static List<int> GetIDs(SQLiteConnection conn, string tableName)
