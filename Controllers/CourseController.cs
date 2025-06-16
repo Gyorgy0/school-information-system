@@ -6,11 +6,7 @@ using System.Data.SQLite;
 [Route("[controller]/[action]")]
 public class CourseController : Controller
 {
-<<<<<<< HEAD
-    string _sid => Request.Cookies["id"];
-=======
     string? _sid => Request.Cookies["id"];
->>>>>>> kovacs-mark
 
     [HttpGet]
     public IActionResult GetCourses()

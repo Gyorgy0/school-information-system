@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 namespace SchoolAPI.Models.Users
 {
     public class Users
@@ -8,16 +7,3 @@ namespace SchoolAPI.Models.Users
         public int TeacherID { get; set; }
     }
 }
-
-=======
-namespace SchoolAPI.Models.Users
-{
-    public class Users
-    {
-        public int StudentID { get; set; }
-        public string? Name { get; set; }
-        public int TeacherID { get; set; }
-    }
-}
-
->>>>>>> kovacs-mark
