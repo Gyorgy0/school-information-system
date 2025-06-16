@@ -201,7 +201,7 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
 command.ExecuteNonQuery();
 
 LunchGenerator.InsertSampleData(connection);
-//LunchGenerator.GenerateWeeklyLunch(connection);
+LunchGenerator.GenerateWeeklyLunch(connection);
 
 command.Dispose();
 
