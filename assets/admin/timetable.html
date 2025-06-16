@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Órarend</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <label>
+        Tantárgy hozzáadása
+        <label>Tantárgy azonosítója: <input id="subjectId" type="number" required></label><br>
+        <label>Tantárgy neve: <input id="subjectname" type="text" required></label><br>    
+    </label>
+    <button onclick="addsubject()">Hozzáadás</button>
+    <h3>Órarend</h3>
+<table border="1" id="timetable">
+    <thead>
+        <tr>
+            <th>Nap</th>
+            <th>Óra</th>
+            <th>Tantárgy</th>
+            <th>Terem</th>
+            <th>Tanár ID</th>
+            <th>Osztály ID</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+    <h3>Órarend hozzáadása</h3>
+    <label>Nap
+    <select id="day">
+        <option value="1">Hétfő</option><br>
+        <option value="2">Kedd</option><br>
+        <option value="3">Szerda</option><br>
+        <option value="4">Csütörtök</option><br>
+        <option value="5">Péntek</option><br>
+    </select>
+    </label>
+    <label>Óra: <input id="hour" type="text" required></label><br>
+    <label>Tantárgy: <input id="subject" type="text" required></label><br>
+    <label>Terem: <input id="room" type="text" required></label><br>
+    <label>Tanár ID: <input id="teacherID" type="number" required></label><br>
+    <button onclick="addTimetable()">Órarend hozzáadása</button>
+
+    <select id="role">
+            <option value="student">Diák</option>
+            <option value="teacher">Tanár</option>
+            <option value="admin">Admin</option>
+        </select>
+    <button id="logoutBtn" onclick="logout()">Kijelentkezés</button>
+</body>
+</html>
+<script>
+    function logout() {
+    $.post('/User/Logout')
+        .done(function (response) {
+            window.location.href = '/';
+        })
+        .fail(function (xhr) {
+            alert('Hiba a kijelentkezés során: ' + xhr.responseText);
+        });
+    }
+    function addsubject() {
+        const SubjectID = $('#subjectId').val();
+        const Subjectname = $('#subjectname').val();
+        $.post('/Schedule/CreateSubject', { SubjectID, Subjectname })
+        .done(function () {
+            alert("Tantárgy sikeresen hozzáadva!");
+        })
+        .fail(function () {
+            alert("Tantárgy hozzáadása sikertelen");
+        });
+        location.reload();
+    }
+    $(document).ready(function () {
+    loadTimetable();
+});
+
+function loadTimetable() {
+    $.get('/Schedule/GetTimetableAction', function (data) {
+        const tableBody = $('#timetable tbody');
+        tableBody.empty();
+
+        data.forEach(row => {
+            tableBody.append(`
+                <tr>
+                    <td>${row.day}</td>
+                    <td>${row.hour}</td>
+                    <td>${row.subject}</td>
+                    <td>${row.room}</td>
+                    <td>${row.teacherID}</td>
+                    <td>${row.classID}</td>
+                </tr>
+            `);
+        });
+    }).fail(function () {
+        alert("Nem sikerült betölteni az órarendet.");
+    });
+}
+    function addTimetable() {
+    const day = $('#day').find('option:selected').text();
+    const dayCount = $('#day').val();
+    const hour = $('#hour').val();
+    const subject = $('#subject').val();
+    const room = $('#room').val();
+    const teacherID = $('#teacherID').val();
+    const classID = $('#classID').val();
+
+    $.post('/Schedule/CreateTimetable', {
+        day,
+        dayCount,
+        hour,
+        subject,
+        room,
+        teacherID,
+        classID
+    })
+    .done(function () {
+        alert("Órarend sikeresen hozzáadva!");
+        location.reload();
+    })
+    .fail(function (xhr) {
+        alert("Hiba az órarend hozzáadásakor: " + xhr.responseText);
+    });
+}
+    
+</script>

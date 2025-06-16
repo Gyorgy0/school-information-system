@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Órarend</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h3>Órarend</h3>
+<table border="1" id="timetable">
+    <thead>
+        <tr>
+            <th>Nap</th>
+            <th>Óra</th>
+            <th>Tantárgy</th>
+            <th>Terem</th>
+            <th>Tanár ID</th>
+            <th>Osztály ID</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+    <button id="logoutBtn" onclick="logout()">Kijelentkezés</button>
+</body>
+</html>
+<script>
+    function logout() {
+    $.post('/User/Logout')
+        .done(function (response) {
+            window.location.href = '/';
+        })
+        .fail(function (xhr) {
+            alert('Hiba a kijelentkezés során: ' + xhr.responseText);
+        });
+    }
+
+function loadTimetable() {
+    $.get('/Schedule/GetTimetableAction', function (data) {
+        const tableBody = $('#timetable tbody');
+        tableBody.empty();
+
+        data.forEach(row => {
+            tableBody.append(`
+                <tr>
+                    <td>${row.day}</td>
+                    <td>${row.hour}</td>
+                    <td>${row.subject}</td>
+                    <td>${row.room}</td>
+                    <td>${row.teacherID}</td>
+                    <td>${row.classID}</td>
+                </tr>
+            `);
+        });
+    }).fail(function () {
+        alert("Nem sikerült betölteni az órarendet.");
+    });
+}
+loadTimetable();
+</script>
