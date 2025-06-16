@@ -108,12 +108,23 @@
         }
 
         function deleteGrade() {
-            const gradeId = parseInt($('#delGradeId').val());
+    const gradeId = parseInt($('#delGradeId').val());
+    if (isNaN(gradeId)) {
+        alert("Adj meg egy érvényes érdemjegy ID-t!");
+        return;
+    }
+    
+    const data = { GradeID: gradeId };
 
-            $.post(`/Grade/DeleteGrade?gradeId=${gradeId}`)
-                .done(() => alert("Érdemjegy törölve."))
-                .fail(xhr => alert("Hiba: " + xhr.responseText));
-        }
+    $.ajax({
+        url: '/Grade/DeleteGrade',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: () => alert("Érdemjegy törölve."),
+        error: xhr => alert("Hiba: " + xhr.responseText)
+    });
+}
 
         function closeSubject() {
             const userId = parseInt($('#closeUserId').val());
@@ -142,7 +153,7 @@
         function getAbsences() {
             const userId = parseInt($('#viewAbsUserId').val());
 
-            $.get(`/Absence/GetAbsences?userId=${userId}`)
+            $.get(`/Grade/GetAbsences?userId=${userId}`)
                 .done(data => {
                     const list = $('#absenceList');
                     list.empty();
@@ -164,7 +175,7 @@
             }
 
            $.post({
-                url: '/Absence/AddAbsence',
+                url: '/Grade/AddAbsence',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ userId, date, subject }),
@@ -186,7 +197,7 @@
             const data = { userId, date };
 
             $.post({
-                url: '/Absence/ExcuseAbsence',
+                url: '/Grade/ExcuseAbsence',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(data),
@@ -202,7 +213,7 @@
             };
 
             $.post({
-                url: '/Absence/DeleteAbsence',
+                url: '/Grade/DeleteAbsence',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(data),

@@ -181,12 +181,27 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
 	"`UserID` TEXT NOT NULL PRIMARY KEY, " +
 	"`LunchID` INTEGER NOT NULL PRIMARY KEY, " +
 	"`Day` TEXT NOT NULL, " +
-	"FOREIGN KEY(`LunchID`) REFERENCES `Lunch`(`LunchID`))";
+	"FOREIGN KEY(`LunchID`) REFERENCES `Lunch`(`LunchID`));" + 
+
+    "CREATE TABLE IF NOT EXISTS `Subject` (" +
+    "`SubjectID` INTEGER NOT NULL PRIMARY KEY, " +
+    "`UserID` INTEGER NOT NULL, " +
+    "`Subject` TEXT NOT NULL, " +
+    "`IsClosed`	INTEGER NOT NULL, " +
+    "FOREIGN KEY(`UserID`) REFERENCES `User`(`UserID`));" + 
+
+    "CREATE TABLE IF NOT EXISTS `Absence` (" +
+    "`AbsenceID` INTEGER NOT NULL PRIMARY KEY, " +
+    "`UserID` INTEGER NOT NULL, " +
+    "`Subject` TEXT NOT NULL, " +
+    "`Date` DATETIME NOT NULL, " +
+    "`IsExcused` INTEGER NOT NULL, " +
+    "FOREIGN KEY(`UserID`) REFERENCES `User`(`UserID`));";
 
 command.ExecuteNonQuery();
 
 LunchGenerator.InsertSampleData(connection);
-LunchGenerator.GenerateWeeklyLunch(connection);
+//LunchGenerator.GenerateWeeklyLunch(connection);
 
 command.Dispose();
 
