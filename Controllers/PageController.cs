@@ -13,7 +13,16 @@ namespace SchoolAPI.Controllers
         [HttpGet]
         public ContentResult main()
         {
+<<<<<<< HEAD
             string role = RoleManager.CheckRole(Request.Cookies["id"]);
+=======
+            string? sessionId = Request.Cookies["id"];
+            if (string.IsNullOrEmpty(sessionId))
+            {
+                return base.Content("<script>window.location.href = '/';</script>", "text/html");
+            }
+            string role = RoleManager.CheckRole(sessionId);
+>>>>>>> kovacs-mark
             if (role == "")
             {
                 return base.Content("<script>window.location.href = '/';</script>", "text/html");
@@ -24,7 +33,16 @@ namespace SchoolAPI.Controllers
         [HttpGet]
         public ContentResult timetable()
         {
+<<<<<<< HEAD
             string role = RoleManager.CheckRole(Request.Cookies["id"]);
+=======
+            string? sessionId = Request.Cookies["id"];
+            if (string.IsNullOrEmpty(sessionId))
+            {
+                return base.Content("<script>window.location.href = '/';</script>", "text/html");
+            }
+            string role = RoleManager.CheckRole(sessionId);
+>>>>>>> kovacs-mark
             if (role == "")
             {
                 return base.Content("<script>window.location.href = '/';</script>", "text/html");
@@ -35,7 +53,16 @@ namespace SchoolAPI.Controllers
         [HttpGet]
         public ContentResult lunchmenupage()
         {
+<<<<<<< HEAD
             string role = RoleManager.CheckRole(Request.Cookies["id"]);
+=======
+            string? sessionId = Request.Cookies["id"];
+            if (string.IsNullOrEmpty(sessionId))
+            {
+                return base.Content("<script>window.location.href = '/';</script>", "text/html");
+            }
+            string role = RoleManager.CheckRole(sessionId);
+>>>>>>> kovacs-mark
             if (role == "")
             {
                 return base.Content("<script>window.location.href = '/';</script>", "text/html");
@@ -46,7 +73,16 @@ namespace SchoolAPI.Controllers
         [HttpGet]
         public ContentResult courses()
         {
+<<<<<<< HEAD
             string role = RoleManager.CheckRole(Request.Cookies["id"]);
+=======
+           string? sessionId = Request.Cookies["id"];
+            if (string.IsNullOrEmpty(sessionId))
+            {
+                return base.Content("<script>window.location.href = '/';</script>", "text/html");
+            }
+            string role = RoleManager.CheckRole(sessionId);
+>>>>>>> kovacs-mark
             if (role == "")
             {
                 return base.Content("<script>window.location.href = '/';</script>", "text/html");
@@ -54,5 +90,46 @@ namespace SchoolAPI.Controllers
             var html = System.IO.File.ReadAllText($"./assets/{role}/courses.html");
             return base.Content(html, "text/html");
         }
+<<<<<<< HEAD
+=======
+
+        [HttpGet]
+        public ContentResult gradebook()
+        {
+            string? sessionId = Request.Cookies["id"];
+            if (string.IsNullOrEmpty(sessionId))
+            {
+                return base.Content("<script>window.location.href = '/';</script>", "text/html");
+            }
+
+            string role = RoleManager.CheckRole(sessionId);
+            if (role == "")
+            {
+                return base.Content("<script>window.location.href = '/';</script>", "text/html");
+            }
+
+            var html = System.IO.File.ReadAllText($"./assets/{role}/gradebook.html");
+            return base.Content(html, "text/html");
+        }
+
+        [HttpGet]
+        public ContentResult gallery()
+        {
+            string? sessionId = Request.Cookies["id"];
+            if (string.IsNullOrEmpty(sessionId))
+            {
+                return base.Content("<script>window.location.href = '/';</script>", "text/html");
+            }
+
+            string role = RoleManager.CheckRole(sessionId);
+            if (role == "")
+            {
+                return base.Content("<script>window.location.href = '/';</script>", "text/html");
+            }
+
+            var html = System.IO.File.ReadAllText($"./assets/{role}/gallery.html");
+            return base.Content(html, "text/html");
+        }
+>>>>>>> kovacs-mark
     }
 }

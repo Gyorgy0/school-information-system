@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Osztálykönyv – Érdemjegyek és hiányzások</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Osztálykönyv</h1>
+
+    <div id="gradebookSection">
+        <h2>Érdemjegyek lekérdezése</h2>
+        <label>Felhasználó ID: <input id="viewUserId" type="number"></label>
+        <button onclick="getGrades()">Lekérdezés</button>
+        <ul id="gradesList"></ul>
+        <h2>Érdemjegy hozzáadása</h2>
+        <label>Felhasználó ID: <input id="userId" type="number"></label>
+        <label>Tantárgy: <input id="subject" type="text"></label>
+        <label>Jegy: <input id="gradeValue" type="number" step="1" min="1" max="5"></label>
+        <label>Dátum: <input id="gradeDate" type="date"></label>
+        <button onclick="addGrade()">Hozzáadás</button>
+
+        <h2>Érdemjegy törlése</h2>
+        <label>Érdemjegy ID: <input id="delGradeId" type="number"></label>
+        <button onclick="deleteGrade()">Törlés</button>
+
+        <h2>Tantárgy lezárása</h2>
+        <label>Felhasználó ID: <input id="closeUserId" type="number"></label>
+        <label>Tantárgy: <input id="closeSubject" type="text"></label>
+        <button onclick="closeSubject()">Lezárás</button>
+
+        <h2>Hiányzás kezelése</h2>
+        <label>Felhasználó ID: <input id="absUserId" type="number"></label>
+        <label>Tantárgy: <input id="absSubject" type="text"></label>
+        <label>Dátum: <input id="absDate" type="date"></label>
+        <button onclick="addAbsence()">Hiányzás rögzítése</button>
+        <button onclick="excuseAbsence()">Hiányzás igazolása</button>
+        <button onclick="deleteAbsence()">Hiányzás törlése</button>
+
+        <h2>Hiányzások lekérdezése</h2>
+        <label>Felhasználó ID: <input id="viewAbsUserId" type="number"></label>
+        <button onclick="getAbsences()">Lekérdezés</button>
+        <ul id="absenceList"></ul>
+    </div>
+
+    <script>
+        
+        function toggleGradebook() {
+            $('#gradebookSection').toggle();
+        }
+
+        function getGrades() {
+            const userId = parseInt($('#viewUserId').val());
+            if (isNaN(userId)) {
+                alert("Kérlek, adj meg egy érvényes Felhasználó ID-t!");
+                return;
+            }
+
+            $.get(`/Grade/GetGrades?userId=${userId}`)
+                .done(data => {
+                    const list = $('#gradesList');
+                    list.empty();
+
+                    if (data.length === 0) {
+                        list.append('<li>Nincsenek érdemjegyek ehhez a felhasználóhoz.</li>');
+                        return;
+                    }
+
+                    data.forEach(grade => {
+                        list.append(`<li>ID: ${grade.gradeID}, Tantárgy: ${grade.subject}, Jegy: ${grade.gradeValue}, Dátum: ${grade.date}</li>`);
+                    });
+                })
+                .fail(xhr => alert("Hiba: " + xhr.responseText));
+        }
+
+        function addGrade() {
+            const userId = parseInt($('#userId').val());
+
+            if (isNaN(userId)) {
+                alert("Kérlek, adj meg egy érvényes Felhasználó ID-t!");
+                return;
+            }
+
+            const data = {
+                UserID: userId,
+                Subject: $('#subject').val(),
+                GradeValue: parseInt($('#gradeValue').val()),
+                Date: $('#gradeDate').val()
+            };
+
+            if (!data.Subject || isNaN(data.GradeValue) || !data.Date) {
+                alert("Tölts ki minden mezőt helyesen!");
+                return;
+            }
+
+            $.post({
+                url: '/Grade/AddGrade',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: () => {
+                    alert("Érdemjegy hozzáadva!");
+                    $('#viewUserId').val(userId);
+                    getGrades();
+                },
+                error: xhr => alert("Hiba: " + xhr.responseText)
+            });
+        }
+
+        function deleteGrade() {
+    const gradeId = parseInt($('#delGradeId').val());
+    if (isNaN(gradeId)) {
+        alert("Adj meg egy érvényes érdemjegy ID-t!");
+        return;
+    }
+    
+    const data = { GradeID: gradeId };
+
+    $.ajax({
+        url: '/Grade/DeleteGrade',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: () => alert("Érdemjegy törölve."),
+        error: xhr => alert("Hiba: " + xhr.responseText)
+    });
+}
+
+        function closeSubject() {
+            const userId = parseInt($('#closeUserId').val());
+            const subject = $('#closeSubject').val();
+
+            if (isNaN(userId) || !subject) {
+                alert("Kérlek, adj meg egy érvényes Felhasználó ID-t és tantárgyat!");
+                return;
+            }
+
+            const data = {
+                UserID: userId,
+                Subject: subject
+            };
+
+            $.post({
+                url: '/Grade/CloseSubject',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: () => alert("Tantárgy lezárva!"),
+                error: xhr => alert("Hiba: " + xhr.responseText)
+            });
+        }
+
+        function getAbsences() {
+            const userId = parseInt($('#viewAbsUserId').val());
+
+            $.get(`/Grade/GetAbsences?userId=${userId}`)
+                .done(data => {
+                    const list = $('#absenceList');
+                    list.empty();
+                    data.forEach(abs => {
+                        list.append(`<li>${abs.date} – ${abs.subject} – ${abs.isExcused ? 'Igazolt' : 'Igazolatlan'}</li>`);
+                    });
+                })
+                .fail(xhr => alert("Hiba: " + xhr.responseText));
+        }
+
+        function addAbsence() {
+            const userId = parseInt($('#absUserId').val());
+            const date = $('#absDate').val();
+            const subject = $('#absSubject').val();
+
+            if (isNaN(userId) || !date || !subject) {
+                alert("Kérlek, töltsd ki az összes mezőt helyesen!");
+                return;
+            }
+
+           $.post({
+                url: '/Grade/AddAbsence',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ userId, date, subject }),
+                success: () => alert("Hiányzás hozzáadva!"),
+                error: xhr => alert("Hiba: " + xhr.responseText)
+            });
+        }
+
+
+        function excuseAbsence() {
+            const userId = parseInt($('#absUserId').val());
+            const date = $('#absDate').val();
+
+            if (isNaN(userId) || !date) {
+                alert("Kérlek, adj meg érvényes felhasználó ID-t és dátumot!");
+                return;
+            }
+
+            const data = { userId, date };
+
+            $.post({
+                url: '/Grade/ExcuseAbsence',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: () => alert("Hiányzás igazolva!"),
+                error: xhr => alert("Hiba: " + xhr.responseText)
+            });
+        }
+
+        function deleteAbsence() {
+            const data = {
+                userId: parseInt($('#absUserId').val()),
+                date: $('#absDate').val()
+            };
+
+            $.post({
+                url: '/Grade/DeleteAbsence',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: () => alert("Hiányzás törölve!"),
+                error: xhr => alert("Hiba: " + xhr.responseText)
+            });
+        }
+    </script>
+</body>
+</html>
