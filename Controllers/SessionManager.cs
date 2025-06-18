@@ -15,7 +15,7 @@ public class SessionManager
                 sessionCookie = Guid.NewGuid().ToString();
             } while (SessionCookieExists(sessionCookie, connection));
 
-            Int64 validUntil = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 3600;
+            Int64 validUntil = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 10;
 
             string insertSql = "INSERT INTO Session (SessionCookie, UserID, ValidUntil, LoginTime) VALUES (@SessionCookie, @UserID, @ValidUntil, @LoginTime)";
             using (SQLiteCommand cmd = new SQLiteCommand(insertSql, connection))
@@ -118,5 +118,21 @@ public class SessionManager
             throw new UnauthorizedAccessException("Session invalid or expired");
 
         return userID;
+    }
+}
+public class SessionValidation(ILogger<PeriodicBackgroundTask> logger, TimeProvider timeProvider) 
+    : BackgroundService
+{
+    private readonly ILogger<PeriodicBackgroundTask> _logger = logger;
+    private readonly TimeProvider _timeProvider = timeProvider;
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
+        while (!stoppingToken.IsCancellationRequested
+            && await timer.WaitForNextTickAsync(stoppingToken))
+        {
+            
+        }
     }
 }

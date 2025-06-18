@@ -34,37 +34,30 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
     "`Username` TEXT NOT NULL, " +
     "`PasswordHash` TEXT NOT NULL, " +
     "`PasswordSalt` TEXT NOT NULL, " +
-    "`Role` TEXT NOT NULL);" +
+    "`Firstname` TEXT, " +
+    "`Middlename` TEXT, " +
+    "`Surname` TEXT, " +
+    "`Role` TEXT NOT NULL," +
+    "`Class` TEXT);" +
 
-    "CREATE TABLE IF NOT EXISTS `Roles` (" +
-    "`Role` TEXT PRIMARY KEY," +
-    "`ModifyUser` INTEGER NOT NULL," +
-    "`ModifyEvent` INTEGER NOT NULL," +
-    "`AddSubject` INTEGER NOT NULL," +
-    "`RemoveSubject` INTEGER NOT NULL," +
-    "`ModifySubject` INTEGER NOT NULL," +
-    "`SeeSchedule` INTEGER NOT NULL," +
-    "`SeeAllSchedule` INTEGER NOT NULL," +
-    "`ModifySchedule` INTEGER NOT NULL," +
-    "`SeeOwnGrades` INTEGER NOT NULL," +
-    "`SeeGrades` INTEGER NOT NULL," +
-    "`ModifyGrades` INTEGER NOT NULL," +
-    "`SeeOwnStatistics` INTEGER NOT NULL," +
-    "`SeeStatistics` INTEGER NOT NULL," +
-    "`ModifyStatistics` INTEGER NOT NULL," +
-    "`SeeCourses` INTEGER NOT NULL," +
-    "`ModifyCourses` INTEGER NOT NULL," +
-    "`ModifyLunchTable` INTEGER NOT NULL);" +
+    "CREATE TABLE IF NOT EXISTS `Session` (" +
+    "`Sessioncookie` TEXT NOT NULL PRIMARY KEY," +
+    "`UserID` INTEGER NOT NULL," +
+    "`LoginTime` DATETIME NOT NULL," +
+    "`ValidUntil` DATETIME NOT NULL);" +
 
     "CREATE TABLE IF NOT EXISTS `Subjects` (" +
-    "`SubjectID` INTEGER NOT NULL PRIMARY KEY, " +
+    "`SubjectID` INTEGER PRIMARY KEY AUTOINCREMENT," +
+    "`Name` TEXT NOT NULL);" +
+
+    "CREATE TABLE IF NOT EXISTS `Classrooms` (" +
+    "`ClassroomID` INTEGER PRIMARY KEY AUTOINCREMENT," +
     "`Name` TEXT NOT NULL);" +
 
     "CREATE TABLE IF NOT EXISTS `Classes` (" +
-    "`ClassID` INTEGER NOT NULL PRIMARY KEY, " +
-    "`Name` TEXT NOT NULL, " +
-    "`StudentID` INTEGER NOT NULL, " +
-    "`StudentName` TEXT NOT NULL);" +
+    "`Year` INTEGER NOT NULL," +
+    "`Group` INTEGER PRIMARY KEY AUTOINCREMENT," +
+    "`Class` TEXT NOT NULL);" +
 
     "CREATE TABLE IF NOT EXISTS `Grade` (" +
     "`GradeID` INTEGER NOT NULL PRIMARY KEY, " +
@@ -128,8 +121,7 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
     "`CourseID`   INTEGER NOT NULL, " +
     "`Content`    TEXT    NOT NULL, " +
     "`CreatedAt`  DATETIME NOT NULL DEFAULT (datetime('now')), " +
-    "FOREIGN KEY(`CourseID`) REFERENCES `Course`(`CourseID`)" +
-    ");" +
+    "FOREIGN KEY(`CourseID`) REFERENCES `Course`(`CourseID`));" +
 
     "CREATE TABLE IF NOT EXISTS `CourseTest` (" +
     "TestID INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -152,8 +144,7 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
     "TimetableID INTEGER NOT NULL, " +
     "EventType TEXT NOT NULL, " +
     "EventDate DATETIME NOT NULL, " +
-    "Description TEXT" +
-    ");" +
+    "Description TEXT);" +
 
     "CREATE TABLE IF NOT EXISTS `Soup` (" +
     "`SoupID` INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -182,13 +173,6 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
 	"`LunchID` INTEGER NOT NULL, " +
 	"`Day` TEXT NOT NULL, " +
 	"FOREIGN KEY(`LunchID`) REFERENCES `Lunch`(`LunchID`));" + 
-
-    "CREATE TABLE IF NOT EXISTS `Subject` (" +
-    "`SubjectID` INTEGER NOT NULL PRIMARY KEY, " +
-    "`UserID` INTEGER NOT NULL, " +
-    "`Subject` TEXT NOT NULL, " +
-    "`IsClosed`	INTEGER NOT NULL, " +
-    "FOREIGN KEY(`UserID`) REFERENCES `User`(`UserID`));" + 
 
     "CREATE TABLE IF NOT EXISTS `Absence` (" +
     "`AbsenceID` INTEGER NOT NULL PRIMARY KEY, " +
