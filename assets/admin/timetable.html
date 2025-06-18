@@ -1,55 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="hu">
 <head>
     <meta charset="utf-8" />
     <title>Órarend</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 2rem;
+        }
+        h3 {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #343a40;
+        }
+        table {
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label {
+            font-weight: 500;
+        }
+        .form-label {
+            margin-top: 1rem;
+        }
+        #logoutBtn {
+            margin-top: 2rem;
+        }
+    </style>
 </head>
 <body>
-    <label>
-        Tantárgy hozzáadása
-        <label>Tantárgy azonosítója: <input id="subjectId" type="number" required></label><br>
-        <label>Tantárgy neve: <input id="subjectname" type="text" required></label><br>    
-    </label>
-    <button onclick="addsubject()">Hozzáadás</button>
-    <h3>Órarend</h3>
-<table border="1" id="timetable">
-    <thead>
-        <tr>
-            <th>Nap</th>
-            <th>Óra</th>
-            <th>Tantárgy</th>
-            <th>Terem</th>
-            <th>Tanár ID</th>
-            <th>Osztály ID</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
-    <h3>Órarend hozzáadása</h3>
-    <label>Nap
-    <select id="day">
-        <option value="1">Hétfő</option><br>
-        <option value="2">Kedd</option><br>
-        <option value="3">Szerda</option><br>
-        <option value="4">Csütörtök</option><br>
-        <option value="5">Péntek</option><br>
-    </select>
-    </label>
-    <label>Óra: <input id="hour" type="text" required></label><br>
-    <label>Tantárgy: <input id="subject" type="text" required></label><br>
-    <label>Terem: <input id="room" type="text" required></label><br>
-    <label>Tanár ID: <input id="teacherID" type="number" required></label><br>
-    <button onclick="addTimetable()">Órarend hozzáadása</button>
+    <div class="container">
 
-    <select id="role">
-            <option value="student">Diák</option>
-            <option value="teacher">Tanár</option>
-            <option value="admin">Admin</option>
-        </select>
-    <button id="logoutBtn" onclick="logout()">Kijelentkezés</button>
-</body>
-</html>
+        <h3>Tantárgy hozzáadása</h3>
+        <form id="subjectForm" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label for="subjectId" class="form-label">Tantárgy azonosítója</label>
+                <input id="subjectId" type="number" class="form-control" required>
+            </div>
+            <div class="col-md-5">
+                <label for="subjectname" class="form-label">Tantárgy neve</label>
+                <input id="subjectname" type="text" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-primary w-100" onclick="addsubject()">Hozzáadás</button>
+            </div>
+        </form>
+
+        <h3>Órarend</h3>
+        <div class="table-responsive">
+            <table class="table table-bordered" id="timetable">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nap</th>
+                        <th>Óra</th>
+                        <th>Tantárgy</th>
+                        <th>Terem</th>
+                        <th>Tanár ID</th>
+                        <th>Osztály ID</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <h3>Órarend hozzáadása</h3>
+        <form id="timetableForm" class="row g-3 align-items-end">
+        <div class="col-6 col-md-2">
+            <label for="day" class="form-label">Nap</label>
+            <select id="day" class="form-select">
+                <option value="1">Hétfő</option>
+                <option value="2">Kedd</option>
+                <option value="3">Szerda</option>
+                <option value="4">Csütörtök</option>
+                <option value="5">Péntek</option>
+            </select>
+        </div>
+        <div class="col-6 col-md-1">
+            <label for="hour" class="form-label">Óra</label>
+            <input id="hour" type="text" class="form-control" required>
+        </div>
+        <div class="col-12 col-md-3">
+            <label for="subject" class="form-label">Tantárgy</label>
+            <input id="subject" type="text" class="form-control" required>
+        </div>
+        <div class="col-6 col-md-2">
+            <label for="room" class="form-label">Terem</label>
+            <input id="room" type="text" class="form-control" required>
+        </div>
+        <div class="col-6 col-md-1">
+            <label for="teacherID" class="form-label">Tanár ID</label>
+            <input id="teacherID" type="number" class="form-control" required>
+        </div>
+        <div class="col-6 col-md-1">
+            <label for="classID" class="form-label">Osztály ID</label>
+            <input id="classID" type="number" class="form-control" required>
+        </div>
+        <div class="col-6 col-md-2 d-flex align-items-end">
+            <button type="button" class="btn btn-success w-100" style="white-space: nowrap;" onclick="addTimetable()">Órarend hozzáadása</button>
+        </div>
+    </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     function logout() {
     $.post('/User/Logout')
@@ -123,5 +176,6 @@ function loadTimetable() {
         alert("Hiba az órarend hozzáadásakor: " + xhr.responseText);
     });
 }
-    
 </script>
+</body>
+</html>
