@@ -120,7 +120,7 @@ public class SessionManager
         return userID;
     }
 }
-public class SessionValidation(ILogger<PeriodicBackgroundTask> logger, TimeProvider timeProvider) 
+/*public class SessionValidation(ILogger<PeriodicBackgroundTask> logger, TimeProvider timeProvider) 
     : BackgroundService
 {
     private readonly ILogger<PeriodicBackgroundTask> _logger = logger;
@@ -136,3 +136,4 @@ public class SessionValidation(ILogger<PeriodicBackgroundTask> logger, TimeProvi
         }
     }
 }
+*/
