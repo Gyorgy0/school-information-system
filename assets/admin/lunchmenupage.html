@@ -99,7 +99,7 @@
         <h2>Heti Ebéd Menű</h2>
         <table class="table table-bordered table-striped align-middle text-center">
             <thead class="table-dark">
-                <tr><th>Nap</th><th>Dátum</th><th>Leves</th><th>Főétel</th><th>Desszert</th></tr>
+                <tr><th>Nap</th><th>Leves</th><th>Főétel</th><th>Desszert</th></tr>
             </thead>
             <tbody id="lunchTable"></tbody>
         </table>
@@ -573,6 +573,12 @@
                 alert('Nem sikerült betölteni az adott heti ebéd menüt.');
             }
         }
-    </script>
+
+    window.onload = function () {
+        populateStaticDropdowns();
+        populateRemoveFoodOptions();
+        showLunchMenu();
+    };
+</script>
 </body>
 </html>
