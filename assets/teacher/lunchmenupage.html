@@ -108,7 +108,7 @@
         <h2>Heti Ebéd Menű</h2>
         <table class="table table-bordered table-striped align-middle text-center">
             <thead class="table-dark">
-                <tr><th>Nap</th><th>Dátum</th><th>Leves</th><th>Főétel</th><th>Desszert</th></tr>
+                <tr><th>Nap</th><th>Leves</th><th>Főétel</th><th>Desszert</th></tr>
             </thead>
             <tbody id="lunchTable"></tbody>
         </table>
@@ -259,6 +259,50 @@
                 alert('Nem sikerült betölteni az adott heti ebéd menüt.');
             }
         }
-    </script>
+
+    async function loadLunch() {
+    try {
+        const res = await fetch('/Lunch/GetMenu');
+        if (!res.ok) throw new Error('Failed to load lunch menu');
+        const data = await res.json();
+        const table = document.getElementById('lunchTable');
+        table.innerHTML = "";
+
+        data.forEach(item => {
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>${item.day}</td>
+                <td>${item.soup}</td>
+                <td>${item.mainDish}</td>
+                <td>${item.dessert}</td>
+            `;
+
+            table.appendChild(row);
+        });
+    } catch (error) {
+        console.error(error);
+        alert('Nem sikerült betölteni az ebéd menüt.');
+    }
+}
+
+    async function regenerateLunch() {
+        try {
+            const res = await fetch('/Lunch/Regenerate', { method: 'POST' });
+            if (!res.ok) throw new Error('Failed to regenerate lunch menu');
+            await loadLunch();
+            //alert('Ebéd menü újragenerálva.');
+        } catch (error) {
+            console.error(error);
+            alert('Nem sikerült újragenerálni az ebéd menüt.');
+        }
+    }
+
+    window.onload = function () {
+        populateStaticDropdowns();
+        populateRemoveFoodOptions();
+        showLunchMenu();
+    };
+</script>
 </body>
 </html>
