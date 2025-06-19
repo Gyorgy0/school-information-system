@@ -94,7 +94,7 @@
         <h2>Heti Ebéd Menű</h2>
         <table class="table table-bordered table-striped align-middle text-center">
             <thead class="table-dark">
-                <tr><th>Nap</th><th>Leves</th><th>Főétel</th><th>Desszert</th><th>Jelentkezés</th></tr>
+                <tr><th>Nap</th><th>Leves</th><th>Főétel</th><th>Desszert</th></tr>
             </thead>
             <tbody id="lunchTable"></tbody>
         </table>
@@ -386,25 +386,6 @@
                 <td>${item.soup}</td>
                 <td>${item.mainDish}</td>
                 <td>${item.dessert}</td>
-<<<<<<< HEAD
-            </tr>`;
-            });
-        } catch (error) {
-            console.error(error);
-            alert('Nem sikerült betölteni az ebéd menüt.');
-        }
-    }
-
-    window.onload = function () {
-        showLunchMenu();
-    };
-</script>
-=======
-                <td>
-                    ${item.isSignedUp
-                        ? `<span style="color: green; font-weight: bold;">&#10003;</span> <button onclick="signOutFromLunch('${item.day}')">Lejelentkezés</button>`
-                        : `<button onclick="signUpForLunch('${item.day}')">Feljelentkezés</button>`}
-                </td>
             `;
 
             table.appendChild(row);
@@ -427,38 +408,6 @@
         }
     }
 
-    async function signUpForLunch(day) {
-    try {
-        const res = await fetch('/Lunch/SignUp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ Day: day })
-        });
-        if (!res.ok) throw new Error('Sikertelen feljelentkezés.');
-        alert(`Feljelentkeztél ebédre: ${day}`);
-        await loadLunch();
-    } catch (error) {
-        console.error(error);
-        alert('Hiba történt a feljelentkezés során.');
-    }
-}
-
-async function signOutFromLunch(day) {
-    try {
-        const res = await fetch('/Lunch/SignOut', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ Day: day })
-        });
-        if (!res.ok) throw new Error('Sikertelen lejelentkezés.');
-        alert(`Lejelentkeztél ebédről: ${day}`);
-        await loadLunch();
-    } catch (error) {
-        console.error(error);
-        alert('Hiba történt a lejelentkezés során.');
-    }
-}
-
     window.onload = function () {
         populateStaticDropdowns();
         populateRemoveFoodOptions();
@@ -467,4 +416,3 @@ async function signOutFromLunch(day) {
 </script>
 </body>
 </html>
->>>>>>> 75df1c1 (Added css styles)

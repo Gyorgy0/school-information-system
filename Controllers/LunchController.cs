@@ -15,29 +15,13 @@ namespace SchoolAPI.Controllers
         public IActionResult GetMenu()
         {
             var menu = new List<object>();
-            var sessionId = Request.Cookies["id"];
-
-            if (string.IsNullOrEmpty(sessionId))
-            return Unauthorized("Nincs bejelentkezve.");
-             var userId = SessionManager.GetUserID(sessionId);
-
-            if (userId == -1)
-                return Unauthorized("Nincs bejelentkezve vagy lejárt a munkamenet.");
-
             string sql = @"
             SELECT 
                 Lunch.LunchID,
                 Lunch.Day,
                 Soup.Name AS Soup,
                 MainDish.Name AS MainDish,
-                Dessert.Name AS Dessert,
-                CASE 
-                    WHEN EXISTS (
-                        SELECT 1 FROM LunchSignup 
-                        WHERE LunchSignup.UserID = @userId AND LunchSignup.LunchID = Lunch.LunchID
-                    ) THEN 1
-                    ELSE 0
-                END AS IsSignedUp
+                Dessert.Name AS Dessert
             FROM Lunch
             JOIN Soup ON Lunch.SoupID = Soup.SoupID
             JOIN MainDish ON Lunch.MainDishID = MainDish.MainDishID
@@ -53,18 +37,16 @@ namespace SchoolAPI.Controllers
             using (var connection = DatabaseConnector.CreateNewConnection())
             using (var cmd = new SQLiteCommand(sql, connection))
             {
-                cmd.Parameters.AddWithValue("@userId", userId);
                 var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
                     menu.Add(new
                     {
-                        LunchID = reader.GetInt32(0),
-                        Day = reader.GetString(1),
-                        Soup = reader.GetString(2),
-                        MainDish = reader.GetString(3),
-                        Dessert = reader.GetString(4),
-                        IsSignedUp = reader.GetInt32(5) == 1
+                        LunchID = Convert.ToString(reader["LunchID"]),
+                        Day = Convert.ToString(reader["Day"]),
+                        Soup = Convert.ToString(reader["Soup"]),
+                        MainDish = Convert.ToString(reader["MainDish"]),
+                        Dessert = Convert.ToString(reader["Dessert"]),
                     });
                 }
             }
@@ -217,77 +199,15 @@ namespace SchoolAPI.Controllers
             var result = cmd.ExecuteScalar();
             return result != null ? Convert.ToInt32(result) : (int?)null;
         }
-
-        [HttpPost]
-        public IActionResult SignUp([FromBody] SignUpDto data)
-        {
-            var sessionId = Request.Cookies["id"];
-            if (string.IsNullOrEmpty(sessionId))
-                return Unauthorized("Nincs bejelentkezve.");
-
-            var userId = SessionManager.GetUserID(sessionId);
-            if (userId == -1)
-                return Unauthorized("Nincs bejelentkezve vagy lejárt a munkamenet.");
-
-            using var conn = DatabaseConnector.CreateNewConnection();
-
-            var cmdGetLunchId = new SQLiteCommand("SELECT LunchID FROM Lunch WHERE Day = @day", conn);
-            cmdGetLunchId.Parameters.AddWithValue("@day", data.Day);
-
-            var lunchIdObj = cmdGetLunchId.ExecuteScalar();
-            if (lunchIdObj == null)
-                return NotFound("Nem található ebéd a megadott napra.");
-
-            int lunchId = Convert.ToInt32(lunchIdObj);
-
-            var cmd = new SQLiteCommand("INSERT INTO LunchSignup (UserID, LunchID, Day) VALUES (@userId, @lunchId, @day)", conn);
-            cmd.Parameters.AddWithValue("@userId", userId);
-            cmd.Parameters.AddWithValue("@lunchId", lunchId);
-            cmd.Parameters.AddWithValue("@day", data.Day);
-
-            cmd.ExecuteNonQuery();
-
-            return Ok("Feljelentkezés sikeres.");
-        }
-        [HttpPost]
-        public IActionResult SignOut([FromBody] SignUpDto data)
-        {
-            var sessionId = Request.Cookies["id"];
-            if (string.IsNullOrEmpty(sessionId))
-                return Unauthorized("Nincs bejelentkezve.");
-
-            var userId = SessionManager.GetUserID(sessionId);
-            if (userId == -1)
-                return Unauthorized("Nincs bejelentkezve vagy lejárt a munkamenet.");
-
-            using var conn = DatabaseConnector.CreateNewConnection();
-
-            var cmdGetLunchId = new SQLiteCommand("SELECT LunchID FROM Lunch WHERE Day = @day", conn);
-            cmdGetLunchId.Parameters.AddWithValue("@day", data.Day);
-
-            var lunchIdObj = cmdGetLunchId.ExecuteScalar();
-            if (lunchIdObj == null)
-                return NotFound("Nem található ebéd a megadott napra.");
-
-            int lunchId = Convert.ToInt32(lunchIdObj);
-
-            var cmd = new SQLiteCommand("DELETE FROM LunchSignup WHERE UserID = @userId AND LunchID = @lunchId", conn);
-            cmd.Parameters.AddWithValue("@userId", userId);
-            cmd.Parameters.AddWithValue("@lunchId", lunchId);
-
-            int affected = cmd.ExecuteNonQuery();
-
-            return affected > 0 ? Ok("Lejelentkezés sikeres.") : NotFound("Nem volt ilyen jelentkezés.");
-        }
     }
 
     public class DayMenuUpdateDto
-    {
-        public string? Day { get; set; }
-        public string? Soup { get; set; }
-        public string? MainDish { get; set; }
-        public string? Dessert { get; set; }
-    }
+        {
+            public string? Day { get; set; }
+            public string? Soup { get; set; }
+            public string? MainDish { get; set; }
+            public string? Dessert { get; set; }
+        }
 
     public class AddFoodDto
     {
