@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Linq;
 using System.Threading.Tasks;
 using SchoolAPI.Models;
-using System.Data.SQLite;
 
 public class RoleManager
 {

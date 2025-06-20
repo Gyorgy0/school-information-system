@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
-using SchoolAPI.Models.Lunch;
-using SchoolAPI.Models;
 using System.Collections.Generic;
-using System.Data.SQLite;
-using SchoolAPI.Controllers;
 using System.Data.Entity;
+using System.Data.SQLite;
 using System.Globalization;
+using Microsoft.AspNetCore.Mvc;
+using SchoolAPI.Controllers;
+using SchoolAPI.Models;
+using SchoolAPI.Models.Lunch;
 
 namespace SchoolAPI.Controllers
 {
@@ -30,10 +30,14 @@ namespace SchoolAPI.Controllers
             using var conn = DatabaseConnector.CreateNewConnection();
 
             var deleteCmd = conn.CreateCommand();
-            deleteCmd.CommandText = @"
+            deleteCmd.CommandText =
+                @"
         DELETE FROM Lunch 
         WHERE DATE(Date) BETWEEN DATE(@startDate) AND DATE(@startDate, '+4 day')";
-            deleteCmd.Parameters.AddWithValue("@startDate", request.StartDate.ToString("yyyy-MM-dd"));
+            deleteCmd.Parameters.AddWithValue(
+                "@startDate",
+                request.StartDate.ToString("yyyy-MM-dd")
+            );
             deleteCmd.ExecuteNonQuery();
 
             LunchGenerator.GenerateLunchForWeek(conn, request.StartDate);
@@ -69,8 +73,8 @@ namespace SchoolAPI.Controllers
             }
 
             using var cmd = new SQLiteCommand(@"
-            UPDATE Lunch 
-            SET SoupID = @soupId, MainDishID = @mainId, DessertID = @dessertId 
+            UPDATE Lunch
+            SET SoupID = @soupId, MainDishID = @mainId, DessertID = @dessertId
             WHERE Date = @date", conn);
 
             cmd.Parameters.AddWithValue("@soupId", soupId);
@@ -104,10 +108,13 @@ namespace SchoolAPI.Controllers
 
             var formattedDate = DateTime.Parse(update.Date).ToString("yyyy-MM-dd");
 
-            using var cmd = new SQLiteCommand(@"
+            using var cmd = new SQLiteCommand(
+                @"
         UPDATE Lunch 
         SET SoupID = @soupId, MainDishID = @mainId, DessertID = @dessertId 
-        WHERE ""Date"" = @date", conn);
+        WHERE ""Date"" = @date",
+                conn
+            );
 
             cmd.Parameters.AddWithValue("@soupId", soupId);
             cmd.Parameters.AddWithValue("@mainId", mainDishId);
@@ -167,7 +174,7 @@ namespace SchoolAPI.Controllers
                 "Soup" => "Soup",
                 "MainDish" => "MainDish",
                 "Dessert" => "Dessert",
-                _ => null
+                _ => null,
             };
 
             if (table == null)
@@ -214,12 +221,14 @@ namespace SchoolAPI.Controllers
                 while (reader.Read())
                     desserts.Add(reader.GetString(0));
 
-            return Ok(new
-            {
-                soups = soups,
-                mainDishes = mainDishes,
-                desserts = desserts
-            });
+            return Ok(
+                new
+                {
+                    soups = soups,
+                    mainDishes = mainDishes,
+                    desserts = desserts,
+                }
+            );
         }
 
         [HttpGet]
@@ -236,7 +245,7 @@ namespace SchoolAPI.Controllers
                 // Normalize startDate to Monday of that week
                 int daysSinceMonday = ((int)startDate.DayOfWeek + 6) % 7;
                 startDate = startDate.AddDays(-daysSinceMonday);
-                Console.WriteLine($"GetMenuForWeek called with startDate: {startDate:yyyy-MM-dd}");
+                //Console.WriteLine($"GetMenuForWeek called with startDate: {startDate:yyyy-MM-dd}");
             }
 
             return GetMenuForWeekInternal(startDate);
@@ -245,32 +254,18 @@ namespace SchoolAPI.Controllers
         [NonAction]
         public IActionResult GetMenuForWeekInternal(DateTime startDate)
         {
-            var sessionId = Request.Cookies["id"];
-            if (string.IsNullOrEmpty(sessionId))
-                return Unauthorized("Nincs bejelentkezve.");
-
-            var userId = SessionManager.GetUserID(sessionId);
-            if (userId == -1)
-                return Unauthorized("Nincs bejelentkezve vagy lejárt a munkamenet.");
-
             var weekMenu = new List<object>();
 
             using var conn = DatabaseConnector.CreateNewConnection();
 
-            var sql = @"
+            var sql =
+                @"
 SELECT 
     Lunch.LunchID,
     Lunch.Date,
     Soup.Name AS Soup,
     MainDish.Name AS MainDish,
-    Dessert.Name AS Dessert,
-    CASE 
-        WHEN EXISTS (
-            SELECT 1 FROM LunchSignup 
-            WHERE LunchSignup.UserID = @userId AND LunchSignup.LunchID = Lunch.LunchID
-        ) THEN 1
-        ELSE 0
-    END AS IsSignedUp
+    Dessert.Name AS Dessert
 FROM Lunch
 JOIN Soup ON Lunch.SoupID = Soup.SoupID
 JOIN MainDish ON Lunch.MainDishID = MainDish.MainDishID
@@ -279,35 +274,41 @@ WHERE DATE(Lunch.Date) BETWEEN DATE(@startDate) AND DATE(@startDate, '+4 day')
 ORDER BY DATE(Lunch.Date) ASC";
 
             using var cmd = new SQLiteCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@userId", userId);
             cmd.Parameters.AddWithValue("@startDate", startDate.ToString("yyyy-MM-dd"));
 
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
                 var date = DateTime.Parse(reader.GetString(1));
-                weekMenu.Add(new
-                {
-                    date = date.ToString("yyyy-MM-dd"),
-                    day = date.ToString("dddd", new CultureInfo("hu-HU")),
-                    soup = reader.GetString(2),
-                    mainDish = reader.GetString(3),
-                    dessert = reader.GetString(4),
-                    isSignedUp = reader.GetInt32(5) == 1
-                });
+                weekMenu.Add(
+                    new
+                    {
+                        date = date.ToString("yyyy-MM-dd"),
+                        day = date.ToString("dddd", new CultureInfo("hu-HU")),
+                        soup = reader.GetString(2),
+                        mainDish = reader.GetString(3),
+                        dessert = reader.GetString(4),
+                    }
+                );
             }
-            return Json(new
-            {
-                startDate = startDate.ToString("yyyy-MM-dd"),  // a pontos hétfő dátuma
-                weekMenu = weekMenu
-            });
+            return Json(
+                new
+                {
+                    startDate = startDate.ToString("yyyy-MM-dd"), // a pontos hétfő dátuma
+                    weekMenu = weekMenu,
+                }
+            );
         }
 
         private int? GetIdByName(SQLiteConnection conn, string tableName, string? name)
         {
-            if (string.IsNullOrEmpty(name)) return null;
+            if (string.IsNullOrEmpty(name))
+                return null;
 
-            using var cmd = new SQLiteCommand($"SELECT {tableName}ID FROM {tableName} WHERE Name = @name", conn);
+            using var cmd = new SQLiteCommand(
+                $"SELECT {tableName}ID FROM {tableName} WHERE Name = @name",
+                conn
+            );
             cmd.Parameters.AddWithValue("@name", name);
             var result = cmd.ExecuteScalar();
             return result == null ? (int?)null : Convert.ToInt32(result);

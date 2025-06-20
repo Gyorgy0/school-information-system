@@ -26,6 +26,7 @@ namespace SchoolAPI.Controllers
             var html = System.IO.File.ReadAllText($"./assets/{role}/mainpage.html");
             return base.Content(html, "text/html");
         }
+
         [HttpGet]
         public ContentResult timetable()
         {
@@ -42,6 +43,7 @@ namespace SchoolAPI.Controllers
             var html = System.IO.File.ReadAllText($"./assets/{role}/timetable.html");
             return base.Content(html, "text/html");
         }
+
         [HttpGet]
         public ContentResult lunchmenupage()
         {
@@ -58,10 +60,11 @@ namespace SchoolAPI.Controllers
             var html = System.IO.File.ReadAllText($"./assets/{role}/lunchmenupage.html");
             return base.Content(html, "text/html");
         }
+
         [HttpGet]
         public ContentResult courses()
         {
-           string? sessionId = Request.Cookies["id"];
+            string? sessionId = Request.Cookies["id"];
             if (string.IsNullOrEmpty(sessionId))
             {
                 return base.Content("<script>window.location.href = '/';</script>", "text/html");

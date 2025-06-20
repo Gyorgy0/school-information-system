@@ -1,14 +1,17 @@
+using System.Data.SQLite;
 using Microsoft.AspNetCore.Mvc;
 using SchoolAPI.Models;
-using System.Data.SQLite;
 
 [ApiController]
 [Route("[controller]/[action]")]
 public class UserController : Controller
 {
-
     [HttpPost]
-    public IActionResult Create([FromForm] string username, [FromForm] string password, [FromForm] string role)
+    public IActionResult Create(
+        [FromForm] string username,
+        [FromForm] string password,
+        [FromForm] string role
+    )
     {
         using (var connection = DatabaseConnector.CreateNewConnection())
         {
@@ -28,7 +31,8 @@ public class UserController : Controller
             string salt = PasswordManager.GenerateSalt();
             string hashedPassword = PasswordManager.GeneratePasswordHash(password, salt);
 
-            string insertSql = "INSERT INTO User (Username, PasswordHash, PasswordSalt, Role) VALUES (@Username, @PasswordHash, @PasswordSalt, @Role)";
+            string insertSql =
+                "INSERT INTO User (Username, PasswordHash, PasswordSalt, Role) VALUES (@Username, @PasswordHash, @PasswordSalt, @Role)";
             using (SQLiteCommand cmd = new SQLiteCommand(insertSql, connection))
             {
                 cmd.Parameters.AddWithValue("@Username", username);
@@ -52,7 +56,7 @@ public class UserController : Controller
         using (SQLiteConnection connection = DatabaseConnector.CreateNewConnection())
         {
             // Megnézzük, hogy be van-e jelentkezve már az éppen bejelentkezni kívánó felhasználó
-            string selectSql = $"SELECT UserID FROM User WHERE Username = '{username}'"; 
+            string selectSql = $"SELECT UserID FROM User WHERE Username = '{username}'";
             using (SQLiteCommand cmd = new SQLiteCommand(selectSql, connection))
             {
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
@@ -82,7 +86,8 @@ public class UserController : Controller
                 }
             }
             // Jelszó ellenőrzése
-                selectSql = $"SELECT UserID, PasswordHash, PasswordSalt, Role FROM User WHERE Username = '{username}'";
+            selectSql =
+                $"SELECT UserID, PasswordHash, PasswordSalt, Role FROM User WHERE Username = '{username}'";
             using (SQLiteCommand cmd = new SQLiteCommand(selectSql, connection))
             {
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
@@ -93,8 +98,11 @@ public class UserController : Controller
                         string? storedSalt = reader["PasswordSalt"].ToString();
                         role = reader["Role"].ToString();
 
-                        if (!string.IsNullOrEmpty(storedPasswordHash) && !string.IsNullOrEmpty(storedSalt) &&
-                            PasswordManager.Verify(password, storedSalt, storedPasswordHash))
+                        if (
+                            !string.IsNullOrEmpty(storedPasswordHash)
+                            && !string.IsNullOrEmpty(storedSalt)
+                            && PasswordManager.Verify(password, storedSalt, storedPasswordHash)
+                        )
                         {
                             userID = Convert.ToInt64(reader["UserID"]);
                         }
@@ -114,13 +122,17 @@ public class UserController : Controller
         SessionManager.InvalidateAllSessions(userID);
         string sessionCookie = SessionManager.CreateSession(userID);
 
-        Response.Cookies.Append("id", sessionCookie, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTime.UtcNow.AddHours(1)
-        });
+        Response.Cookies.Append(
+            "id",
+            sessionCookie,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddHours(1),
+            }
+        );
 
         return Ok(new { message = "Bejelentkezés sikeres!", role = role });
     }
@@ -138,7 +150,7 @@ public class UserController : Controller
         return Ok("Kijelentkezés sikeres!");
     }
 
-    static public bool IsLoggedIn(string SessionCookie)
+    public static bool IsLoggedIn(string SessionCookie)
     {
         Int64 userID = SessionManager.GetUserID(SessionCookie);
         return userID != -1;
@@ -166,12 +178,26 @@ public class UserController : Controller
         var sessionId = Request.Cookies["id"];
         if (string.IsNullOrEmpty(sessionId))
         {
-            return Json(new { userID = -1, username = (string?)null, role = (string?)null });
+            return Json(
+                new
+                {
+                    userID = -1,
+                    username = (string?)null,
+                    role = (string?)null,
+                }
+            );
         }
         Int64 userID = SessionManager.GetUserID(sessionId);
         if (userID == -1)
         {
-            return Json(new { userID = -1, username = (string?)null, role = (string?)null });
+            return Json(
+                new
+                {
+                    userID = -1,
+                    username = (string?)null,
+                    role = (string?)null,
+                }
+            );
         }
 
         string? role = null;
@@ -193,7 +219,14 @@ public class UserController : Controller
             }
         }
 
-        return Json(new { userID, username, role });
+        return Json(
+            new
+            {
+                userID,
+                username,
+                role,
+            }
+        );
     }
 
     [HttpGet]
@@ -211,11 +244,13 @@ public class UserController : Controller
                     {
                         while (reader.Read())
                         {
-                            users.Add(new UserDto
-                            {
-                                UserID = reader.GetInt64(reader.GetOrdinal("UserID")),
-                                Username = reader.GetString(reader.GetOrdinal("Username"))
-                            });
+                            users.Add(
+                                new UserDto
+                                {
+                                    UserID = reader.GetInt64(reader.GetOrdinal("UserID")),
+                                    Username = reader.GetString(reader.GetOrdinal("Username")),
+                                }
+                            );
                         }
                     }
                 }

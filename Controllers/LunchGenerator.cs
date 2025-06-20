@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Globalization;
 
-
 namespace SchoolAPI.Controllers
 {
     public static class LunchGenerator
@@ -18,36 +17,59 @@ namespace SchoolAPI.Controllers
 
             if (IsEmpty("Soup"))
             {
-                var soups = new[] { "Húsleves", "Paradicsomleves", "Zöldségleves", "Gulyásleves", "Lencseleves" };
+                var soups = new[]
+                {
+                    "Húsleves",
+                    "Paradicsomleves",
+                    "Zöldségleves",
+                    "Gulyásleves",
+                    "Lencseleves",
+                };
                 foreach (var s in soups)
                 {
                     new SQLiteCommand("INSERT INTO Soup (Name) VALUES (@name)", conn)
                     {
-                        Parameters = { new SQLiteParameter("@name", s) }
+                        Parameters = { new SQLiteParameter("@name", s) },
                     }.ExecuteNonQuery();
                 }
             }
 
             if (IsEmpty("MainDish"))
             {
-                var mains = new[] { "Spagetti", "Grill Csirke", "Rántott Hús", "Töltött Csirke", "Halrudacska" };
+                var mains = new[]
+                {
+                    "Spagetti",
+                    "Grill Csirke",
+                    "Rántott Hús",
+                    "Töltött Csirke",
+                    "Halrudacska",
+                };
                 foreach (var m in mains)
                 {
                     new SQLiteCommand("INSERT INTO MainDish (Name) VALUES (@name)", conn)
                     {
-                        Parameters = { new SQLiteParameter("@name", m) }
+                        Parameters = { new SQLiteParameter("@name", m) },
                     }.ExecuteNonQuery();
                 }
             }
 
             if (IsEmpty("Dessert"))
             {
-                var desserts = new[] { "Fagyi", "Süti", "Krémes", "Palacsinta", "Túrós rétes", "Puding", "Gyümölcssaláta" };
+                var desserts = new[]
+                {
+                    "Fagyi",
+                    "Süti",
+                    "Krémes",
+                    "Palacsinta",
+                    "Túrós rétes",
+                    "Puding",
+                    "Gyümölcssaláta",
+                };
                 foreach (var d in desserts)
                 {
                     new SQLiteCommand("INSERT INTO Dessert (Name) VALUES (@name)", conn)
                     {
-                        Parameters = { new SQLiteParameter("@name", d) }
+                        Parameters = { new SQLiteParameter("@name", d) },
                     }.ExecuteNonQuery();
                 }
             }
@@ -68,7 +90,8 @@ namespace SchoolAPI.Controllers
                 var dayName = date.ToString("dddd", new CultureInfo("hu-HU"));
 
                 var cmd = conn.CreateCommand();
-                cmd.CommandText = @"
+                cmd.CommandText =
+                    @"
     INSERT INTO Lunch (Date, Day, SoupID, MainDishID, DessertID)
     VALUES (@date, @day, @soup, @main, @dessert)";
                 cmd.Parameters.AddWithValue("@date", date.ToString("yyyy-MM-dd"));
@@ -90,7 +113,8 @@ namespace SchoolAPI.Controllers
             while (reader.Read())
                 ids.Add(reader.GetInt32(0));
 
-            if (ids.Count == 0) throw new Exception($"Nincs adat a(z) {tableName} táblában.");
+            if (ids.Count == 0)
+                throw new Exception($"Nincs adat a(z) {tableName} táblában.");
 
             return ids[rng.Next(ids.Count)];
         }
@@ -121,14 +145,19 @@ namespace SchoolAPI.Controllers
 
                 for (int i = 0; i < 5 && date.Year == year; i++)
                 {
-                    string dayName = date.ToString("dddd", new System.Globalization.CultureInfo("hu-HU"));
+                    string dayName = date.ToString(
+                        "dddd",
+                        new System.Globalization.CultureInfo("hu-HU")
+                    );
 
                     int soupId = weeklySoups[i % weeklySoups.Count];
                     int mainId = weeklyMains[i % weeklyMains.Count];
                     int dessertId = weeklyDesserts[i % weeklyDesserts.Count];
 
                     using var cmd = new SQLiteCommand(
-                        "INSERT INTO Lunch (Day, Date, SoupID, MainDishID, DessertID) VALUES (@day, @date, @soup, @main, @dessert)", conn);
+                        "INSERT INTO Lunch (Day, Date, SoupID, MainDishID, DessertID) VALUES (@day, @date, @soup, @main, @dessert)",
+                        conn
+                    );
 
                     cmd.Parameters.AddWithValue("@day", dayName); // dinamikus napnév
                     cmd.Parameters.AddWithValue("@date", date.ToString("yyyy-MM-dd"));
