@@ -121,7 +121,8 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
     "`CourseID`   INTEGER NOT NULL, " +
     "`Content`    TEXT    NOT NULL, " +
     "`CreatedAt`  DATETIME NOT NULL DEFAULT (datetime('now')), " +
-    "FOREIGN KEY(`CourseID`) REFERENCES `Course`(`CourseID`));" +
+    "FOREIGN KEY(`CourseID`) REFERENCES `Course`(`CourseID`)" +
+    ");" +
 
     "CREATE TABLE IF NOT EXISTS `CourseTest` (" +
     "TestID INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -130,21 +131,6 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
     "Description TEXT, " +
     "DueDate DATETIME, " +
     "FOREIGN KEY(CourseID) REFERENCES `Course`(`CourseID`));" +
-
-    "CREATE TABLE IF NOT EXISTS `Assignment` (" +
-    "AssignmentID INTEGER PRIMARY KEY AUTOINCREMENT, " +
-    "CourseID INTEGER NOT NULL, " +
-    "Title TEXT NOT NULL, " +
-    "Description TEXT, " +
-    "DueDate DATETIME, " +
-    "FOREIGN KEY(CourseID) REFERENCES `Course`(`CourseID`));" +
-
-    "CREATE TABLE IF NOT EXISTS `SchoolEvent` (" +
-    "EventID INTEGER PRIMARY KEY AUTOINCREMENT, " +
-    "TimetableID INTEGER NOT NULL, " +
-    "EventType TEXT NOT NULL, " +
-    "EventDate DATETIME NOT NULL, " +
-    "Description TEXT);" +
 
     "CREATE TABLE IF NOT EXISTS `Soup` (" +
     "`SoupID` INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -164,9 +150,23 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
     "`SoupID` INTEGER NOT NULL, " +
     "`MainDishID` INTEGER NOT NULL, " +
     "`DessertID` INTEGER NOT NULL, " +
+    "`Date` TEXT, " + 
     "FOREIGN KEY (`SoupID`) REFERENCES `Soup`(`SoupID`), " +
     "FOREIGN KEY (`MainDishID`) REFERENCES `MainDish`(`MainDishID`), " +
     "FOREIGN KEY (`DessertID`) REFERENCES `Dessert`(`DessertID`));" +
+
+    "CREATE TABLE IF NOT EXISTS `LunchSignup` (" + 
+	"`UserID` TEXT NOT NULL PRIMARY KEY, " +
+	"`LunchID` INTEGER NOT NULL, " +
+	"`Day` TEXT NOT NULL, " +
+	"FOREIGN KEY(`LunchID`) REFERENCES `Lunch`(`LunchID`));" + 
+
+    "CREATE TABLE IF NOT EXISTS `Subject` (" +
+    "`SubjectID` INTEGER NOT NULL PRIMARY KEY, " +
+    "`UserID` INTEGER NOT NULL, " +
+    "`Subject` TEXT NOT NULL, " +
+    "`IsClosed`	INTEGER NOT NULL, " +
+    "FOREIGN KEY(`UserID`) REFERENCES `User`(`UserID`));" + 
 
     "CREATE TABLE IF NOT EXISTS `Absence` (" +
     "`AbsenceID` INTEGER NOT NULL PRIMARY KEY, " +
