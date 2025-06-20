@@ -4,6 +4,7 @@ using System.Text;
 public class PasswordManager
 {
     private static Random random = new Random();
+
     public static string Hash(string value)
     {
         SHA256 sha256 = SHA256.Create();

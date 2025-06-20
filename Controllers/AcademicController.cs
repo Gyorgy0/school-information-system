@@ -1,19 +1,18 @@
-using Microsoft.AspNetCore.Mvc;
-using SchoolAPI.Models;
-using SchoolAPI.Models.Timetable;
-using SchoolAPI.Models.Grade;
-using SchoolAPI.Models.Task;
-using SchoolAPI.Models.Topic;
-using SchoolAPI.Models.Users;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
+using SchoolAPI.Models;
+using SchoolAPI.Models.Grade;
+using SchoolAPI.Models.Task;
+using SchoolAPI.Models.Timetable;
+using SchoolAPI.Models.Topic;
+using SchoolAPI.Models.Users;
 
 namespace SchoolAPI.Controllers
 {
     [ApiController]
     [Route("[controller]/[action]")]
-
     public class AcademicController : Controller
     {
         [HttpGet]
@@ -34,13 +33,15 @@ namespace SchoolAPI.Controllers
                     var reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
-                        absences.Add(new Timetable
-                        {
-                            AbsenceID = reader.GetInt32(0),
-                            TimetableID = reader.GetInt32(1),
-                            StudentID = reader.GetInt32(2),
-                            Date = reader.GetDateTime(3)
-                        });
+                        absences.Add(
+                            new Timetable
+                            {
+                                AbsenceID = reader.GetInt32(0),
+                                TimetableID = reader.GetInt32(1),
+                                StudentID = reader.GetInt32(2),
+                                Date = reader.GetDateTime(3),
+                            }
+                        );
                     }
                 }
             }
@@ -49,9 +50,14 @@ namespace SchoolAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult MarkAbsence([FromForm] int timetableID, [FromForm] int studentID, [FromForm] DateTime date)
+        public IActionResult MarkAbsence(
+            [FromForm] int timetableID,
+            [FromForm] int studentID,
+            [FromForm] DateTime date
+        )
         {
-            string sql = "INSERT INTO Absence (TimetableID, StudentID, Date) VALUES (@TimetableID, @StudentID, @Date)";
+            string sql =
+                "INSERT INTO Absence (TimetableID, StudentID, Date) VALUES (@TimetableID, @StudentID, @Date)";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
@@ -70,7 +76,8 @@ namespace SchoolAPI.Controllers
         [HttpPost]
         public IActionResult AddGrade(int studentID, int taskID, float grade)
         {
-            string sql = "INSERT INTO Grade (StudentID, TaskID, Grade, Date) VALUES (@StudentID, @TaskID, @Grade, @Date)";
+            string sql =
+                "INSERT INTO Grade (StudentID, TaskID, Grade, Date) VALUES (@StudentID, @TaskID, @Grade, @Date)";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
@@ -110,7 +117,8 @@ namespace SchoolAPI.Controllers
         [HttpGet]
         public IActionResult GetClassAverage(int classID)
         {
-            string sql = @"
+            string sql =
+                @"
         SELECT AVG(Grade) 
         FROM Grade 
         WHERE StudentID IN (
@@ -159,7 +167,8 @@ namespace SchoolAPI.Controllers
 
             if (role == "student" && studentID.HasValue)
             {
-                sql = @"
+                sql =
+                    @"
             SELECT g.StudentID, u.Name AS StudentName, g.TaskID, t.Title AS TaskTitle, g.Grade, g.Date
             FROM Grade g
             JOIN User u ON g.StudentID = u.UserID AND u.Role = 'student'
@@ -168,7 +177,8 @@ namespace SchoolAPI.Controllers
             }
             else if (role == "teacher" && teacherID.HasValue)
             {
-                sql = @"
+                sql =
+                    @"
             SELECT g.StudentID, u.Name AS StudentName, g.TaskID, t.Title AS TaskTitle, g.Grade, g.Date
             FROM Grade g
             JOIN User u ON g.StudentID = u.UserID AND u.Role = 'student'
@@ -179,7 +189,8 @@ namespace SchoolAPI.Controllers
             }
             else if (role == "admin")
             {
-                sql = @"
+                sql =
+                    @"
             SELECT g.StudentID, u.Name AS StudentName, g.TaskID, t.Title AS TaskTitle, g.Grade, g.Date
             FROM Grade g
             JOIN User u ON g.StudentID = u.UserID AND u.Role = 'student'
@@ -204,15 +215,17 @@ namespace SchoolAPI.Controllers
                     {
                         while (reader.Read())
                         {
-                            grades.Add(new GradeModel
-                            {
-                                StudentID = reader.GetInt32(0),
-                                StudentName = reader.GetString(1),
-                                TaskID = reader.GetInt32(2),
-                                TaskTitle = reader.GetString(3),
-                                StudentGrade = reader.GetFloat(4),
-                                Date = reader.GetDateTime(5)
-                            });
+                            grades.Add(
+                                new GradeModel
+                                {
+                                    StudentID = reader.GetInt32(0),
+                                    StudentName = reader.GetString(1),
+                                    TaskID = reader.GetInt32(2),
+                                    TaskTitle = reader.GetString(3),
+                                    StudentGrade = reader.GetFloat(4),
+                                    Date = reader.GetDateTime(5),
+                                }
+                            );
                         }
                     }
                 }
@@ -227,7 +240,8 @@ namespace SchoolAPI.Controllers
             if (type != "Warning" && type != "Praise")
                 return BadRequest("Érvénytelen típus");
 
-            string sql = "INSERT INTO WarningsAndPraises (StudentID, Type, Description, Date) VALUES (@StudentID, @Type, @Description, @Date)";
+            string sql =
+                "INSERT INTO WarningsAndPraises (StudentID, Type, Description, Date) VALUES (@StudentID, @Type, @Description, @Date)";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
@@ -245,9 +259,16 @@ namespace SchoolAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddTask([FromForm] string title, [FromForm] string description, [FromForm] int subjectID, [FromForm] int teacherID, [FromForm] DateTime dueDate)
+        public IActionResult AddTask(
+            [FromForm] string title,
+            [FromForm] string description,
+            [FromForm] int subjectID,
+            [FromForm] int teacherID,
+            [FromForm] DateTime dueDate
+        )
         {
-            string sql = "INSERT INTO Task (Title, Description, SubjectID, TeacherID, DueDate) VALUES (@Title, @Description, @SubjectID, @TeacherID, @DueDate)";
+            string sql =
+                "INSERT INTO Task (Title, Description, SubjectID, TeacherID, DueDate) VALUES (@Title, @Description, @SubjectID, @TeacherID, @DueDate)";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
@@ -270,7 +291,8 @@ namespace SchoolAPI.Controllers
         {
             List<TaskModel> tasks = new();
 
-            string sql = @"
+            string sql =
+                @"
             SELECT 
                 Task.TaskID,
                 Task.Title,
@@ -290,16 +312,18 @@ namespace SchoolAPI.Controllers
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                tasks.Add(new TaskModel
-                {
-                    TaskID = reader.GetInt32(0),
-                    Title = reader.GetString(1),
-                    Description = reader.GetString(2),
-                    SubjectID = reader.GetInt32(3),
-                    TeacherID = reader.GetInt32(4),
-                    DueDate = reader.GetDateTime(5),
-                    SubjectName = reader.GetString(6)
-                });
+                tasks.Add(
+                    new TaskModel
+                    {
+                        TaskID = reader.GetInt32(0),
+                        Title = reader.GetString(1),
+                        Description = reader.GetString(2),
+                        SubjectID = reader.GetInt32(3),
+                        TeacherID = reader.GetInt32(4),
+                        DueDate = reader.GetDateTime(5),
+                        SubjectName = reader.GetString(6),
+                    }
+                );
             }
 
             return Json(tasks);
@@ -309,7 +333,8 @@ namespace SchoolAPI.Controllers
         public IActionResult GetTasks()
         {
             List<TaskModel> tasks = new List<TaskModel>();
-            string sql = @"
+            string sql =
+                @"
             SELECT 
                 Task.TaskID,
                 Task.Title,
@@ -328,16 +353,18 @@ namespace SchoolAPI.Controllers
                     var reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
-                        tasks.Add(new TaskModel
-                        {
-                            TaskID = reader.GetInt32(0),
-                            Title = reader.GetString(1),
-                            Description = reader.GetString(2),
-                            SubjectID = reader.GetInt32(3),
-                            TeacherID = reader.GetInt32(4),
-                            DueDate = reader.GetDateTime(5),
-                            SubjectName = reader.GetString(6)
-                        });
+                        tasks.Add(
+                            new TaskModel
+                            {
+                                TaskID = reader.GetInt32(0),
+                                Title = reader.GetString(1),
+                                Description = reader.GetString(2),
+                                SubjectID = reader.GetInt32(3),
+                                TeacherID = reader.GetInt32(4),
+                                DueDate = reader.GetDateTime(5),
+                                SubjectName = reader.GetString(6),
+                            }
+                        );
                     }
                 }
             }
@@ -346,9 +373,16 @@ namespace SchoolAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddTaskByName([FromForm] string title, [FromForm] string description, [FromForm] string subjectName, [FromForm] int teacherID, [FromForm] DateTime dueDate)
+        public IActionResult AddTaskByName(
+            [FromForm] string title,
+            [FromForm] string description,
+            [FromForm] string subjectName,
+            [FromForm] int teacherID,
+            [FromForm] DateTime dueDate
+        )
         {
-            string sqlGetTimetableId = @"
+            string sqlGetTimetableId =
+                @"
             SELECT TimetableID FROM Timetable
             WHERE Subject = @SubjectName AND TeacherID = @TeacherID
             LIMIT 1";
@@ -364,12 +398,15 @@ namespace SchoolAPI.Controllers
                     var result = cmd.ExecuteScalar();
 
                     if (result == null)
-                        return BadRequest("Nem található ilyen tantárgy ezzel a tanárral az órarendben.");
+                        return BadRequest(
+                            "Nem található ilyen tantárgy ezzel a tanárral az órarendben."
+                        );
 
                     timetableID = Convert.ToInt32(result);
                 }
 
-                string sqlInsert = "INSERT INTO Task (Title, Description, SubjectID, TeacherID, DueDate) VALUES (@Title, @Description, @SubjectID, @TeacherID, @DueDate)";
+                string sqlInsert =
+                    "INSERT INTO Task (Title, Description, SubjectID, TeacherID, DueDate) VALUES (@Title, @Description, @SubjectID, @TeacherID, @DueDate)";
                 using (var cmd = new SQLiteCommand(sqlInsert, connection))
                 {
                     cmd.Parameters.AddWithValue("@Title", title);
@@ -397,12 +434,14 @@ namespace SchoolAPI.Controllers
                     var reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
-                        topics.Add(new TopicModel
-                        {
-                            TopicID = reader.GetInt32(0),
-                            Subject = reader.GetString(1),
-                            Description = reader.GetString(2)
-                        });
+                        topics.Add(
+                            new TopicModel
+                            {
+                                TopicID = reader.GetInt32(0),
+                                Subject = reader.GetString(1),
+                                Description = reader.GetString(2),
+                            }
+                        );
                     }
                 }
             }
@@ -416,10 +455,12 @@ namespace SchoolAPI.Controllers
             [FromForm] string description,
             [FromForm] int subjectID,
             [FromForm] int teacherID,
-            [FromForm] DateTime dueDate)
+            [FromForm] DateTime dueDate
+        )
         {
-            string sql = "INSERT INTO Task (Title, Description, SubjectID, TeacherID, DueDate) " +
-                         "VALUES (@Title, @Description, @SubjectID, @TeacherID, @DueDate)";
+            string sql =
+                "INSERT INTO Task (Title, Description, SubjectID, TeacherID, DueDate) "
+                + "VALUES (@Title, @Description, @SubjectID, @TeacherID, @DueDate)";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {

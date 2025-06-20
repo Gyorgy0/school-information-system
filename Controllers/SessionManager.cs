@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
-using SchoolAPI.Models;
 using System;
 using System.Data.SQLite;
+using Microsoft.AspNetCore.Mvc;
+using SchoolAPI.Models;
+
 public class SessionManager
 {
     public static string CreateSession(Int64 UserID)
@@ -17,13 +18,17 @@ public class SessionManager
 
             Int64 validUntil = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 10;
 
-            string insertSql = "INSERT INTO Session (SessionCookie, UserID, ValidUntil, LoginTime) VALUES (@SessionCookie, @UserID, @ValidUntil, @LoginTime)";
+            string insertSql =
+                "INSERT INTO Session (SessionCookie, UserID, ValidUntil, LoginTime) VALUES (@SessionCookie, @UserID, @ValidUntil, @LoginTime)";
             using (SQLiteCommand cmd = new SQLiteCommand(insertSql, connection))
             {
                 cmd.Parameters.AddWithValue("@SessionCookie", sessionCookie);
                 cmd.Parameters.AddWithValue("@UserID", UserID);
                 cmd.Parameters.AddWithValue("@ValidUntil", validUntil);
-                cmd.Parameters.AddWithValue("@LoginTime", DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+                cmd.Parameters.AddWithValue(
+                    "@LoginTime",
+                    DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                );
                 cmd.ExecuteNonQuery();
             }
             return sessionCookie;
@@ -85,12 +90,16 @@ public class SessionManager
     {
         using (SQLiteConnection connection = DatabaseConnector.CreateNewConnection())
         {
-            string selectSql = "SELECT UserID FROM Session WHERE SessionCookie = @SessionCookie AND ValidUntil > @CurrentTime";
+            string selectSql =
+                "SELECT UserID FROM Session WHERE SessionCookie = @SessionCookie AND ValidUntil > @CurrentTime";
 
             using (SQLiteCommand cmd = new SQLiteCommand(selectSql, connection))
             {
                 cmd.Parameters.AddWithValue("@SessionCookie", SessionCookie);
-                cmd.Parameters.AddWithValue("@CurrentTime", DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+                cmd.Parameters.AddWithValue(
+                    "@CurrentTime",
+                    DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                );
 
                 try
                 {

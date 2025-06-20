@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using Microsoft.AspNetCore.Mvc;
 using SchoolAPI.Models;
 using SchoolAPI.Models.Grade;
 using SchoolAPI.Models.Timetable;
@@ -25,7 +25,8 @@ public class StatisticsController : Controller
                 return NotFound("Felhasználó nem található.");
 
             // Jegyek lekérdezése
-            string sqlGrades = @"
+            string sqlGrades =
+                @"
                 SELECT g.TaskID, g.StudentGrade, g.Date, t.Title AS TaskTitle
                 FROM Grade g
                 JOIN Task t ON g.TaskID = t.TaskID
@@ -37,20 +38,23 @@ public class StatisticsController : Controller
                 using var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    grades.Add(new GradeModel
-                    {
-                        StudentID = studentID,
-                        TaskID = reader.GetInt32(0),
-                        StudentGrade = reader.GetFloat(1),
-                        Date = reader.GetDateTime(2),
-                        TaskTitle = reader.GetString(3),
-                        StudentName = username
-                    });
+                    grades.Add(
+                        new GradeModel
+                        {
+                            StudentID = studentID,
+                            TaskID = reader.GetInt32(0),
+                            StudentGrade = reader.GetFloat(1),
+                            Date = reader.GetDateTime(2),
+                            TaskTitle = reader.GetString(3),
+                            StudentName = username,
+                        }
+                    );
                 }
             }
 
             // Hiányzások lekérdezése
-            string sqlAbsences = @"
+            string sqlAbsences =
+                @"
                 SELECT AbsenceID, TimetableID, Date
                 FROM Absence
                 WHERE StudentID = @StudentID";
@@ -61,13 +65,15 @@ public class StatisticsController : Controller
                 using var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    absences.Add(new Timetable
-                    {
-                        AbsenceID = reader.GetInt32(0),
-                        TimetableID = reader.GetInt32(1),
-                        StudentID = studentID,
-                        Date = reader.GetDateTime(2)
-                    });
+                    absences.Add(
+                        new Timetable
+                        {
+                            AbsenceID = reader.GetInt32(0),
+                            TimetableID = reader.GetInt32(1),
+                            StudentID = studentID,
+                            Date = reader.GetDateTime(2),
+                        }
+                    );
                 }
             }
 
@@ -80,7 +86,8 @@ public class StatisticsController : Controller
             if (teacherID == -1)
                 return NotFound("Tanár nem található.");
 
-            string sql = @"
+            string sql =
+                @"
                 SELECT DISTINCT u.UserID, u.Username
                 FROM User u
                 JOIN Grade g ON g.StudentID = u.UserID
@@ -100,7 +107,8 @@ public class StatisticsController : Controller
                     int absenceCount = 0;
 
                     // Jegyek lekérdezése
-                    string gradeSql = @"
+                    string gradeSql =
+                        @"
                         SELECT g.TaskID, g.StudentGrade, g.Date, t.Title
                         FROM Grade g
                         JOIN Task t ON g.TaskID = t.TaskID
@@ -113,15 +121,17 @@ public class StatisticsController : Controller
                         using var gradeReader = gradeCmd.ExecuteReader();
                         while (gradeReader.Read())
                         {
-                            studentGrades.Add(new GradeModel
-                            {
-                                StudentID = studentID,
-                                TaskID = gradeReader.GetInt32(0),
-                                StudentGrade = gradeReader.GetFloat(1),
-                                Date = gradeReader.GetDateTime(2),
-                                TaskTitle = gradeReader.GetString(3),
-                                StudentName = studentName
-                            });
+                            studentGrades.Add(
+                                new GradeModel
+                                {
+                                    StudentID = studentID,
+                                    TaskID = gradeReader.GetInt32(0),
+                                    StudentGrade = gradeReader.GetFloat(1),
+                                    Date = gradeReader.GetDateTime(2),
+                                    TaskTitle = gradeReader.GetString(3),
+                                    StudentName = studentName,
+                                }
+                            );
                         }
                     }
 
@@ -133,12 +143,14 @@ public class StatisticsController : Controller
                         absenceCount = Convert.ToInt32(absenceCmd.ExecuteScalar());
                     }
 
-                    students.Add(new
-                    {
-                        name = studentName,
-                        grades = studentGrades,
-                        absences = new string[absenceCount]
-                    });
+                    students.Add(
+                        new
+                        {
+                            name = studentName,
+                            grades = studentGrades,
+                            absences = new string[absenceCount],
+                        }
+                    );
                 }
             }
 
@@ -150,18 +162,29 @@ public class StatisticsController : Controller
             int studentsCount = 0;
             var classes = new List<object>();
 
-            using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM User WHERE Role = 'teacher'", connection))
+            using (
+                var cmd = new SQLiteCommand(
+                    "SELECT COUNT(*) FROM User WHERE Role = 'teacher'",
+                    connection
+                )
+            )
             {
                 teachersCount = Convert.ToInt32(cmd.ExecuteScalar());
             }
 
-            using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM User WHERE Role = 'student'", connection))
+            using (
+                var cmd = new SQLiteCommand(
+                    "SELECT COUNT(*) FROM User WHERE Role = 'student'",
+                    connection
+                )
+            )
             {
                 studentsCount = Convert.ToInt32(cmd.ExecuteScalar());
             }
 
             // ClassID alapján csoportosított lekérdezés a User táblából
-            string classSql = @"
+            string classSql =
+                @"
                 SELECT ClassID, COUNT(*) AS StudentCount
                 FROM User
                 WHERE Role = 'student' AND ClassID IS NOT NULL
@@ -175,15 +198,18 @@ public class StatisticsController : Controller
                     int classID = reader.GetInt32(0);
                     int studentCount = reader.GetInt32(1);
 
-                    classes.Add(new
-                    {
-                        name = $"Class {classID}",
-                        studentCount = studentCount
-                    });
+                    classes.Add(new { name = $"Class {classID}", studentCount = studentCount });
                 }
             }
 
-            return Json(new { teachersCount, studentsCount, classes });
+            return Json(
+                new
+                {
+                    teachersCount,
+                    studentsCount,
+                    classes,
+                }
+            );
         }
 
         return BadRequest("Ismeretlen szerepkör.");

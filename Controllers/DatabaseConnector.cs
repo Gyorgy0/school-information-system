@@ -1,4 +1,3 @@
-
 using System.Data.SQLite;
 
 public static class DatabaseConnector
@@ -13,7 +12,9 @@ public static class DatabaseConnector
 
             if (projectRoot == null)
             {
-                throw new InvalidOperationException("Nem sikerült meghatározni a projekt gyökérkönyvtárát!");
+                throw new InvalidOperationException(
+                    "Nem sikerült meghatározni a projekt gyökérkönyvtárát!"
+                );
             }
 
             string dbPath = Path.Combine(projectRoot, "database", "edupage.sqlite3");
@@ -21,7 +22,10 @@ public static class DatabaseConnector
             if (!File.Exists(dbPath))
             {
                 Console.WriteLine("HIBA: Az adatbázis fájl nem található!");
-                throw new FileNotFoundException("Az adatbázis nem található a megadott helyen.", dbPath);
+                throw new FileNotFoundException(
+                    "Az adatbázis nem található a megadott helyen.",
+                    dbPath
+                );
             }
 
             conn = new SQLiteConnection($"Data Source={dbPath}");
@@ -41,7 +45,9 @@ public static class DatabaseConnector
 
         if (projectRoot == null)
         {
-            throw new InvalidOperationException("Nem sikerült meghatározni a projekt gyökérkönyvtárát!");
+            throw new InvalidOperationException(
+                "Nem sikerült meghatározni a projekt gyökérkönyvtárát!"
+            );
         }
 
         string dbPath = Path.Combine(projectRoot, "database", "edupage.sqlite3");
@@ -58,7 +64,8 @@ public static class DatabaseConnector
 
         for (int i = 0; i < 3; i++)
         {
-            if (dir?.Parent == null) return null;
+            if (dir?.Parent == null)
+                return null;
             dir = dir.Parent;
         }
 

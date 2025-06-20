@@ -1,9 +1,9 @@
-using Microsoft.AspNetCore.Mvc;
-using SchoolAPI.Models;
-using SchoolAPI.Models.Timetable;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
+using SchoolAPI.Models;
+using SchoolAPI.Models.Timetable;
 
 [ApiController]
 [Route("[controller]/[action]")]
@@ -24,14 +24,16 @@ public class SchoolEventController : Controller
                 {
                     while (reader.Read())
                     {
-                        events.Add(new Timetable
-                        {
-                            EventID = reader.GetInt32(0),
-                            TimetableID = reader.GetInt32(1),
-                            EventType = reader.GetString(2),
-                            EventDate = reader.GetDateTime(3),
-                            Description = reader.GetString(4)
-                        });
+                        events.Add(
+                            new Timetable
+                            {
+                                EventID = reader.GetInt32(0),
+                                TimetableID = reader.GetInt32(1),
+                                EventType = reader.GetString(2),
+                                EventDate = reader.GetDateTime(3),
+                                Description = reader.GetString(4),
+                            }
+                        );
                     }
                 }
             }
@@ -41,14 +43,20 @@ public class SchoolEventController : Controller
     }
 
     [HttpPost]
-    public IActionResult AddEvent([FromForm] int timetableID, [FromForm] string eventType, [FromForm] DateTime eventDate, [FromForm] string description)
+    public IActionResult AddEvent(
+        [FromForm] int timetableID,
+        [FromForm] string eventType,
+        [FromForm] DateTime eventDate,
+        [FromForm] string description
+    )
     {
         if (!IsAdmin())
         {
             return Unauthorized("Only admins can add events.");
         }
 
-        string sql = "INSERT INTO SchoolEvent (TimetableID, EventType, EventDate, Description) VALUES (@TimetableID, @EventType, @EventDate, @Description)";
+        string sql =
+            "INSERT INTO SchoolEvent (TimetableID, EventType, EventDate, Description) VALUES (@TimetableID, @EventType, @EventDate, @Description)";
 
         using (var connection = DatabaseConnector.CreateNewConnection())
         {
@@ -66,14 +74,20 @@ public class SchoolEventController : Controller
     }
 
     [HttpPost]
-    public IActionResult EditEvent(int eventID, string eventType, DateTime eventDate, string description)
+    public IActionResult EditEvent(
+        int eventID,
+        string eventType,
+        DateTime eventDate,
+        string description
+    )
     {
         if (!IsAdmin())
         {
             return Unauthorized("Only admins can edit events.");
         }
 
-        string sql = "UPDATE SchoolEvent SET EventType = @EventType, EventDate = @EventDate, Description = @Description WHERE EventID = @EventID";
+        string sql =
+            "UPDATE SchoolEvent SET EventType = @EventType, EventDate = @EventDate, Description = @Description WHERE EventID = @EventID";
 
         using (var connection = DatabaseConnector.CreateNewConnection())
         {
@@ -127,7 +141,10 @@ public class SchoolEventController : Controller
         }
 
         using var connection = DatabaseConnector.CreateNewConnection();
-        using var cmd = new SQLiteCommand("SELECT Role FROM User WHERE UserID = @userId", connection);
+        using var cmd = new SQLiteCommand(
+            "SELECT Role FROM User WHERE UserID = @userId",
+            connection
+        );
         cmd.Parameters.AddWithValue("@userId", userId);
 
         var role = cmd.ExecuteScalar() as string;

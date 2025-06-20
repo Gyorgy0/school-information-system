@@ -150,16 +150,10 @@ command.CommandText = "PRAGMA foreign_keys = ON;" +
     "`SoupID` INTEGER NOT NULL, " +
     "`MainDishID` INTEGER NOT NULL, " +
     "`DessertID` INTEGER NOT NULL, " +
-    "`Date` TEXT, " + 
+    "`Date` DATETIME, " + 
     "FOREIGN KEY (`SoupID`) REFERENCES `Soup`(`SoupID`), " +
     "FOREIGN KEY (`MainDishID`) REFERENCES `MainDish`(`MainDishID`), " +
     "FOREIGN KEY (`DessertID`) REFERENCES `Dessert`(`DessertID`));" +
-
-    "CREATE TABLE IF NOT EXISTS `LunchSignup` (" + 
-	"`UserID` TEXT NOT NULL PRIMARY KEY, " +
-	"`LunchID` INTEGER NOT NULL, " +
-	"`Day` TEXT NOT NULL, " +
-	"FOREIGN KEY(`LunchID`) REFERENCES `Lunch`(`LunchID`));" + 
 
     "CREATE TABLE IF NOT EXISTS `Subject` (" +
     "`SubjectID` INTEGER NOT NULL PRIMARY KEY, " +

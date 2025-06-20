@@ -1,9 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Data.SQLite;
 using Microsoft.AspNetCore.Mvc;
 using SchoolAPI.Models;
 using SchoolAPI.Models.Subject;
-using System.Collections.Generic;
-using System.Data.SQLite;
-using System;
 
 namespace SchoolAPI.Controllers
 {
@@ -23,17 +23,19 @@ namespace SchoolAPI.Controllers
                     var reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
-                        timetable.Add(new TimetableEntry
-                        {
-                            TimetableID = reader.GetInt64(0),
-                            Day = reader.GetString(1),
-                            DayCount = reader.GetInt64(2),
-                            Hour = reader.GetString(3),
-                            Subject = reader.GetString(4),
-                            Room = reader.GetString(5),
-                            TeacherID = reader.GetInt64(6),
-                            ClassID = Convert.ToInt64(reader["ClassID"])
-                        });
+                        timetable.Add(
+                            new TimetableEntry
+                            {
+                                TimetableID = reader.GetInt64(0),
+                                Day = reader.GetString(1),
+                                DayCount = reader.GetInt64(2),
+                                Hour = reader.GetString(3),
+                                Subject = reader.GetString(4),
+                                Room = reader.GetString(5),
+                                TeacherID = reader.GetInt64(6),
+                                ClassID = Convert.ToInt64(reader["ClassID"]),
+                            }
+                        );
                     }
                 }
             }
@@ -63,7 +65,7 @@ namespace SchoolAPI.Controllers
                             Subject = reader.GetString(3),
                             Room = reader.GetString(4),
                             TeacherID = reader.GetInt32(5),
-                            ClassID = reader.GetInt32(6)
+                            ClassID = reader.GetInt32(6),
                         };
                     }
                 }
@@ -74,6 +76,7 @@ namespace SchoolAPI.Controllers
 
             return Json(entry);
         }
+
         [HttpPost]
         public IActionResult CreateSubject([FromForm] int subjectId, [FromForm] string subjectname)
         {
@@ -93,14 +96,25 @@ namespace SchoolAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateTimetable([FromForm] string day, [FromForm] int dayCount, [FromForm] string hour, [FromForm] string subject, [FromForm] string room, [FromForm] int teacherID, [FromForm] int classID)
+        public IActionResult CreateTimetable(
+            [FromForm] string day,
+            [FromForm] int dayCount,
+            [FromForm] string hour,
+            [FromForm] string subject,
+            [FromForm] string room,
+            [FromForm] int teacherID,
+            [FromForm] int classID
+        )
         {
             if (CheckForConflicts(day, hour, subject, room, teacherID))
             {
-                return BadRequest("Az adott időpontban ütközés van a tanár, tantárgy, vagy terem miatt!");
+                return BadRequest(
+                    "Az adott időpontban ütközés van a tanár, tantárgy, vagy terem miatt!"
+                );
             }
 
-            string sql = "INSERT INTO Timetable (Day, DayCount, Hour, Subject, Room, TeacherID, ClassID) VALUES (@Day, @DayCount, @Hour, @Subject, @Room, @TeacherID, @ClassID)";
+            string sql =
+                "INSERT INTO Timetable (Day, DayCount, Hour, Subject, Room, TeacherID, ClassID) VALUES (@Day, @DayCount, @Hour, @Subject, @Room, @TeacherID, @ClassID)";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
@@ -121,15 +135,37 @@ namespace SchoolAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult UpdateTimetable([FromForm] int timetableID, [FromForm] string? day, [FromForm] string? hour, [FromForm] string? subject, [FromForm] string? room, [FromForm] int? teacherID)
+        public IActionResult UpdateTimetable(
+            [FromForm] int timetableID,
+            [FromForm] string? day,
+            [FromForm] string? hour,
+            [FromForm] string? subject,
+            [FromForm] string? room,
+            [FromForm] int? teacherID
+        )
         {
-            if ((day != null || hour != null || subject != null || room != null || teacherID != null) &&
-                CheckForConflicts(day ?? "", hour ?? "", subject ?? "", room ?? "", teacherID ?? 0))
+            if (
+                (
+                    day != null
+                    || hour != null
+                    || subject != null
+                    || room != null
+                    || teacherID != null
+                )
+                && CheckForConflicts(
+                    day ?? "",
+                    hour ?? "",
+                    subject ?? "",
+                    room ?? "",
+                    teacherID ?? 0
+                )
+            )
             {
                 return BadRequest("Az új beállítások ütközést okoznak!");
             }
 
-            string sql = @"
+            string sql =
+                @"
         UPDATE Timetable
         SET
             Day = COALESCE(@Day, Day),
@@ -176,9 +212,16 @@ namespace SchoolAPI.Controllers
             }
         }
 
-        public bool CheckForConflicts(string day, string hour, string subject, string room, int teacherID)
+        public bool CheckForConflicts(
+            string day,
+            string hour,
+            string subject,
+            string room,
+            int teacherID
+        )
         {
-            string sql = @"
+            string sql =
+                @"
         SELECT COUNT(*)
         FROM Timetable
         WHERE Day = @Day
@@ -240,11 +283,13 @@ namespace SchoolAPI.Controllers
                     var reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
-                        subjects.Add(new SubjectModel
-                        {
-                            SubjectID = reader.GetInt32(0),
-                            Name = reader.GetString(1)
-                        });
+                        subjects.Add(
+                            new SubjectModel
+                            {
+                                SubjectID = reader.GetInt32(0),
+                                Name = reader.GetString(1),
+                            }
+                        );
                     }
                 }
             }
