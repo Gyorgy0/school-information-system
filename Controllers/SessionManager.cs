@@ -120,20 +120,3 @@ public class SessionManager
         return userID;
     }
 }
-/*public class SessionValidation(ILogger<PeriodicBackgroundTask> logger, TimeProvider timeProvider) 
-    : BackgroundService
-{
-    private readonly ILogger<PeriodicBackgroundTask> _logger = logger;
-    private readonly TimeProvider _timeProvider = timeProvider;
-
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
-        while (!stoppingToken.IsCancellationRequested
-            && await timer.WaitForNextTickAsync(stoppingToken))
-        {
-            
-        }
-    }
-}
-*/
