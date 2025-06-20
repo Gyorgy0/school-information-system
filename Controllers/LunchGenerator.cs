@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Globalization;
 
 
 namespace SchoolAPI.Controllers
@@ -52,34 +53,97 @@ namespace SchoolAPI.Controllers
             }
         }
 
-        public static void GenerateWeeklyLunch(SQLiteConnection conn)
+        public static void GenerateLunchForWeek(SQLiteConnection conn, DateTime startDate)
+        {
+            var rng = new Random();
+
+            for (int i = 0; i < 5; i++) // hétfőtől péntekig
+            {
+                var date = startDate.AddDays(i);
+
+                int soupId = GetRandomId(conn, "Soup", rng);
+                int mainDishId = GetRandomId(conn, "MainDish", rng);
+                int dessertId = GetRandomId(conn, "Dessert", rng);
+
+                var dayName = date.ToString("dddd", new CultureInfo("hu-HU"));
+
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = @"
+    INSERT INTO Lunch (Date, Day, SoupID, MainDishID, DessertID)
+    VALUES (@date, @day, @soup, @main, @dessert)";
+                cmd.Parameters.AddWithValue("@date", date.ToString("yyyy-MM-dd"));
+                cmd.Parameters.AddWithValue("@day", dayName);
+                cmd.Parameters.AddWithValue("@soup", soupId);
+                cmd.Parameters.AddWithValue("@main", mainDishId);
+                cmd.Parameters.AddWithValue("@dessert", dessertId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        private static int GetRandomId(SQLiteConnection conn, string tableName, Random rng)
+        {
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = $"SELECT {tableName}ID FROM {tableName}";
+            var ids = new List<int>();
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+                ids.Add(reader.GetInt32(0));
+
+            if (ids.Count == 0) throw new Exception($"Nincs adat a(z) {tableName} táblában.");
+
+            return ids[rng.Next(ids.Count)];
+        }
+
+        public static void GenerateFullYearLunch(SQLiteConnection conn, int year)
         {
             string[] weekdays = { "Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek" };
             Random rand = new Random();
 
-            List<int> soups = GetIDs(conn, "Soup");
-            List<int> mains = GetIDs(conn, "MainDish");
-            List<int> desserts = GetIDs(conn, "Dessert");
+            List<int> allSoups = GetIDs(conn, "Soup");
+            List<int> allMains = GetIDs(conn, "MainDish");
+            List<int> allDesserts = GetIDs(conn, "Dessert");
 
+            // Clear old entries if needed
             new SQLiteCommand("DELETE FROM Lunch", conn).ExecuteNonQuery();
 
-            // Shuffle lists
-            soups = ShuffleList(soups, rand);
-            mains = ShuffleList(mains, rand);
-            desserts = ShuffleList(desserts, rand);
+            // Find the first Monday of the year
+            DateTime date = new DateTime(year, 1, 1);
+            while (date.DayOfWeek != DayOfWeek.Monday)
+                date = date.AddDays(1);
 
-            for (int i = 0; i < weekdays.Length; i++)
+            while (date.Year == year)
             {
-                int soupId = soups[i % soups.Count];       // If fewer than 5 items, repeat but only if needed
-                int mainId = mains[i % mains.Count];
-                int dessertId = desserts[i % desserts.Count];
+                // Randomly select 5 for each category, for this week
+                List<int> weeklySoups = allSoups.OrderBy(x => rand.Next()).Take(5).ToList();
+                List<int> weeklyMains = allMains.OrderBy(x => rand.Next()).Take(5).ToList();
+                List<int> weeklyDesserts = allDesserts.OrderBy(x => rand.Next()).Take(5).ToList();
 
-                var cmd = new SQLiteCommand("INSERT INTO Lunch (Day, SoupID, MainDishID, DessertID) VALUES (@day, @soup, @main, @dessert)", conn);
-                cmd.Parameters.AddWithValue("@day", weekdays[i]);
-                cmd.Parameters.AddWithValue("@soup", soupId);
-                cmd.Parameters.AddWithValue("@main", mainId);
-                cmd.Parameters.AddWithValue("@dessert", dessertId);
-                cmd.ExecuteNonQuery();
+                for (int i = 0; i < 5 && date.Year == year; i++)
+                {
+                    string dayName = date.ToString("dddd", new System.Globalization.CultureInfo("hu-HU"));
+
+                    int soupId = weeklySoups[i % weeklySoups.Count];
+                    int mainId = weeklyMains[i % weeklyMains.Count];
+                    int dessertId = weeklyDesserts[i % weeklyDesserts.Count];
+
+                    using var cmd = new SQLiteCommand(
+                        "INSERT INTO Lunch (Day, Date, SoupID, MainDishID, DessertID) VALUES (@day, @date, @soup, @main, @dessert)", conn);
+
+                    cmd.Parameters.AddWithValue("@day", dayName); // dinamikus napnév
+                    cmd.Parameters.AddWithValue("@date", date.ToString("yyyy-MM-dd"));
+                    cmd.Parameters.AddWithValue("@soup", soupId);
+                    cmd.Parameters.AddWithValue("@main", mainId);
+                    cmd.Parameters.AddWithValue("@dessert", dessertId);
+
+                    cmd.ExecuteNonQuery();
+
+                    date = date.AddDays(1); // go to next weekday
+                }
+
+                // Skip weekends
+                while (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
+                    date = date.AddDays(1);
             }
         }
 
