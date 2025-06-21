@@ -19,13 +19,13 @@ namespace SchoolAPI.Controllers
             if (request == null || request.StartDate == default)
                 return BadRequest("Érvénytelen dátum.");
 
-            var sessionId = Request.Cookies["id"];
+            /*var sessionId = Request.Cookies["id"];
             if (string.IsNullOrEmpty(sessionId))
                 return Unauthorized("Nincs bejelentkezve.");
 
             var userId = SessionManager.GetUserID(sessionId);
             if (userId == -1)
-                return Unauthorized("Nincs bejelentkezve vagy lejárt a munkamenet.");
+                return Unauthorized("Nincs bejelentkezve vagy lejárt a munkamenet.");*/
 
             using var conn = DatabaseConnector.CreateNewConnection();
 
