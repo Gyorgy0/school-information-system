@@ -260,18 +260,19 @@ namespace SchoolAPI.Controllers
 
             var sql =
                 @"
-SELECT 
-    Lunch.LunchID,
-    Lunch.Date,
-    Soup.Name AS Soup,
-    MainDish.Name AS MainDish,
-    Dessert.Name AS Dessert
-FROM Lunch
-JOIN Soup ON Lunch.SoupID = Soup.SoupID
-JOIN MainDish ON Lunch.MainDishID = MainDish.MainDishID
-JOIN Dessert ON Lunch.DessertID = Dessert.DessertID
-WHERE DATE(Lunch.Date) BETWEEN DATE(@startDate) AND DATE(@startDate, '+4 day')
-ORDER BY DATE(Lunch.Date) ASC";
+                SELECT 
+                    Lunch.LunchID,
+                    Lunch.Date,
+                    Soup.Name AS Soup,
+                    MainDish.Name AS MainDish,
+                    Dessert.Name AS Dessert
+                FROM Lunch
+                JOIN Soup ON Lunch.SoupID = Soup.SoupID
+                JOIN MainDish ON Lunch.MainDishID = MainDish.MainDishID
+                JOIN Dessert ON Lunch.DessertID = Dessert.DessertID
+                WHERE DATE(Lunch.Date) BETWEEN DATE(@startDate) AND DATE(@startDate, '+4 day')
+                ORDER BY DATE(Lunch.Date) ASC
+                ";
 
             using var cmd = new SQLiteCommand(sql, conn);
             cmd.Parameters.AddWithValue("@startDate", startDate.ToString("yyyy-MM-dd"));

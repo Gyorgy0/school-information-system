@@ -1,3 +1,4 @@
+/*
 namespace SchoolAPI.Models.Users
 {
     public class Users
@@ -7,3 +8,4 @@ namespace SchoolAPI.Models.Users
         public int TeacherID { get; set; }
     }
 }
+*/

@@ -1,3 +1,4 @@
+/*
 using System.Data.SQLite;
 using Microsoft.AspNetCore.Mvc;
 
@@ -374,3 +375,4 @@ namespace SchoolAPI.Controllers
         }
     }
 }
+*/

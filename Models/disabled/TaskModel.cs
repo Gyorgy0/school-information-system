@@ -1,3 +1,4 @@
+/*
 namespace SchoolAPI.Models.Task
 {
     public class TaskModel
@@ -11,3 +12,4 @@ namespace SchoolAPI.Models.Task
         public DateTime DueDate { get; set; }
     }
 }
+*/

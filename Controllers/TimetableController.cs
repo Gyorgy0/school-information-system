@@ -15,7 +15,7 @@ namespace SchoolAPI.Controllers
         public IActionResult GetTimetableAction()
         {
             List<TimetableEntry> timetable = new List<TimetableEntry>();
-            string sql = "SELECT * FROM Timetable ORDER BY DayCount";
+            string sql = "SELECT * FROM Timetable";
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
                 using (var cmd = new SQLiteCommand(sql, connection))
@@ -28,12 +28,10 @@ namespace SchoolAPI.Controllers
                             {
                                 TimetableID = reader.GetInt64(0),
                                 Day = reader.GetString(1),
-                                DayCount = reader.GetInt64(2),
-                                Hour = reader.GetString(3),
-                                Subject = reader.GetString(4),
-                                Room = reader.GetString(5),
-                                TeacherID = reader.GetInt64(6),
-                                ClassID = Convert.ToInt64(reader["ClassID"]),
+                                Hour = reader.GetString(2),
+                                Subject = reader.GetString(3),
+                                Classroom = reader.GetString(4),
+                                TeacherID = reader.GetInt64(5),
                             }
                         );
                     }
@@ -44,7 +42,7 @@ namespace SchoolAPI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetTimetable(int id)
+        public IActionResult GetTimetable(string timetableID)
         {
             TimetableEntry? entry = null;
             string sql = "SELECT * FROM Timetable WHERE TimetableID = @TimetableID";
@@ -53,7 +51,7 @@ namespace SchoolAPI.Controllers
             {
                 using (var cmd = new SQLiteCommand(sql, connection))
                 {
-                    cmd.Parameters.AddWithValue("@TimetableID", id);
+                    cmd.Parameters.AddWithValue("@TimetableID", timetableID);
                     var reader = cmd.ExecuteReader();
                     if (reader.Read())
                     {
@@ -63,9 +61,8 @@ namespace SchoolAPI.Controllers
                             Day = reader.GetString(1),
                             Hour = reader.GetString(2),
                             Subject = reader.GetString(3),
-                            Room = reader.GetString(4),
+                            Classroom = reader.GetString(4),
                             TeacherID = reader.GetInt32(5),
-                            ClassID = reader.GetInt32(6),
                         };
                     }
                 }
@@ -97,16 +94,15 @@ namespace SchoolAPI.Controllers
 
         [HttpPost]
         public IActionResult CreateTimetable(
+            [FromForm] string timetableID,
             [FromForm] string day,
-            [FromForm] int dayCount,
             [FromForm] string hour,
             [FromForm] string subject,
-            [FromForm] string room,
-            [FromForm] int teacherID,
-            [FromForm] int classID
+            [FromForm] string classroom,
+            [FromForm] int teacherID
         )
         {
-            if (CheckForConflicts(day, hour, subject, room, teacherID))
+            if (CheckForConflicts(day, hour, subject, classroom, teacherID))
             {
                 return BadRequest(
                     "Az adott időpontban ütközés van a tanár, tantárgy, vagy terem miatt!"
@@ -114,19 +110,18 @@ namespace SchoolAPI.Controllers
             }
 
             string sql =
-                "INSERT INTO Timetable (Day, DayCount, Hour, Subject, Room, TeacherID, ClassID) VALUES (@Day, @DayCount, @Hour, @Subject, @Room, @TeacherID, @ClassID)";
+                "INSERT INTO Timetable (TimetableID, Day, Hour, Subject, Room, TeacherID) VALUES (@TimetableID, @Day, @Hour, @Subject, @Classroom, @TeacherID)";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
                 using (var cmd = new SQLiteCommand(sql, connection))
                 {
+                    cmd.Parameters.AddWithValue("@TimetableID", timetableID);
                     cmd.Parameters.AddWithValue("@Day", day);
-                    cmd.Parameters.AddWithValue("@DayCount", dayCount);
                     cmd.Parameters.AddWithValue("@Hour", hour);
                     cmd.Parameters.AddWithValue("@Subject", subject);
-                    cmd.Parameters.AddWithValue("@Room", room);
+                    cmd.Parameters.AddWithValue("@Classroom", classroom);
                     cmd.Parameters.AddWithValue("@TeacherID", teacherID);
-                    cmd.Parameters.AddWithValue("@ClassID", classID);
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -140,7 +135,7 @@ namespace SchoolAPI.Controllers
             [FromForm] string? day,
             [FromForm] string? hour,
             [FromForm] string? subject,
-            [FromForm] string? room,
+            [FromForm] string? classroom,
             [FromForm] int? teacherID
         )
         {
@@ -149,14 +144,14 @@ namespace SchoolAPI.Controllers
                     day != null
                     || hour != null
                     || subject != null
-                    || room != null
+                    || classroom != null
                     || teacherID != null
                 )
                 && CheckForConflicts(
                     day ?? "",
                     hour ?? "",
                     subject ?? "",
-                    room ?? "",
+                    classroom ?? "",
                     teacherID ?? 0
                 )
             )
@@ -171,7 +166,7 @@ namespace SchoolAPI.Controllers
                     Day = COALESCE(@Day, Day),
                     Hour = COALESCE(@Hour, Hour),
                     Subject = COALESCE(@Subject, Subject),
-                    Room = COALESCE(@Room, Room),
+                    Classroom = COALESCE(@Classroom, Classroom),
                     TeacherID = COALESCE(@TeacherID, TeacherID)
                 WHERE TimetableID = @TimetableID";
 
@@ -183,7 +178,7 @@ namespace SchoolAPI.Controllers
                     cmd.Parameters.AddWithValue("@Day", day ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@Hour", hour ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@Subject", subject ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@Room", room ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Classroom", classroom ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@TeacherID", teacherID ?? (object)DBNull.Value);
 
                     if (cmd.ExecuteNonQuery() == 0)

@@ -1,3 +1,4 @@
+/*
 namespace SchoolAPI.Models.Materials
 {
     public class Material
@@ -11,3 +12,4 @@ namespace SchoolAPI.Models.Materials
         public int TeacherID { get; set; }
     }
 }
+*/

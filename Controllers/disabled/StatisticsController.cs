@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
@@ -224,3 +225,4 @@ public class StatisticsController : Controller
         return result != null ? Convert.ToInt32(result) : -1;
     }
 }
+*/

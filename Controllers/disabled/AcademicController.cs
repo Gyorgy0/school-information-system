@@ -1,3 +1,4 @@
+/*
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Security.Claims;
@@ -119,8 +120,8 @@ namespace SchoolAPI.Controllers
         {
             string sql =
                 @"
-        SELECT AVG(Grade) 
-        FROM Grade 
+        SELECT AVG(Grade)
+        FROM Grade
         WHERE StudentID IN (
             SELECT UserID FROM User WHERE ClassID = @ClassID AND Role = 'student'
         )";
@@ -293,7 +294,7 @@ namespace SchoolAPI.Controllers
 
             string sql =
                 @"
-            SELECT 
+            SELECT
                 Task.TaskID,
                 Task.Title,
                 Task.Description,
@@ -335,7 +336,7 @@ namespace SchoolAPI.Controllers
             List<TaskModel> tasks = new List<TaskModel>();
             string sql =
                 @"
-            SELECT 
+            SELECT
                 Task.TaskID,
                 Task.Title,
                 Task.Description,
@@ -479,3 +480,4 @@ namespace SchoolAPI.Controllers
         }
     }
 }
+*/

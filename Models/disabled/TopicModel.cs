@@ -1,3 +1,4 @@
+/*
 namespace SchoolAPI.Models.Topic
 {
     public class TopicModel
@@ -7,3 +8,4 @@ namespace SchoolAPI.Models.Topic
         public string? Description { get; set; }
     }
 }
+*/
