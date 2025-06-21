@@ -17,7 +17,7 @@ public static class DatabaseConnector
                 );
             }
 
-            string dbPath = Path.Combine(projectRoot, "database", "edupage.sqlite3");
+            string dbPath = Path.Combine(projectRoot, "Database", "edupage.sqlite3");
 
             if (!File.Exists(dbPath))
             {
@@ -50,7 +50,7 @@ public static class DatabaseConnector
             );
         }
 
-        string dbPath = Path.Combine(projectRoot, "database", "edupage.sqlite3");
+        string dbPath = Path.Combine(projectRoot, "Database", "edupage.sqlite3");
 
         var conn = new SQLiteConnection($"Data Source={dbPath}");
         conn.Open();

@@ -42,7 +42,8 @@ command.CommandText =
     + "`Middlename` TEXT, "
     + "`Surname` TEXT, "
     + "`Role` TEXT NOT NULL,"
-    + "`Class` TEXT);"
+    + "`ClassName` TEXT, "
+    + "FOREIGN KEY (`ClassName`) REFERENCES `Classes` (`ClassName`));"
     //#################################################################################
     // Session table
     //#################################################################################
@@ -69,7 +70,7 @@ command.CommandText =
     + "CREATE TABLE IF NOT EXISTS `Classes` ("
     + "`Year` INTEGER NOT NULL,"
     + "`Group` INTEGER PRIMARY KEY AUTOINCREMENT,"
-    + "`Class` TEXT NOT NULL);"
+    + "`ClassName` TEXT NOT NULL);"
     //#################################################################################
     // SchoolEvent table
     //#################################################################################
@@ -78,8 +79,7 @@ command.CommandText =
     + "TimetableID INTEGER NOT NULL, "
     + "EventType TEXT NOT NULL, "
     + "EventDate DATETIME NOT NULL, "
-    + "Description TEXT"
-    + ");"
+    + "Description TEXT);"
     //#################################################################################
     // Grade table
     //#################################################################################
