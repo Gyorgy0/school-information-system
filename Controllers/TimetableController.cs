@@ -12,84 +12,35 @@ namespace SchoolAPI.Controllers
     public class TimetableController : Controller
     {
         [HttpGet]
-        public IActionResult GetTimetableAction()
-        {
-            List<TimetableEntry> timetable = new List<TimetableEntry>();
-            string sql = "SELECT * FROM Timetable";
-            using (var connection = DatabaseConnector.CreateNewConnection())
-            {
-                using (var cmd = new SQLiteCommand(sql, connection))
-                {
-                    var reader = cmd.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        timetable.Add(
-                            new TimetableEntry
-                            {
-                                TimetableID = reader.GetInt64(0),
-                                Day = reader.GetString(1),
-                                Hour = reader.GetString(2),
-                                Subject = reader.GetString(3),
-                                Classroom = reader.GetString(4),
-                                TeacherID = reader.GetInt64(5),
-                            }
-                        );
-                    }
-                }
-            }
-
-            return Json(timetable);
-        }
-
-        [HttpGet]
         public IActionResult GetTimetable(string timetableID)
         {
-            TimetableEntry? entry = null;
-            string sql = "SELECT * FROM Timetable WHERE TimetableID = @TimetableID";
+            TimetableEntry? timetable = null;
+            string sql = $"SELECT * FROM Timetable WHERE TimetableID = {timetableID}";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
                 using (var cmd = new SQLiteCommand(sql, connection))
                 {
-                    cmd.Parameters.AddWithValue("@TimetableID", timetableID);
                     var reader = cmd.ExecuteReader();
                     if (reader.Read())
                     {
-                        entry = new TimetableEntry
+                        timetable = new TimetableEntry
                         {
-                            TimetableID = reader.GetInt32(0),
-                            Day = reader.GetString(1),
-                            Hour = reader.GetString(2),
-                            Subject = reader.GetString(3),
-                            Classroom = reader.GetString(4),
-                            TeacherID = reader.GetInt32(5),
+                            TimetableID = Convert.ToInt64(reader["TimetableID"]),
+                            Day = Convert.ToString(reader["Day"]),
+                            Hour = Convert.ToString(reader["Hour"]),
+                            Subject = Convert.ToString(reader["Subject"]),
+                            Classroom = Convert.ToString(reader["Classroom"]),
+                            TeacherID = Convert.ToInt64(reader["TeacherID"]),
                         };
                     }
                 }
             }
 
-            if (entry == null)
-                return NotFound("Timetable entry not found");
-
-            return Json(entry);
-        }
-
-        [HttpPost]
-        public IActionResult CreateSubject([FromForm] int subjectId, [FromForm] string subjectname)
-        {
-            string sql = "INSERT INTO Subjects (SubjectID, Name) VALUES (@SubjectID, @Name)";
-
-            using (var connection = DatabaseConnector.CreateNewConnection())
-            {
-                using (var cmd = new SQLiteCommand(sql, connection))
-                {
-                    cmd.Parameters.AddWithValue("@SubjectID", subjectId);
-                    cmd.Parameters.AddWithValue("@Name", subjectname);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-
-            return Ok();
+            if (timetable == null)
+                return NotFound("Keresett órarend nem található!");
+            else
+                return Json(timetable);
         }
 
         [HttpPost]
@@ -110,23 +61,17 @@ namespace SchoolAPI.Controllers
             }
 
             string sql =
-                "INSERT INTO Timetable (TimetableID, Day, Hour, Subject, Room, TeacherID) VALUES (@TimetableID, @Day, @Hour, @Subject, @Classroom, @TeacherID)";
+                $"INSERT INTO Timetable (TimetableID, Day, Hour, Subject, Room, TeacherID) VALUES ({timetableID}, {day}, {hour}, {subject}, {classroom}, {teacherID})";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
                 using (var cmd = new SQLiteCommand(sql, connection))
                 {
-                    cmd.Parameters.AddWithValue("@TimetableID", timetableID);
-                    cmd.Parameters.AddWithValue("@Day", day);
-                    cmd.Parameters.AddWithValue("@Hour", hour);
-                    cmd.Parameters.AddWithValue("@Subject", subject);
-                    cmd.Parameters.AddWithValue("@Classroom", classroom);
-                    cmd.Parameters.AddWithValue("@TeacherID", teacherID);
                     cmd.ExecuteNonQuery();
                 }
             }
 
-            return Ok("Órarend sikeresen létrehozva");
+            return Ok("Órarend sikeresen létrehozva!");
         }
 
         [HttpPost]
@@ -160,31 +105,24 @@ namespace SchoolAPI.Controllers
             }
 
             string sql =
-                @"
+                $@"
                 UPDATE Timetable
                 SET
-                    Day = COALESCE(@Day, Day),
-                    Hour = COALESCE(@Hour, Hour),
-                    Subject = COALESCE(@Subject, Subject),
-                    Classroom = COALESCE(@Classroom, Classroom),
-                    TeacherID = COALESCE(@TeacherID, TeacherID)
-                WHERE TimetableID = @TimetableID";
+                    Day = COALESCE({day ?? (object)DBNull.Value}, Day),
+                    Hour = COALESCE({hour ?? (object)DBNull.Value}, Hour),
+                    Subject = COALESCE({subject ?? (object)DBNull.Value}, Subject),
+                    Classroom = COALESCE({classroom ?? (object)DBNull.Value}, Classroom),
+                    TeacherID = COALESCE({teacherID ?? (object)DBNull.Value}, TeacherID)
+                WHERE TimetableID = {timetableID}";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
                 using (var cmd = new SQLiteCommand(sql, connection))
                 {
-                    cmd.Parameters.AddWithValue("@TimetableID", timetableID);
-                    cmd.Parameters.AddWithValue("@Day", day ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@Hour", hour ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@Subject", subject ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@Classroom", classroom ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@TeacherID", teacherID ?? (object)DBNull.Value);
-
                     if (cmd.ExecuteNonQuery() == 0)
-                        return NotFound("Órarend bejegyzés nem található");
+                        return NotFound("Órarend bejegyzés nem található.");
 
-                    return Ok("Órarend bejegyzés sikeresen frissítve");
+                    return Ok("Órarend bejegyzés sikeresen frissítve!");
                 }
             }
         }
@@ -199,9 +137,9 @@ namespace SchoolAPI.Controllers
                 using (var cmd = new SQLiteCommand(sql, connection))
                 {
                     if (cmd.ExecuteNonQuery() == 0)
-                        return NotFound("Timetable entry not found");
+                        return NotFound("Keresett órarend nem található.");
 
-                    return Ok("Timetable entry deleted successfully");
+                    return Ok("Órarend sikeresen törölve!");
                 }
             }
         }
@@ -237,6 +175,23 @@ namespace SchoolAPI.Controllers
             }
         }
 
+
+        [HttpPost]
+        public IActionResult CreateSubject([FromForm] int subjectId, [FromForm] string subjectname)
+        {
+            string sql = "INSERT INTO Subjects (SubjectID, Name) VALUES (@SubjectID, @Name)";
+
+            using (var connection = DatabaseConnector.CreateNewConnection())
+            {
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            return Ok();
+        }
+
         [HttpGet]
         public IActionResult GetSubjects()
         {
@@ -247,9 +202,71 @@ namespace SchoolAPI.Controllers
             using (var cmd = new SQLiteCommand("SELECT Name FROM Subjects", conn))
             using (var reader = cmd.ExecuteReader())
                 while (reader.Read())
-                    subjects.Add(reader["Name"].ToString());
+                    subjects.Add(Convert.ToString(reader["Name"]));
 
             return Ok(new { Subjects = subjects });
+        }
+
+        [HttpPost]
+        public IActionResult CreateClassroom([FromForm] int classroomId, [FromForm] string subjectname)
+        {
+            string sql = "INSERT INTO Classrooms (ClassroomID, Name) VALUES (@ClassroomID, @Name)";
+
+            using (var connection = DatabaseConnector.CreateNewConnection())
+            {
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            return Ok();
+        }
+
+        [HttpGet]
+        public IActionResult GetClassrooms()
+        {
+            using var conn = DatabaseConnector.CreateNewConnection();
+
+            var classrooms = new List<string>();
+
+            using (var cmd = new SQLiteCommand("SELECT Name FROM Classrooms", conn))
+            using (var reader = cmd.ExecuteReader())
+                while (reader.Read())
+                    classrooms.Add(Convert.ToString(reader["Name"]));
+
+            return Ok(new { Classrooms = classrooms });
+        }
+
+        [HttpPost]
+        public IActionResult CreateClass([FromForm] int year, [FromForm] int group, [FromForm] string classname)
+        {
+            string sql = "INSERT INTO Classrooms (ClassroomID, Name) VALUES (@ClassroomID, @Name)";
+
+            using (var connection = DatabaseConnector.CreateNewConnection())
+            {
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            return Ok();
+        }
+        
+        [HttpGet]
+        public IActionResult GetClasses()
+        {
+            using var conn = DatabaseConnector.CreateNewConnection();
+
+            var classes = new List<string>();
+
+            using (var cmd = new SQLiteCommand("SELECT ClassName FROM Classes", conn))
+            using (var reader = cmd.ExecuteReader())
+                while (reader.Read())
+                    classes.Add(Convert.ToString(reader["ClassName"]));
+
+            return Ok(new { Classes = classes });
         }
     }
 }

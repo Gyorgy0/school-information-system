@@ -16,7 +16,7 @@ public class SessionManager
                 sessionCookie = Guid.NewGuid().ToString();
             } while (SessionCookieExists(sessionCookie, connection));
 
-            Int64 validUntil = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 10;
+            Int64 validUntil = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 3600;
 
             string insertSql =
                 "INSERT INTO Session (SessionCookie, UserID, ValidUntil, LoginTime) VALUES (@SessionCookie, @UserID, @ValidUntil, @LoginTime)";
