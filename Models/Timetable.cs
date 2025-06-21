@@ -1,4 +1,3 @@
-/*
 namespace SchoolAPI.Models.Timetable
 {
     public class Timetable
@@ -13,4 +12,3 @@ namespace SchoolAPI.Models.Timetable
         public string? Description { get; set; }
     }
 }
-*/

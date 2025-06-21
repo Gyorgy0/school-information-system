@@ -71,6 +71,16 @@ command.CommandText =
     + "`Group` INTEGER PRIMARY KEY AUTOINCREMENT,"
     + "`Class` TEXT NOT NULL);"
     //#################################################################################
+    // SchoolEvent table
+    //#################################################################################
+    + "CREATE TABLE IF NOT EXISTS `SchoolEvent` ("
+    + "EventID INTEGER PRIMARY KEY AUTOINCREMENT, "
+    + "TimetableID INTEGER NOT NULL, "
+    + "EventType TEXT NOT NULL, "
+    + "EventDate DATETIME NOT NULL, "
+    + "Description TEXT"
+    + ");"
+    //#################################################################################
     // Grade table
     //#################################################################################
     //+ "CREATE TABLE IF NOT EXISTS `Grade` ("
