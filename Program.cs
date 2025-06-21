@@ -69,8 +69,8 @@ command.CommandText =
     //#################################################################################
     + "CREATE TABLE IF NOT EXISTS `Classes` ("
     + "`Year` INTEGER NOT NULL,"
-    + "`Group` INTEGER PRIMARY KEY AUTOINCREMENT,"
-    + "`ClassName` TEXT NOT NULL);"
+    + "`Group` INTEGER NOT NuLL,"
+    + "`ClassName` TEXT NOT NULL PRIMARY KEY);"
     //#################################################################################
     // SchoolEvent table
     //#################################################################################
