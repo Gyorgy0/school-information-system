@@ -1,3 +1,4 @@
+/*
 public class AbsenceEntry
 {
     public int AbsenceID { get; set; }
@@ -5,3 +6,4 @@ public class AbsenceEntry
     public DateTime Date { get; set; }
     public bool IsJustified { get; set; }
 }
+*/

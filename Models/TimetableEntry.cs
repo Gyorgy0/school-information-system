@@ -4,11 +4,9 @@ namespace SchoolAPI.Models
     {
         public Int64 TimetableID { get; set; }
         public string? Day { get; set; }
-        public Int64 DayCount { get; set; }
         public string? Hour { get; set; }
         public string? Subject { get; set; }
-        public string? Room { get; set; }
+        public string? Classroom { get; set; }
         public Int64 TeacherID { get; set; }
-        public Int64 ClassID { get; set; }
     }
 }

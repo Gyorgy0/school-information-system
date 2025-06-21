@@ -1,3 +1,4 @@
+/*
 public class GradeEntry
 {
     public int GradeID { get; set; }
@@ -6,3 +7,4 @@ public class GradeEntry
     public int Grade { get; set; }
     public string? Date { get; set; }
 }
+*/

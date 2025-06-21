@@ -1,3 +1,4 @@
+/*
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.Security.Claims;
@@ -151,3 +152,4 @@ public class SchoolEventController : Controller
         return role != null && role.Equals("admin", StringComparison.OrdinalIgnoreCase);
     }
 }
+*/

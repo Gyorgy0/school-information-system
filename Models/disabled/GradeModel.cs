@@ -1,3 +1,4 @@
+/*
 namespace SchoolAPI.Models.Grade
 {
     public class GradeModel
@@ -10,3 +11,4 @@ namespace SchoolAPI.Models.Grade
         public DateTime Date { get; set; }
     }
 }
+*/
