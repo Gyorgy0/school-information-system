@@ -208,6 +208,23 @@ namespace SchoolAPI.Controllers
         }
 
         [HttpPost]
+        public IActionResult DeleteSubject([FromForm] int subjectID)
+        {
+            string sql = $"DELETE FROM Subjects WHERE SubjectID = {subjectID}";
+
+            using (var connection = DatabaseConnector.CreateNewConnection())
+            {
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    if (cmd.ExecuteNonQuery() == 0)
+                        return NotFound("Törölni kívánt tantárgy nem található.");
+
+                    return Ok("Tantárgy sikeresen törölve!");
+                }
+            }
+        }
+
+        [HttpPost]
         public IActionResult CreateClassroom([FromForm] int classroomId, [FromForm] string subjectname)
         {
             string sql = "INSERT INTO Classrooms (ClassroomID, Name) VALUES (@ClassroomID, @Name)";
@@ -239,6 +256,23 @@ namespace SchoolAPI.Controllers
         }
 
         [HttpPost]
+        public IActionResult DeleteClassroom([FromForm] int classroomID)
+        {
+            string sql = $"DELETE FROM Classrooms WHERE ClassroomID = {classroomID}";
+
+            using (var connection = DatabaseConnector.CreateNewConnection())
+            {
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    if (cmd.ExecuteNonQuery() == 0)
+                        return NotFound("Törölni kívánt terem nem található.");
+
+                    return Ok("Terem sikeresen törölve!");
+                }
+            }
+        }
+
+        [HttpPost]
         public IActionResult CreateClass([FromForm] int year, [FromForm] int group, [FromForm] string classname)
         {
             string sql = "INSERT INTO Classrooms (ClassroomID, Name) VALUES (@ClassroomID, @Name)";
@@ -253,7 +287,7 @@ namespace SchoolAPI.Controllers
 
             return Ok();
         }
-        
+
         [HttpGet]
         public IActionResult GetClasses()
         {
@@ -267,6 +301,23 @@ namespace SchoolAPI.Controllers
                     classes.Add(Convert.ToString(reader["ClassName"]));
 
             return Ok(new { Classes = classes });
+        }
+        
+        [HttpPost]
+        public IActionResult DeleteClass([FromForm] int classname)
+        {
+            string sql = $"DELETE FROM Classes WHERE ClassName = {classname}";
+
+            using (var connection = DatabaseConnector.CreateNewConnection())
+            {
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    if (cmd.ExecuteNonQuery() == 0)
+                        return NotFound("Törölni kívánt osztály nem található.");
+
+                    return Ok("Osztály sikeresen törölve!");
+                }
+            }
         }
     }
 }
