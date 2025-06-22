@@ -190,9 +190,9 @@ namespace SchoolAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateSubject([FromForm] int subjectId, [FromForm] string subjectname)
+        public IActionResult CreateSubject([FromForm] string subjectname)
         {
-            string sql = "INSERT INTO Subjects (SubjectID, Name) VALUES (@SubjectID, @Name)";
+            string sql = $"INSERT INTO Subjects (Name) VALUES ('{subjectname}')";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
@@ -221,29 +221,30 @@ namespace SchoolAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteSubject([FromForm] int subjectID)
+        public IActionResult DeleteSubject([FromForm] string subjectname)
         {
-            string sql = $"DELETE FROM Subjects WHERE SubjectID = {subjectID}";
+            string sql = $"DELETE FROM Subjects WHERE Name = '{subjectname}'";
+            Console.WriteLine("elér!!");
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
                 using (var cmd = new SQLiteCommand(sql, connection))
                 {
-                    if (cmd.ExecuteNonQuery() == 0)
-                        return NotFound("Törölni kívánt tantárgy nem található.");
-
-                    return Ok("Tantárgy sikeresen törölve!");
+                    cmd.ExecuteNonQuery();
                 }
+                sql = $"DELETE FROM Timetable WHERE Subject = '???'";
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                return Ok("Tantárgy sikeresen törölve!");
             }
         }
 
         [HttpPost]
-        public IActionResult CreateClassroom(
-            [FromForm] int classroomId,
-            [FromForm] string subjectname
-        )
+        public IActionResult CreateClassroom([FromForm] string classroomname)
         {
-            string sql = "INSERT INTO Classrooms (ClassroomID, Name) VALUES (@ClassroomID, @Name)";
+            string sql = $"INSERT INTO Classrooms (Name) VALUES ('{classroomname}')";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
@@ -272,9 +273,9 @@ namespace SchoolAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteClassroom([FromForm] int classroomID)
+        public IActionResult DeleteClassroom([FromForm] string classroomname)
         {
-            string sql = $"DELETE FROM Classrooms WHERE ClassroomID = {classroomID}";
+            string sql = $"DELETE FROM Classrooms WHERE Name = '{classroomname}'";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
@@ -282,9 +283,13 @@ namespace SchoolAPI.Controllers
                 {
                     if (cmd.ExecuteNonQuery() == 0)
                         return NotFound("Törölni kívánt terem nem található.");
-
-                    return Ok("Terem sikeresen törölve!");
                 }
+                sql = $"DELETE FROM Timetable WHERE Classroom = '???'";
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                return Ok("Terem sikeresen törölve!");
             }
         }
 
@@ -295,7 +300,8 @@ namespace SchoolAPI.Controllers
             [FromForm] string classname
         )
         {
-            string sql = "INSERT INTO Classrooms (ClassroomID, Name) VALUES (@ClassroomID, @Name)";
+            string sql =
+                "INSERT INTO Classes (Year, Group, ClassName) VALUES (@ClassroomID, @Name)";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
@@ -324,7 +330,7 @@ namespace SchoolAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteClass([FromForm] int classname)
+        public IActionResult DeleteClass([FromForm] string classname)
         {
             string sql = $"DELETE FROM Classes WHERE ClassName = {classname}";
 
@@ -334,9 +340,13 @@ namespace SchoolAPI.Controllers
                 {
                     if (cmd.ExecuteNonQuery() == 0)
                         return NotFound("Törölni kívánt osztály nem található.");
-
-                    return Ok("Osztály sikeresen törölve!");
                 }
+                sql = $"DELETE FROM Timetable WHERE TimetableID = '???'";
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                return Ok("Osztály sikeresen törölve!");
             }
         }
     }

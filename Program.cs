@@ -62,8 +62,9 @@ command.CommandText =
     + "`Subject` TEXT NOT NULL, "
     + "`Classroom` TEXT NOT NULL, "
     + "`TeacherID` INTEGER NOT NULL, "
-    + "FOREIGN KEY (`TimetableID`) REFERENCES `Classes` (`Class`), "
-    + "FOREIGN KEY (`Hour`) REFERENCES `Hours` (`HourID`),"
+    + "FOREIGN KEY (`TimetableID`) REFERENCES `Classes` (`ClassName`), "
+    + "FOREIGN KEY (`Subject`) REFERENCES `Subjects` (`Name`), "
+    + "FOREIGN KEY (`Classroom`) REFERENCES `Classrooms` (`Name`), "
     + "FOREIGN KEY (`TeacherID`) REFERENCES `Users` (`UserID`));"
     //#################################################################################
     // Subjects table
@@ -78,9 +79,9 @@ command.CommandText =
     //#################################################################################
     // Hours table
     //#################################################################################
-    + "CREATE TABLE IF NOT EXISTS `Hours` ("
-    + "`HourID` INTEGER NOT NULL PRIMARY KEY,"
-    + "`Value` TEXT NOT NULL);"
+    //+ "CREATE TABLE IF NOT EXISTS `Hours` ("
+    //+ "`HourID` INTEGER NOT NULL PRIMARY KEY,"
+    //+ "`Value` TEXT NOT NULL);"
     //#################################################################################
     // Classes table
     //#################################################################################
