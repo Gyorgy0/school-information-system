@@ -43,6 +43,21 @@ namespace SchoolAPI.Controllers
                 return Json(timetable);
         }
 
+        [HttpGet]
+        public IActionResult GetTimetables()
+        {
+            using var conn = DatabaseConnector.CreateNewConnection();
+
+            var timetables = new List<string>();
+
+            using (var cmd = new SQLiteCommand("SELECT TimetableID FROM Timetable", conn))
+            using (var reader = cmd.ExecuteReader())
+                while (reader.Read())
+                    timetables.Add(Convert.ToString(reader["TimetableID"]));
+
+            return Ok(new { Timetables = timetables });
+        }
+
         [HttpPost]
         public IActionResult CreateTimetable(
             [FromForm] string timetableID,
@@ -160,8 +175,7 @@ namespace SchoolAPI.Controllers
                 AND Hour = {hour}
                 AND (
                     TeacherID = {teacherID} OR
-                    Room = {room} OR
-                    Subject = {subject}
+                    Room = {room}
                 )";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
@@ -174,7 +188,6 @@ namespace SchoolAPI.Controllers
                 }
             }
         }
-
 
         [HttpPost]
         public IActionResult CreateSubject([FromForm] int subjectId, [FromForm] string subjectname)
@@ -225,7 +238,10 @@ namespace SchoolAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateClassroom([FromForm] int classroomId, [FromForm] string subjectname)
+        public IActionResult CreateClassroom(
+            [FromForm] int classroomId,
+            [FromForm] string subjectname
+        )
         {
             string sql = "INSERT INTO Classrooms (ClassroomID, Name) VALUES (@ClassroomID, @Name)";
 
@@ -273,7 +289,11 @@ namespace SchoolAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateClass([FromForm] int year, [FromForm] int group, [FromForm] string classname)
+        public IActionResult CreateClass(
+            [FromForm] int year,
+            [FromForm] int group,
+            [FromForm] string classname
+        )
         {
             string sql = "INSERT INTO Classrooms (ClassroomID, Name) VALUES (@ClassroomID, @Name)";
 
@@ -302,7 +322,7 @@ namespace SchoolAPI.Controllers
 
             return Ok(new { Classes = classes });
         }
-        
+
         [HttpPost]
         public IActionResult DeleteClass([FromForm] int classname)
         {

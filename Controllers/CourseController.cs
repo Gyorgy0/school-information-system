@@ -17,15 +17,15 @@ public class CourseController : Controller
             "SELECT CourseID, Name, TeacherID, Visible FROM Course",
             conn
         );
-        using var rdr = cmd.ExecuteReader();
-        while (rdr.Read())
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
             list.Add(
                 new CourseModel
                 {
-                    CourseID = rdr.GetInt32(0),
-                    Name = rdr.GetString(1),
-                    TeacherID = rdr.GetInt32(2),
-                    Visible = rdr.GetBoolean(3),
+                    CourseID = reader.GetInt32(0),
+                    Name = reader.GetString(1),
+                    TeacherID = reader.GetInt32(2),
+                    Visible = reader.GetBoolean(3),
                 }
             );
         return Json(list);

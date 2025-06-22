@@ -53,23 +53,40 @@ command.CommandText =
     + "`LoginTime` DATETIME NOT NULL,"
     + "`ValidUntil` DATETIME NOT NULL);"
     //#################################################################################
+    // Timetable table
+    //#################################################################################
+    + "CREATE TABLE IF NOT EXISTS `Timetable` ("
+    + "`TimetableID` TEXT NOT NULL, "
+    + "`Day` TEXT NOT NULL, "
+    + "`Hour` INTEGER NOT NULL, "
+    + "`Subject` TEXT NOT NULL, "
+    + "`Classroom` TEXT NOT NULL, "
+    + "`TeacherID` INTEGER NOT NULL, "
+    + "FOREIGN KEY (`TimetableID`) REFERENCES `Classes` (`Class`), "
+    + "FOREIGN KEY (`Hour`) REFERENCES `Hours` (`HourID`),"
+    + "FOREIGN KEY (`TeacherID`) REFERENCES `Users` (`UserID`));"
+    //#################################################################################
     // Subjects table
     //#################################################################################
     + "CREATE TABLE IF NOT EXISTS `Subjects` ("
-    + "`SubjectID` INTEGER PRIMARY KEY AUTOINCREMENT,"
-    + "`Name` TEXT NOT NULL);"
+    + "`Name` TEXT NOT NULL PRIMARY KEY);"
     //#################################################################################
     // Classrooms table
     //#################################################################################
     + "CREATE TABLE IF NOT EXISTS `Classrooms` ("
-    + "`ClassroomID` INTEGER PRIMARY KEY AUTOINCREMENT,"
-    + "`Name` TEXT NOT NULL);"
+    + "`Name` TEXT NOT NULL PRIMARY KEY);"
+    //#################################################################################
+    // Hours table
+    //#################################################################################
+    + "CREATE TABLE IF NOT EXISTS `Hours` ("
+    + "`HourID` INTEGER NOT NULL PRIMARY KEY,"
+    + "`Value` TEXT NOT NULL);"
     //#################################################################################
     // Classes table
     //#################################################################################
     + "CREATE TABLE IF NOT EXISTS `Classes` ("
     + "`Year` INTEGER NOT NULL,"
-    + "`Group` INTEGER NOT NuLL,"
+    + "`Group` TEXT NOT NULL,"
     + "`ClassName` TEXT NOT NULL PRIMARY KEY);"
     //#################################################################################
     // SchoolEvent table
@@ -111,18 +128,6 @@ command.CommandText =
     //+ "`Timestamp` TEXT NOT NULL, "
     //+ "FOREIGN KEY (`SenderID`) REFERENCES `Users` (`UserID`), "
     //+ "FOREIGN KEY (`ReceiverID`) REFERENCES `Users` (`UserID`));"
-    //#################################################################################
-    // Timetable table
-    //#################################################################################
-    + "CREATE TABLE IF NOT EXISTS `Timetable` ("
-    + "`TimetableID` TEXT NOT NULL, "
-    + "`Day` TEXT NOT NULL, "
-    + "`Hour` TEXT NOT NULL, "
-    + "`Subject` TEXT NOT NULL, "
-    + "`Classroom` TEXT NOT NULL, "
-    + "`TeacherID` INTEGER NOT NULL, "
-    + "FOREIGN KEY (`TeacherID`) REFERENCES `Users` (`UserID`),"
-    + "FOREIGN KEY (`TimetableID`) REFERENCES `Classes` (`Class`)); "
     //#################################################################################
     // Course table
     //#################################################################################
