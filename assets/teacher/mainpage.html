@@ -227,32 +227,55 @@ function courses() {
 function courses() {
         window.location.assign('/courses');
     }
-    document.addEventListener('DOMContentLoaded', () => {
-        const calendarEl = document.getElementById('calendar');
-        const calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            selectable: true,
-            events: function(fetchInfo, successCallback, failureCallback) {
-                $.ajax({
-                    url: '/SchoolEvent/GetEvents',
-                    method: 'GET',
-                    dataType: 'json'
-                }).done(data => {
-                    const evts = data.map(e => ({
-                        id: e.eventID,
-                        title: e.eventType,
-                        start: e.eventDate,
-                        description: e.description
-                    }));
-                    successCallback(evts);
-                }).fail(() => {
-                    failureCallback();
-                });
-            },
-
-        });
-        calendar.render();
+document.addEventListener('DOMContentLoaded', () => {
+    const calendarEl = document.getElementById('calendar');
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        selectable: true,
+        eventTimeFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        },
+        events: function(fetchInfo, successCallback, failureCallback) {
+            $.ajax({
+                url: '/SchoolEvent/GetEvents',
+                method: 'GET',
+                dataType: 'json'
+            }).done(data => {
+                const evts = data.map(e => ({
+                    id: e.eventID,
+                    title: e.eventType,
+                    start: e.eventDate,
+                    description: e.description
+                }));
+                successCallback(evts);
+            }).fail(() => {
+                failureCallback();
+            });
+        },
+        dateClick: info => {
+            const title = prompt('Enter event title:');
+            if (!title) return;
+            let time = prompt('Enter event time (HH:mm):') || '23:59';
+            const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+            if (!timeRegex.test(time)) {
+                time = '23:59';
+            }
+            $.ajax({
+                url: '/SchoolEvent/AddEvent',
+                method: 'POST',
+                data: {
+                    timetableID: 0,
+                    eventType: title,
+                    eventDate: `${info.dateStr} ${time}`,
+                    description: title
+                }
+            }).done(() => calendar.refetchEvents());
+        }
     });
+    calendar.render();
+});
 </script>
 </body>
 </html>

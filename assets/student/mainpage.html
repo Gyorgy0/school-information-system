@@ -98,32 +98,36 @@
 function courses() {
         window.location.assign('/courses');
     }
-    document.addEventListener('DOMContentLoaded', () => {
-        const calendarEl = document.getElementById('calendar');
-        const calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            selectable: true,
-            events: function(fetchInfo, successCallback, failureCallback) {
-                $.ajax({
-                    url: '/SchoolEvent/GetEvents',
-                    method: 'GET',
-                    dataType: 'json'
-                }).done(data => {
-                    const evts = data.map(e => ({
-                        id: e.eventID,
-                        title: e.eventType,
-                        start: e.eventDate,
-                        description: e.description
-                    }));
-                    successCallback(evts);
-                }).fail(() => {
-                    failureCallback();
-                });
-            },
-
-        });
-        calendar.render();
+document.addEventListener('DOMContentLoaded', () => {
+    const calendarEl = document.getElementById('calendar');
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        selectable: true,
+        eventTimeFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        },
+        events: function(fetchInfo, successCallback, failureCallback) {
+            $.ajax({
+                url: '/SchoolEvent/GetEvents',
+                method: 'GET',
+                dataType: 'json'
+            }).done(data => {
+                const evts = data.map(e => ({
+                    id: e.eventID,
+                    title: e.eventType,
+                    start: e.eventDate,
+                    description: e.description
+                }));
+                successCallback(evts);
+            }).fail(() => {
+                failureCallback();
+            });
+        }
     });
+    calendar.render();
+});
 </script>
 </body>
 </html>
