@@ -294,19 +294,75 @@ namespace SchoolAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateClass(
-            [FromForm] int year,
-            [FromForm] int group,
-            [FromForm] string classname
-        )
+        public IActionResult CreateClass([FromForm] int year)
         {
-            string sql =
-                "INSERT INTO Classes (Year, Group, ClassName) VALUES (@ClassroomID, @Name)";
+            string[] alphabet =
+            {
+                "A",
+                "B",
+                "C",
+                "D",
+                "E",
+                "F",
+                "G",
+                "H",
+                "I",
+                "J",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "V",
+                "W",
+                "X",
+                "Y",
+                "Z",
+            };
+            int count = 0;
+            int groupcount = 0;
+
+            string groupname = "";
+
+            string sql = $"SELECT COUNT(*) FROM Classes WHERE Year = @Year";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
                 using (var cmd = new SQLiteCommand(sql, connection))
                 {
+                    cmd.Parameters.AddWithValue("@Year", Convert.ToInt32(year));
+                    groupcount = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+            }
+
+            int digit = groupcount % alphabet.Length;
+            groupcount = groupcount / alphabet.Length;
+            groupname += alphabet[digit % alphabet.Length];
+
+            while (groupcount > 0)
+            {
+                digit = groupcount % alphabet.Length;
+                groupcount = groupcount / alphabet.Length;
+                groupname += alphabet[digit % alphabet.Length];
+            }
+
+            string classname = year + "." + groupname;
+
+            sql =
+                $"INSERT INTO Classes ( Year, GroupName, ClassName ) VALUES ( @Year, @GroupName, @ClassName )";
+            using (var connection = DatabaseConnector.CreateNewConnection())
+            {
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Year", Convert.ToInt32(year));
+                    cmd.Parameters.AddWithValue("@GroupName", groupname);
+                    cmd.Parameters.AddWithValue("@ClassName", classname);
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -332,12 +388,13 @@ namespace SchoolAPI.Controllers
         [HttpPost]
         public IActionResult DeleteClass([FromForm] string classname)
         {
-            string sql = $"DELETE FROM Classes WHERE ClassName = {classname}";
+            string sql = $"DELETE FROM Classes WHERE ClassName = @ClassName";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
                 using (var cmd = new SQLiteCommand(sql, connection))
                 {
+                    cmd.Parameters.AddWithValue("@ClassName", classname);
                     if (cmd.ExecuteNonQuery() == 0)
                         return NotFound("Törölni kívánt osztály nem található.");
                 }

@@ -236,7 +236,7 @@
             <div class="col-md-5">
                 <h3>Osztály hozzáadása</h3>
                 <label for="classname" class="form-label g-3">Évfolyam</label>
-                <input id="classname" type="text" class="form-control" required>
+                <input id="classname" type="number" inputmode="numeric" class="form-control" required>
                 <button type="button" class="btn btn-info w-100" onclick="addClass()">Osztály hozzáadása</button>
             </div>
             <div class="col-md-2"></div>
@@ -254,6 +254,7 @@ $(document).ready(function () {
     //loadTimetable();
     populateSubjectDropdowns();
     populateClassroomDropdowns();
+    populateClassDropdowns();
 });
 
 async function populateSubjectDropdowns() {
@@ -283,16 +284,36 @@ async function populateClassroomDropdowns() {
         const data = await res.json();
 
         const classroomSelect = document.getElementById('classroomSelect');
-        const removeSubjectSelect = document.getElementById('removeClassroomSelect');
+        const removeClassroomSelect = document.getElementById('removeClassroomSelect');
 
         data.classrooms.forEach(classrooms => {
             classroomSelect.innerHTML += `<option value="${classrooms}">${classrooms}</option>`;
-            removeSubjectSelect.innerHTML += `<option value="${classrooms}">${classrooms}</option>`;
+            removeClassroomSelect.innerHTML += `<option value="${classrooms}">${classrooms}</option>`;
         });
 
     } catch (error) {
         console.error(error);
         alert("Hiba történt a termek betöltésekor.");
+    }
+}
+
+async function populateClassDropdowns() {
+    try {
+        const res = await fetch('/Timetable/GetClasses');
+        if (!res.ok) throw new Error("Nem sikerült betölteni az osztályokat!");
+        const data = await res.json();
+
+        const classSelect = document.getElementById('classSelect');
+        const removeClassSelect = document.getElementById('removeClassSelect');
+
+        data.classes.forEach(classes => {
+            classSelect.innerHTML += `<option value="${classes}">${classes}</option>`;
+            removeClassSelect.innerHTML += `<option value="${classes}">${classes}</option>`;
+        });
+
+    } catch (error) {
+        console.error(error);
+        alert("Hiba történt az osztályok betöltésekor.");
     }
 }
 
@@ -307,8 +328,8 @@ function logout() {
 }
 
 function addSubject() {
-    const Subjectname = $('#subjectname').val();
-    $.post('/Timetable/CreateSubject', { Subjectname })
+    const subjectname = $('#subjectname').val();
+    $.post('/Timetable/CreateSubject', { subjectname })
     .done(function () {
         alert("Tantárgy sikeresen hozzáadva!");
         location.reload();
@@ -319,8 +340,8 @@ function addSubject() {
 }
 
 function removeSubject() {
-    const Subjectname = $('#removeSubjectSelect').val();
-    $.post('/Timetable/DeleteSubject', { Subjectname })
+    const subjectname = $('#removeSubjectSelect').val();
+    $.post('/Timetable/DeleteSubject', { subjectname })
     .done(function () {
         alert("Tantárgy sikeresen törölve!");
         location.reload();
@@ -331,8 +352,8 @@ function removeSubject() {
 }
 
 function addClassroom() {
-    const Classroomname = $('#classroomname').val();
-    $.post('/Timetable/CreateClassroom', { Classroomname })
+    const classroomname = $('#classroomname').val();
+    $.post('/Timetable/CreateClassroom', { classroomname })
     .done(function () {
         alert("Terem sikeresen hozzáadva!");
         location.reload();
@@ -343,14 +364,39 @@ function addClassroom() {
 }
 
 function removeClassroom() {
-    const Classroomname = $('#removeClassroomSelect').val();
-    $.post('/Timetable/DeleteClassroom', { Classroomname })
+    const classroomname = $('#removeClassroomSelect').val();
+    $.post('/Timetable/DeleteClassroom', { classroomname })
     .done(function () {
         alert("Terem sikeresen törölve!");
         location.reload();
     })
     .fail(function () {
         alert("Terem törlése sikertelen!");
+    });
+}
+
+function addClass() {
+    const year = $('#classname').val();
+    alert(year);
+    $.post('/Timetable/CreateClass', { year })
+    .done(function () {
+        alert("Osztály sikeresen hozzáadva!");
+        location.reload();
+    })
+    .fail(function () {
+        alert("Osztály hozzáadása sikertelen!");
+    });
+}
+
+function removeClass() {
+    const classname = $('#removeClassSelect').val();
+    $.post('/Timetable/DeleteClass', { classname })
+    .done(function () {
+        alert("Osztály sikeresen törölve!");
+        location.reload();
+    })
+    .fail(function () {
+        alert("Osztály törlése sikertelen!");
     });
 }
 
