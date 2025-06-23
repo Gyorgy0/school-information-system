@@ -47,6 +47,11 @@
     .entries-row li {
       list-style: disc inside;
     }
+
+    img, video {
+      max-width: 600px;
+      height: auto;
+    }
   </style>
 </head>
 <body>
@@ -95,6 +100,22 @@
 
   <script>
     const creds = { credentials: 'include' };
+
+    function parseEntryText(text) {
+      // query string levágása ('?' után minden)
+      const baseUrl = text.split('?')[0];
+      const imageExt = /\.(jpg|jpeg|png|gif|webp)$/i;
+      const videoExt = /\.(mp4|webm|ogg)$/i;
+
+      if (imageExt.test(baseUrl)) {
+        return `<img src="${text}" alt="embedded image">`;
+      } else if (videoExt.test(baseUrl)) {
+        const type = baseUrl.split('.').pop();
+        return `<video controls><source src="${text}" type="video/${type}">Videó nem támogatott</video>`;
+      } else {
+        return text;
+      }
+    }
 
     function loadCourses() {
       fetch('/Course/GetCourses', creds)
@@ -175,7 +196,7 @@
           ul.innerHTML = '';
           list.forEach(text => {
             const li = document.createElement('li');
-            li.textContent = text;
+            li.innerHTML = parseEntryText(text);
             ul.appendChild(li);
           });
         });
