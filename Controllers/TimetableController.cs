@@ -11,28 +11,30 @@ namespace SchoolAPI.Controllers
     [Route("[controller]/[action]")]
     public class TimetableController : Controller
     {
-        [HttpGet]
-        public IActionResult GetTimetable(string timetableID)
+        [HttpPost]
+        public IActionResult GetTimetable([FromForm] string timetableID)
         {
-            TimetableEntry? timetable = null;
-            string sql = $"SELECT * FROM Timetable WHERE TimetableID = {timetableID}";
-
+            List<TimetableEntry?> timetable = new List<TimetableEntry?>();
+            string sql =
+                $"SELECT * FROM Timetable WHERE TimetableID = @TimetableID ORDER BY Hour ASC, CASE WHEN Day = 'Hétfő' THEN 1 WHEN Day = 'Kedd' THEN 2 WHEN Day = 'Szerda' THEN 3 WHEN Day = 'Csütörtök' THEN 4 WHEN Day = 'Péntek' THEN 5 END ASC";
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
                 using (var cmd = new SQLiteCommand(sql, connection))
                 {
+                    cmd.Parameters.AddWithValue("@TimetableID", timetableID);
                     var reader = cmd.ExecuteReader();
-                    if (reader.Read())
+                    while (reader.Read())
                     {
-                        timetable = new TimetableEntry
-                        {
-                            TimetableID = Convert.ToInt64(reader["TimetableID"]),
-                            Day = Convert.ToString(reader["Day"]),
-                            Hour = Convert.ToString(reader["Hour"]),
-                            Subject = Convert.ToString(reader["Subject"]),
-                            Classroom = Convert.ToString(reader["Classroom"]),
-                            TeacherID = Convert.ToInt64(reader["TeacherID"]),
-                        };
+                        timetable.Add(
+                            new TimetableEntry
+                            {
+                                Day = Convert.ToString(reader["Day"]),
+                                Hour = Convert.ToInt64(reader["Hour"]),
+                                Subject = Convert.ToString(reader["Subject"]),
+                                Classroom = Convert.ToString(reader["Classroom"]),
+                                TeacherID = Convert.ToInt64(reader["TeacherID"]),
+                            }
+                        );
                     }
                 }
             }
@@ -43,103 +45,39 @@ namespace SchoolAPI.Controllers
                 return Json(timetable);
         }
 
-        [HttpGet]
-        public IActionResult GetTimetables()
-        {
-            using var conn = DatabaseConnector.CreateNewConnection();
-
-            var timetables = new List<string>();
-
-            using (var cmd = new SQLiteCommand("SELECT TimetableID FROM Timetable", conn))
-            using (var reader = cmd.ExecuteReader())
-                while (reader.Read())
-                    timetables.Add(Convert.ToString(reader["TimetableID"]));
-
-            return Ok(new { Timetables = timetables });
-        }
-
         [HttpPost]
         public IActionResult CreateTimetable(
             [FromForm] string timetableID,
             [FromForm] string day,
-            [FromForm] string hour,
+            [FromForm] int hour,
             [FromForm] string subject,
             [FromForm] string classroom,
             [FromForm] int teacherID
         )
         {
-            if (CheckForConflicts(day, hour, subject, classroom, teacherID))
+            if (CheckForConflicts(day, hour, classroom, teacherID))
             {
-                return BadRequest(
-                    "Az adott időpontban ütközés van a tanár, tantárgy, vagy terem miatt!"
-                );
+                return BadRequest("Az adott időpontban ütközés van más tanórával!");
             }
 
             string sql =
-                $"INSERT INTO Timetable (TimetableID, Day, Hour, Subject, Room, TeacherID) VALUES ({timetableID}, {day}, {hour}, {subject}, {classroom}, {teacherID})";
+                $"INSERT INTO Timetable (TimetableID, Day, Hour, Subject, Classroom, TeacherID) VALUES (@TimetableID, @Day, @Hour, @Subject, @Classroom, @TeacherID)";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
                 using (var cmd = new SQLiteCommand(sql, connection))
                 {
+                    cmd.Parameters.AddWithValue("@TimetableID", timetableID);
+                    cmd.Parameters.AddWithValue("@Day", day);
+                    cmd.Parameters.AddWithValue("@Hour", hour);
+                    cmd.Parameters.AddWithValue("@Subject", subject);
+                    cmd.Parameters.AddWithValue("@Classroom", classroom);
+                    cmd.Parameters.AddWithValue("@TeacherID", teacherID);
                     cmd.ExecuteNonQuery();
                 }
             }
 
             return Ok("Órarend sikeresen létrehozva!");
-        }
-
-        [HttpPost]
-        public IActionResult UpdateTimetable(
-            [FromForm] int timetableID,
-            [FromForm] string? day,
-            [FromForm] string? hour,
-            [FromForm] string? subject,
-            [FromForm] string? classroom,
-            [FromForm] int? teacherID
-        )
-        {
-            if (
-                (
-                    day != null
-                    || hour != null
-                    || subject != null
-                    || classroom != null
-                    || teacherID != null
-                )
-                && CheckForConflicts(
-                    day ?? "",
-                    hour ?? "",
-                    subject ?? "",
-                    classroom ?? "",
-                    teacherID ?? 0
-                )
-            )
-            {
-                return BadRequest("Az új beállítások ütközést okoznak!");
-            }
-
-            string sql =
-                $@"
-                UPDATE Timetable
-                SET
-                    Day = COALESCE({day ?? (object)DBNull.Value}, Day),
-                    Hour = COALESCE({hour ?? (object)DBNull.Value}, Hour),
-                    Subject = COALESCE({subject ?? (object)DBNull.Value}, Subject),
-                    Classroom = COALESCE({classroom ?? (object)DBNull.Value}, Classroom),
-                    TeacherID = COALESCE({teacherID ?? (object)DBNull.Value}, TeacherID)
-                WHERE TimetableID = {timetableID}";
-
-            using (var connection = DatabaseConnector.CreateNewConnection())
-            {
-                using (var cmd = new SQLiteCommand(sql, connection))
-                {
-                    if (cmd.ExecuteNonQuery() == 0)
-                        return NotFound("Órarend bejegyzés nem található.");
-
-                    return Ok("Órarend bejegyzés sikeresen frissítve!");
-                }
-            }
         }
 
         [HttpPost]
@@ -159,31 +97,28 @@ namespace SchoolAPI.Controllers
             }
         }
 
-        public bool CheckForConflicts(
-            string day,
-            string hour,
-            string subject,
-            string room,
-            int teacherID
-        )
+        public bool CheckForConflicts(string day, long hour, string classroom, long teacherID)
         {
             string sql =
-                $@"
+                @"
                 SELECT COUNT(*)
                 FROM Timetable
-                WHERE Day = {day}
-                AND Hour = {hour}
+                WHERE Day = @Day
+                AND Hour = @Hour
                 AND (
-                    TeacherID = {teacherID} OR
-                    Room = {room}
+                    TeacherID = @TeacherID OR
+                    Classroom = @Classroom
                 )";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
                 using (var cmd = new SQLiteCommand(sql, connection))
                 {
-                    var count = Convert.ToInt32(cmd.ExecuteScalar());
-
+                    cmd.Parameters.AddWithValue("@Day", day);
+                    cmd.Parameters.AddWithValue("@Hour", Convert.ToInt64(hour));
+                    cmd.Parameters.AddWithValue("@TeacherID", Convert.ToInt64(teacherID));
+                    cmd.Parameters.AddWithValue("@Classroom", classroom);
+                    int count = Convert.ToInt32(cmd.ExecuteScalar());
                     return count > 0;
                 }
             }

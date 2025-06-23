@@ -10,10 +10,6 @@
             background-color: #f8f9fa;
             padding: 2rem;
         }
-        table {
-            background-color: white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
         label {
             font-weight: 500;
         }
@@ -31,34 +27,9 @@
             margin-top: 2rem;
             margin-bottom: 1rem;
         }
-        #lunchMenu {
-            margin-bottom: 3rem;
-        }
-        table {
-            background-color: white;
-        }
         /* Bootstrap alap gombok színezése */
         button {
             min-width: 120px;
-        }
-        /* Egyedi gomb színek */
-        #regenerateBtn {
-            background-color: #198754;
-            color: white;
-            border: none;
-        }
-        #regenerateBtn:hover {
-            background-color: #157347;
-            color: white;
-        }
-        /* Egyedi gomb színek a sign up / out gombokra a táblázatban */
-        table button {
-            min-width: 100px;
-        }
-        /* Táblázatban lévő gombok hover háttérrel */
-        table button:hover {
-            background-color: #cce5ff;
-            transition: background-color 0.2s;
         }
         .btn-signup {
             background-color: #0d6efd;
@@ -80,8 +51,8 @@
         }
         /* Form elemek margója */
         label, select, input {
-            margin-top: 0.5rem;
-            margin-bottom: 1rem;
+            margin-top: 2%;
+            margin-bottom: 2%;
         }
         /* Container a külön blokkokhoz */
         .section-container {
@@ -91,9 +62,13 @@
             box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
             margin-bottom: 2rem;
         }
-        /* Táblázat középre és árnyék */
-        table {
-            box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
+        tbody {
+            border: 2px solid black;
+        }
+        .table-dark {
+            border: 2px solid white;
+            border-bottom: 2px solid black;
+            border-top: 2px solid black;
         }
         /* A hidden osztály eltünteti az elemet */
         .hidden {
@@ -103,31 +78,43 @@
 </head>
 <body>
     <div class="container">
-        <h3>Órarend</h3>
-        <div class="table-responsive">
-            <table class="table table-bordered" id="timetable">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-5">
+            <select id="timetableSelect" class="form-select">
+                <option value="" disabled selected>Órarend...</option>
+            </select>
+        </div>
+        <div class="col-md-2"></div>
+        <div class="col-md-5">
+            <button class="form-control btn-signup" onclick="loadTimetable()">Órarend mutatása</button>
+        </div>
+        <br>
+        </div>
+        <div class="table-responsive d-flex">
+            <table class="table table-bordered table-stripped" id="timetable">
                 <thead class="table-dark">
                     <tr>
-                        <th>Nap</th>
-                        <th>Óra</th>
-                        <th>Tantárgy</th>
-                        <th>Terem</th>
-                        <th>Tanár ID</th>
-                        <th>Osztály ID</th>
+                        <th></th>
+                        <th><center>Hétfő</center></th>
+                        <th><center>Kedd</center></th>
+                        <th><center>Szerda</center></th>
+                        <th><center>Csütörtök</center></th>
+                        <th><center>Péntek</center></th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody class="table-stripped">
+                </tbody>
             </table>
         </div>
 
         <hr class="mt-3">
-        <form id="timetableForm" class="row g-3 align-items-end">
+        <form id="timetableForm" class="row g-3 align-items-center">
         <div class="row g-3 align-items-end">
         <h3>Órarend bejegyzés hozzáadása</h3>
         </div>
         <div class="col-12 col-md-2">
-            <label for="day" class="form-label">Nap</label>
-            <select id="day" class="form-select">
+            <label for="daySelect" class="form-label">Nap</label>
+            <select id="daySelect" class="form-select">
                 <option value="1">Hétfő</option>
                 <option value="2">Kedd</option>
                 <option value="3">Szerda</option>
@@ -136,8 +123,8 @@
             </select>
         </div>
         <div class="col-12 col-md-2">
-            <label for="hour" class="form-label">Óra</label>
-            <select id="hour" class="form-select">
+            <label for="hourSelect" class="form-label">Óra</label>
+            <select id="hourSelect" class="form-select">
                 <option value="0">07:00 - 07:45</option>
                 <option value="1">08:00 - 08:45</option>
                 <option value="2">08:55 - 09:40</option>
@@ -165,6 +152,7 @@
             <label for="teacherSelect" class="form-label">Tanár</label>
             <select id="teacherSelect" class="form-select">
                 <option value="" disabled selected>Tanár...</option>
+                <option value="1" >1</option>
             </select>
         </div>
         <div class="col-12 col-md-2">
@@ -251,7 +239,7 @@
     </div>
 <script>
 $(document).ready(function () {
-    //loadTimetable();
+    loadTimetable();
     populateSubjectDropdowns();
     populateClassroomDropdowns();
     populateClassDropdowns();
@@ -298,6 +286,28 @@ async function populateClassroomDropdowns() {
 }
 
 async function populateClassDropdowns() {
+    try {
+        const res = await fetch('/Timetable/GetClasses');
+        if (!res.ok) throw new Error("Nem sikerült betölteni az osztályokat!");
+        const data = await res.json();
+
+        const classSelect = document.getElementById('classSelect');
+        const timetableSelect = document.getElementById('timetableSelect');
+        const removeClassSelect = document.getElementById('removeClassSelect');
+
+        data.classes.forEach(classes => {
+            classSelect.innerHTML += `<option value="${classes}">${classes}</option>`;
+            timetableSelect.innerHTML += `<option value="${classes}">${classes}</option>`;
+            removeClassSelect.innerHTML += `<option value="${classes}">${classes}</option>`;
+        });
+
+    } catch (error) {
+        console.error(error);
+        alert("Hiba történt az osztályok betöltésekor.");
+    }
+}
+
+async function populateTeacherDropdowns() {
     try {
         const res = await fetch('/Timetable/GetClasses');
         if (!res.ok) throw new Error("Nem sikerült betölteni az osztályokat!");
@@ -377,7 +387,6 @@ function removeClassroom() {
 
 function addClass() {
     const year = $('#classname').val();
-    alert(year);
     $.post('/Timetable/CreateClass', { year })
     .done(function () {
         alert("Osztály sikeresen hozzáadva!");
@@ -401,50 +410,59 @@ function removeClass() {
 }
 
 function loadTimetable() {
-    $.get('/Timetable/GetTimetableAction', function (data) {
+    const timetableID = $('#timetableSelect').val();
+    $.post('/Timetable/GetTimetable', { timetableID })
+    .done(function (data) {
         const tableBody = $('#timetable tbody');
         tableBody.empty();
-
-        data.forEach(row => {
-            tableBody.append(`
-                <tr>
-                    <td>${row.day}</td>
-                    <td>${row.hour}</td>
-                    <td>${row.subject}</td>
-                    <td>${row.room}</td>
-                    <td>${row.teacherID}</td>
-                    <td>${row.classID}</td>
-                </tr>
-            `);
-        });
+        const cols =  $('#daySelect').children('option').length;
+        const rows = $('#hourSelect').children('option').length;
+        for (let i = 0; i < rows; i++) {
+            let tablerow = '';
+            if (i % 2 === 0) {
+                tablerow = `<tr class="table-active">`;
+            }
+            else {
+                tablerow = `<tr>`
+            }   
+                tablerow += `<th><center> ${i}. óra<br><hr>${document.getElementById("hourSelect").options[i].text}<br></center></th>`;
+                for (let j = 0; j < cols; j++) {
+                    let foundentry = false;
+                    data.forEach( entry => {
+                        if (entry.hour === i && entry.day === document.getElementById("daySelect").options[j].text) {
+                            tablerow += `<th><center>${entry.subject}<br>${entry.classroom}<br>${entry.teacherID}</center></th>`;
+                            foundentry = true;
+                            return;
+                        }
+                    });
+                    if (foundentry === false) {
+                        tablerow += `<th></th>`;
+                    }
+                }
+            tablerow += ' </tr>';
+            tableBody.append(tablerow);
+        }
     }).fail(function () {
         alert("Nem sikerült betölteni az órarendet.");
     });
 }
 function addTimetable() {
-    const day = $('#day').find('option:selected').text();
-    const dayCount = $('#day').val();
-    const hour = $('#hour').val();
-    const subject = $('#subject').val();
-    const room = $('#room').val();
-    const teacherID = $('#teacherID').val();
-    //const classID = $('#classID').val();
+    const timetableID = $('#classSelect').val();
+    const day = $('#daySelect option:selected').text();
+    const hour = $('#hourSelect').val();
+    const subject = $('#subjectSelect').val();
+    const classroom = $('#classroomSelect').val();
+    const teacherID = $('#teacherSelect').val();
 
     $.post('/Timetable/CreateTimetable', {
-        day,
-        dayCount,
-        hour,
-        subject,
-        room,
-        teacherID,
-        //classID
+        timetableID, day, hour, subject, classroom, teacherID
     })
     .done(function () {
         alert("Órarend sikeresen hozzáadva!");
         location.reload();
     })
     .fail(function (xhr) {
-        alert("Hiba az órarend hozzáadásakor: " + xhr.responseText);
+        alert("Hiba történt a hozzáadás során: " + xhr.responseText);
     });
 }
 </script>
