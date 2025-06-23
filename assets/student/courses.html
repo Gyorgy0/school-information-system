@@ -18,15 +18,6 @@
       color: #1976d2;
     }
 
-    .form-section {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      max-width: 500px;
-      margin-bottom: 2rem;
-    }
-
     .table {
       background-color: white;
       border-radius: 8px;
@@ -46,6 +37,11 @@
 
     .entries-row li {
       list-style: disc inside;
+    }
+
+    img, video {
+      max-width: 600px;
+      height: auto;
     }
   </style>
 </head>
@@ -74,6 +70,20 @@
   <script>
     const creds = { credentials: 'include' };
 
+    function parseEntryText(text) {
+      const baseUrl = text.split('?')[0];
+      const imageExt = /\.(jpg|jpeg|png|gif|webp)$/i;
+      const videoExt = /\.(mp4|webm|ogg)$/i;
+
+      if (imageExt.test(baseUrl)) {
+        return `<img src="${text}" alt="embedded image">`;
+      } else if (videoExt.test(baseUrl)) {
+        const type = baseUrl.split('.').pop();
+        return `<video controls><source src="${text}" type="video/${type}">Videó nem támogatott</video>`;
+      } 
+      return text;
+    }
+
     function loadCourses() {
       fetch('/Course/GetCourses', creds)
         .then(r => r.ok ? r.json() : Promise.reject())
@@ -100,12 +110,6 @@
             er.innerHTML = `
               <td colspan="5">
                 <ul id="entries-${c.courseID}"></ul>
-                <div class="input-group mt-2">
-                  <input type="text" class="form-control" id="newEntry-${c.courseID}" placeholder="Új bejegyzés">
-                  <button class="btn btn-success add-entry-btn" data-id="${c.courseID}" title="Hozzáadás">
-                    <i class="bi bi-plus-lg"></i>
-                  </button>
-                </div>
               </td>`;
             tbody.appendChild(er);
           });
@@ -141,7 +145,7 @@
           ul.innerHTML = '';
           list.forEach(text => {
             const li = document.createElement('li');
-            li.textContent = text;
+            li.innerHTML = parseEntryText(text);
             ul.appendChild(li);
           });
         });
