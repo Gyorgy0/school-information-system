@@ -234,9 +234,11 @@
     </div>
 <script>
 $(document).ready(function () {
+    var teacherlist;
     populateSubjectDropdowns();
     populateClassroomDropdowns();
     populateClassDropdowns();
+    populateTeacherDropdowns();
 });
 
 async function populateSubjectDropdowns() {
@@ -295,7 +297,6 @@ async function populateClassDropdowns() {
         timetableSelect.innerHTML = '<option value="" disabled selected>Osztály...</option>';
         const removeClassSelect = document.getElementById('removeClassSelect');
         removeClassSelect.innerHTML = '<option value="" disabled selected>Osztály...</option>';
-
         data.classes.forEach(classes => {
             classSelect.innerHTML += `<option value="${classes}">${classes}</option>`;
             timetableSelect.innerHTML += `<option value="${classes}">${classes}</option>`;
@@ -310,20 +311,17 @@ async function populateClassDropdowns() {
 
 async function populateTeacherDropdowns() {
     try {
-        const res = await fetch('/Timetable/GetClasses');
-        if (!res.ok) throw new Error("Nem sikerült betölteni az osztályokat!");
+        const res = await fetch('/User/GetTeacherNames');
+        if (!res.ok) throw new Error("Nem sikerült betölteni a tanárokat!");
         const data = await res.json();
 
-        const classSelect = document.getElementById('classSelect');
-        classSelect.innerHTML = '<option value="" disabled selected>Tanár...</option>';
-        const removeClassSelect = document.getElementById('removeClassSelect');
-        removeClassSelect.innerHTML = '<option value="" disabled selected>Tanár...</option>';
+        const teacherSelect = document.getElementById('teacherSelect');
+        teacherSelect.innerHTML = '<option value="" disabled selected>Tanár...</option>';
 
-        data.classes.forEach(classes => {
-            classSelect.innerHTML += `<option value="${classes}">${classes}</option>`;
-            removeClassSelect.innerHTML += `<option value="${classes}">${classes}</option>`;
+        data.teachers.forEach(user => {
+            teacherSelect.innerHTML += `<option value="${data.teacherIDs[data.teachers.indexOf(user)]}">${user}</option>`;
         });
-
+        teacherlist = data;
     } catch (error) {
         console.error(error);
         alert("Hiba történt a tanárok betöltésekor.");
@@ -450,7 +448,7 @@ function loadTimetable() {
                     let foundentry = false;
                     data.forEach( entry => {
                         if (entry.hour === i && entry.day === document.getElementById("daySelect").options[j].text) {
-                            tablerow += `<th><center>${entry.subject}<br>${entry.classroom}<br>${entry.teacherID}</center></th>`;
+                            tablerow += `<th><center>${entry.subject}<br>${entry.classroom}<br>${teacherlist.teachers[teacherlist.teacherIDs.indexOf(entry.teacherID)]}</center></th>`;
                             foundentry = true;
                             data.splice(data.indexOf(entry), 1);
                             return;

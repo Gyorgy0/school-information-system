@@ -229,34 +229,43 @@ public class UserController : Controller
         );
     }
 
-    [HttpPost]
-    public IActionResult GetUserName(long userID)
+    [HttpGet]
+    public IActionResult GetTeacherNames()
     {
-        string fullname = "";
-        var users;
+        List<string> teachers = new List<string>();
+        List<long> teacherIDs = new List<long>();
         try
         {
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
-                string selectSql = "SELECT UserID, Username FROM User";
+                string selectSql =
+                    @"SELECT ScientificRank, Firstname, Middlename, Surname, UserID FROM User WHERE role='teacher'";
                 using (var cmd = new SQLiteCommand(selectSql, connection))
                 {
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            users.Add(
-                                new UserDto
-                                {
-                                    UserID = reader.GetInt64(reader.GetOrdinal("UserID")),
-                                    Username = reader.GetString(reader.GetOrdinal("Username")),
-                                }
-                            );
+                            string rank = Convert.ToString(reader["ScientificRank"]);
+                            string firstname = Convert.ToString(reader["Firstname"]);
+                            string middlename = Convert.ToString(reader["Middlename"]);
+                            string surname = Convert.ToString(reader["Surname"]);
+                            long ID = Convert.ToInt64(reader["UserID"]);
+                            string fullname =
+                                rank
+                                + (rank is null ? "" : " ")
+                                + firstname
+                                + (firstname is null ? "" : " ")
+                                + middlename
+                                + (middlename is null ? "" : " ")
+                                + surname;
+                            teachers.Add(fullname);
+                            teacherIDs.Add(ID);
                         }
                     }
                 }
             }
-            return Ok(users);
+            return Json(new { Teachers = teachers, TeacherIDs = teacherIDs });
         }
         catch (Exception ex)
         {
@@ -264,5 +273,39 @@ public class UserController : Controller
             Console.Error.WriteLine($"An error occurred: {ex.Message}");
             return StatusCode(500, "Internal server error");
         }
+    }
+
+    [HttpGet]
+    public IActionResult GetClass()
+    {
+        string sessionId = Request.Cookies["id"];
+        long UserID = -1;
+        string classname = "";
+        using (var connection = DatabaseConnector.CreateNewConnection())
+        {
+            string sql = $"SELECT UserID From Session WHERE SessionCookie = '{sessionId}'";
+            using (var cmd = new SQLiteCommand(sql, connection))
+            {
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    UserID = Convert.ToInt64(reader["UserID"]);
+                }
+            }
+            if (UserID == -1)
+            {
+                return Ok("Nem tartozol egyik osztálycsoporthoz sem!");
+            }
+            sql = $"SELECT ClassName From User WHERE UserID = '{Convert.ToString(UserID)}'";
+            using (var cmd = new SQLiteCommand(sql, connection))
+            {
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    classname = Convert.ToString(reader["ClassName"]);
+                }
+            }
+        }
+        return Ok(classname);
     }
 }

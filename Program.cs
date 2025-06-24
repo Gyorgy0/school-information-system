@@ -38,6 +38,7 @@ command.CommandText =
     + "`Username` TEXT NOT NULL, "
     + "`PasswordHash` TEXT NOT NULL, "
     + "`PasswordSalt` TEXT NOT NULL, "
+    + "`ScientificRank` TEXT,"
     + "`Firstname` TEXT, "
     + "`Middlename` TEXT, "
     + "`Surname` TEXT, "
