@@ -81,10 +81,35 @@
     a:hover {
         text-decoration: underline;
     }
+    #buttonGroup {
+        justify-content: center; /* középre igazítja a gombokat */
+        margin-bottom: 3rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    #buttonGroup button {
+        min-width: 140px;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+    .container {
+      text-align: center; /* minden benne legyen középen */
+    }
     </style>
 </head>
 <body>
     <div id="gallerySection" class="container">
+        <div id="buttonGroup">
+        <button type="button" class="btn btn-primary" id="coursesBtn" onclick="window.location.href = '/courses'">Kurzusok</button>
+        <button type="button" class="btn btn-success" id="timetableBtn" onclick="window.location.href = '/timetable'">Órarend</button>
+        <button type="button" class="btn btn-warning" id="lunchmenuBtn" onclick="window.location.href = '/lunchmenupage'">Étlap</button>
+        <button type="button" class="btn btn-info" id="usermanagementBtn" onclick="window.location.href = '/usermanagement'">Jelszócsere</button>
+        <!--<button type="button" class="btn btn-info text-white" id="grademenuBtn" onclick="window.location.href = '/gradebook'">Osztálykönyv</button>-->
+        <button type="button" class="btn btn-dark" id="mainBtn" onclick="window.location.href = '/main'">Főoldal</button>
+        <button type="button" class="btn btn-danger" id="logoutBtn" onclick="logout()">Kijelentkezés</button>
+        </div>
         <h2><i class="bi bi-images"></i> Galéria</h2>
         <div class="gallery-container">
             <img src="images/photo2.jpg" alt="Image 2" class="img-thumbnail" />
@@ -144,4 +169,15 @@
         </div>
     </div>
 </body>
+<script>
+function logout() {
+    $.post('/User/Logout')
+    .done(function (response) {
+        window.location.href = '/';
+    })
+    .fail(function (xhr) {
+        alert('Hiba a kijelentkezés során: ' + xhr.responseText);
+    });
+}
+</script>
 </html>

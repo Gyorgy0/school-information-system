@@ -20,12 +20,6 @@
             font-size: 1.1rem;
             color: #6c757d;
         }
-        #buttonGroup {
-            margin-bottom: 3rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
         #calendar {
             max-width: 900px;
             margin: 0 auto;
@@ -57,6 +51,10 @@
 
         #buttonGroup {
             justify-content: center; /* középre igazítja a gombokat */
+            margin-bottom: 3rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         #buttonGroup button {
@@ -73,14 +71,14 @@
         <p>Köszönjük, hogy az EduPage-ünket használod!</p>
 
         <div id="buttonGroup">
-            <button type="button" class="btn btn-primary" id="coursesBtn" onclick="courses()">Kurzusok</button>
+            <button type="button" class="btn btn-primary" id="coursesBtn" onclick="window.location.href = '/courses'">Kurzusok</button>
             <button type="button" class="btn btn-success" id="timetableBtn" onclick="window.location.href = '/timetable'">Órarend</button>
             <button type="button" class="btn btn-warning" id="lunchmenuBtn" onclick="window.location.href = '/lunchmenupage'">Étlap</button>
-            <button type="button" class="btn btn-info text-white" id="grademenuBtn" onclick="window.location.href = '/gradebook'">Osztálykönyv</button>
+            <button type="button" class="btn btn-info" id="usermanagementBtn" onclick="window.location.href = '/usermanagement'">Jelszócsere</button>
+            <!--<button type="button" class="btn btn-info text-white" id="grademenuBtn" onclick="window.location.href = '/gradebook'">Osztálykönyv</button>-->
             <button type="button" class="btn btn-secondary" id="gallerymenuBtn" onclick="window.location.href = '/gallery'">Galéria</button>
             <button type="button" class="btn btn-danger" id="logoutBtn" onclick="logout()">Kijelentkezés</button>
         </div>
-
         <div id="calendar"></div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
@@ -95,9 +93,6 @@
             alert('Hiba a kijelentkezés során: ' + xhr.responseText);
         });
 }
-function courses() {
-        window.location.assign('/courses');
-    }
 document.addEventListener('DOMContentLoaded', () => {
     const calendarEl = document.getElementById('calendar');
     const calendar = new FullCalendar.Calendar(calendarEl, {

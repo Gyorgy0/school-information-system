@@ -23,7 +23,7 @@ public class UserController : Controller
                 long count = (long)checkCmd.ExecuteScalar();
                 if (count > 0)
                 {
-                    return Conflict("Username already exists.");
+                    return Conflict("Ez a felhasználónév már foglalt.");
                 }
             }
 
@@ -43,7 +43,83 @@ public class UserController : Controller
             }
         }
 
-        return Ok("User created successfully");
+        return Ok("Felhasználó sikeresen létrehozva!");
+    }
+
+    [HttpPost]
+    public IActionResult ChangePassword(
+        [FromForm] string oldpassword,
+        [FromForm] string newpassword
+    )
+    {
+        string sessionId = Request.Cookies["id"];
+        long userID = -1;
+        string classname = "";
+        string sql = $"SELECT UserID From Session WHERE SessionCookie = '{sessionId}'";
+        using (var connection = DatabaseConnector.CreateNewConnection())
+        {
+            using (var cmd = new SQLiteCommand(sql, connection))
+            {
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    userID = Convert.ToInt64(reader["UserID"]);
+                }
+            }
+            if (userID == -1)
+            {
+                return Unauthorized("Jelszócseréhez először be kell jelentkezned!");
+            }
+            // Jelszó ellenőrzése
+            sql =
+                $"SELECT UserID, PasswordHash, PasswordSalt, Role FROM User WHERE UserID = '{userID}'";
+            using (SQLiteCommand cmd = new SQLiteCommand(sql, connection))
+            {
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        string? storedPasswordHash = reader["PasswordHash"].ToString();
+                        string? storedSalt = reader["PasswordSalt"].ToString();
+
+                        if (
+                            !string.IsNullOrEmpty(storedPasswordHash)
+                            && !string.IsNullOrEmpty(storedSalt)
+                            && PasswordManager.Verify(oldpassword, storedSalt, storedPasswordHash)
+                        )
+                        {
+                            userID = Convert.ToInt64(reader["UserID"]);
+                        }
+                        else
+                        {
+                            userID = -1;
+                        }
+                    }
+                }
+            }
+            if (userID == -1)
+            {
+                return Unauthorized("Helytelen jelszó!");
+            }
+        }
+        using (var connection = DatabaseConnector.CreateNewConnection())
+        {
+            // Jelszó hashelése és mentése
+            string salt = PasswordManager.GenerateSalt();
+            string hashedPassword = PasswordManager.GeneratePasswordHash(newpassword, salt);
+
+            string insertSql =
+                "UPDATE User SET PasswordHash = @PasswordHash, PasswordSalt = @PasswordSalt WHERE UserID = @UserID";
+            using (SQLiteCommand cmd = new SQLiteCommand(insertSql, connection))
+            {
+                cmd.Parameters.AddWithValue("@PasswordHash", hashedPassword);
+                cmd.Parameters.AddWithValue("@PasswordSalt", salt);
+                cmd.Parameters.AddWithValue("@UserID", userID);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        return Ok("Felhasználó jelszava sikeresen kicserélve!");
     }
 
     [HttpPost]

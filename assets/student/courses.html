@@ -6,7 +6,7 @@
   <title>Edupage - Kurzusok</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -43,11 +43,35 @@
       max-width: 600px;
       height: auto;
     }
+    #buttonGroup {
+      justify-content: center; /* középre igazítja a gombokat */
+      margin-bottom: 3rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    #buttonGroup button {
+      min-width: 140px;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .container {
+      text-align: center; /* minden benne legyen középen */
+    }
   </style>
 </head>
 <body>
-
   <div class="container">
+    <div id="buttonGroup" >
+      <button type="button" class="btn btn-dark" id="mainBtn" onclick="window.location.href = '/main'">Főoldal</button>
+      <button type="button" class="btn btn-success" id="timetableBtn" onclick="window.location.href = '/timetable'">Órarend</button>
+      <button type="button" class="btn btn-warning" id="lunchmenuBtn" onclick="window.location.href = '/lunchmenupage'">Étlap</button>
+      <button type="button" class="btn btn-info" id="usermanagementBtn" onclick="window.location.href = '/usermanagement'">Jelszócsere</button>
+      <!--<button type="button" class="btn btn-info text-white" id="grademenuBtn" onclick="window.location.href = '/gradebook'">Osztálykönyv</button>-->
+      <button type="button" class="btn btn-secondary" id="gallerymenuBtn" onclick="window.location.href = '/gallery'">Galéria</button>
+      <button type="button" class="btn btn-danger" id="logoutBtn" onclick="logout()">Kijelentkezés</button>
+    </div>
     <h1 class="mb-3">Összes kurzus</h1>
     <div class="table-responsive">
       <table class="table table-bordered table-striped" id="coursesTable">
@@ -69,6 +93,16 @@
 
   <script>
     const creds = { credentials: 'include' };
+
+    function logout() {
+      $.post('/User/Logout')
+      .done(function (response) {
+          window.location.href = '/';
+      })
+      .fail(function (xhr) {
+          alert('Hiba a kijelentkezés során: ' + xhr.responseText);
+      });
+    }
 
     function parseEntryText(text) {
       const baseUrl = text.split('?')[0];

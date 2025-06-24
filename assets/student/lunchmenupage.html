@@ -95,10 +95,32 @@
         .hidden {
             display: none;
         }
+        #buttonGroup {
+            justify-content: center; /* középre igazítja a gombokat */
+            margin-bottom: 3rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        #buttonGroup button {
+            min-width: 140px;
+            font-weight: 600;
+            font-size: 1rem;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div id="buttonGroup" class="align-middle text-center">
+            <button type="button" class="btn btn-primary" id="coursesBtn" onclick="window.location.href = '/courses'">Kurzusok</button>
+            <button type="button" class="btn btn-success" id="timetableBtn" onclick="window.location.href = '/timetable'">Órarend</button>
+            <button type="button" class="btn btn-dark" id="mainBtn" onclick="window.location.href = '/main'">Főoldal</button>
+            <button type="button" class="btn btn-info" id="usermanagementBtn" onclick="window.location.href = '/usermanagement'">Jelszócsere</button>
+            <!--<button type="button" class="btn btn-info text-white" id="grademenuBtn" onclick="window.location.href = '/gradebook'">Osztálykönyv</button>-->
+            <button type="button" class="btn btn-secondary" id="gallerymenuBtn" onclick="window.location.href = '/gallery'">Galéria</button>
+            <button type="button" class="btn btn-danger" id="logoutBtn" onclick="logout()">Kijelentkezés</button>
+        </div>
         <div class="d-flex justify-content-between align-items-center mb-3">
             <button id="prevWeekBtn" class="btn btn-secondary" disabled>&lt;</button>
             <h4 id="weekDisplay" class="mb-0">2025. január 6 - 10</h4>
@@ -134,7 +156,7 @@
         function showLunchMenu() {
             document.getElementById('lunchMenu').classList.remove('hidden');
             updateWeekDisplay();
-            getWeekDays(mondayDate);
+            //getWeekDays(mondayDate);
         }
 
         function getWeekDays(date) {

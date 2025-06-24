@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="hu">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>EduPage - Bejelentkezés</title>
+    <title>EduPage - Felhasználók</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -95,12 +95,6 @@
             box-shadow: 0 8px 20px rgba(25, 118, 210, 0.7);
         }
 
-        #logoutBtn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-        }
-
         .container {
             max-width: 500px;
             margin: 7.5rem auto 0 auto;
@@ -137,28 +131,83 @@
         #showRegisterBtn {
             margin-top: 1rem;
         }
+        #buttonGroup {
+            justify-content: center; /* középre igazítja a gombokat */
+            margin-bottom: 3rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        #buttonGroup button {
+            min-width: 140px;
+            font-weight: 600;
+            font-size: 1rem;
+        }
     </style>
 </head>
 <body>
-    <header>
-        <h1>EduPage</h1>
-        <img id="loginImage" src="images/photo1.jpg" alt="EduPage Logo" />
-    </header>
-    <div id="login" class="container">
-        <div id="login">
-            <h2>Bejelentkezés</h2>
+    <br>
+    <div id="buttonGroup" class="align-middle align-items-center">
+            <button type="button" class="btn btn-primary" id="coursesBtn" onclick="window.location.href = '/courses'">Kurzusok</button>
+            <button type="button" class="btn btn-success" id="timetableBtn" onclick="window.location.href = '/timetable'">Órarend</button>
+            <button type="button" class="btn btn-warning" id="lunchmenuBtn" onclick="window.location.href = '/lunchmenupage'">Étlap</button>
+            <button type="button" class="btn btn-dark" id="mainBtn" onclick="window.location.href = '/main'">Főoldal</button>
+            <!--<button type="button" class="btn btn-info text-white" id="grademenuBtn" onclick="window.location.href = '/gradebook'">Osztálykönyv</button>-->
+            <button type="button" class="btn btn-secondary" id="gallerymenuBtn" onclick="window.location.href = '/gallery'">Galéria</button>
+            <button type="button" class="btn btn-danger" id="logoutBtn" onclick="logout()">Kijelentkezés</button>
+        </div>
+    <div class="container">
+        <div id="changepswd">
+            <h2>Jelszócsere</h2>
             <div class="mb-3">
-                <label for="username" class="form-label">Felhasználónév</label>
-                <input id="username" type="text" class="form-control" />
+                <label for="oldPassword" class="form-label">Régi jelszó</label>
+                <input id="oldPassword" type="password" class="form-control" required />
             </div>
             <div class="mb-3">
-                <label for="password" class="form-label">Jelszó</label>
-                <input id="password" type="password" class="form-control" />
+                <label for="newPassword1" class="form-label">Új jelszó</label>
+                <input id="newPassword1" type="password" class="form-control" required />
             </div>
-            <button onclick="login()" class="btn btn-success w-100">
-                <i class="bi bi-box-arrow-in-right"></i> Belépés
+            <div class="mb-3">
+                <label for="newPassword2" class="form-label">Új jelszó mégegyszer</label>
+                <input id="newPassword2" type="password" class="form-control" required />
+            </div>
+            <button onclick="changepassword()" class="btn btn-warning w-100">
+                <i class="bi bi-person-gear"></i> Jelcsó cseréje
             </button>
         </div>
     </div>
 </body>
+<script>
+function logout() {
+    $.post('/User/Logout')
+    .done(function (response) {
+        window.location.href = '/';
+    })
+    .fail(function (xhr) {
+        alert('Hiba a kijelentkezés során: ' + xhr.responseText);
+    });
+}
+function changepassword() {
+const oldpassword = $('#oldPassword').val();
+if ($('#newPassword1').val() === $('#newPassword2').val()) {
+    const newpassword = $('#newPassword1').val();
+    const role = $('#role').val();
+
+    $.post('/User/ChangePassword', { oldpassword, newpassword })
+        .done(function (response) {
+            alert(response);
+            $("#oldPassword").val('');
+            $("#newPassword1").val('');
+            $("#newPassword2").val('');
+        })
+        .fail(function (xhr) {
+            alert('Hiba a jelszócsere során: ' + xhr.responseText);
+        });
+    }
+    else {
+        alert("A két új jelszó nem egyezik meg!");
+    }
+}
+</script>
 </html>

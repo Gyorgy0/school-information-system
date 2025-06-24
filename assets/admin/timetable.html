@@ -16,9 +16,6 @@
         .form-label {
             margin-top: 1rem;
         }
-        #logoutBtn {
-            margin-top: 2rem;
-        }
         body {
             background-color: #f8f9fa;
             padding: 2rem;
@@ -74,10 +71,32 @@
         .hidden {
             display: none;
         }
+        #buttonGroup {
+            justify-content: center; /* középre igazítja a gombokat */
+            margin-bottom: 3rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        #buttonGroup button {
+            min-width: 140px;
+            font-weight: 600;
+            font-size: 1rem;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div id="buttonGroup" class="align-middle align-items-center">
+            <button type="button" class="btn btn-primary" id="coursesBtn" onclick="window.location.href = '/courses'">Kurzusok</button>
+            <button type="button" class="btn btn-dark" id="mainBtn" onclick="window.location.href = '/main'">Főoldal</button>
+            <button type="button" class="btn btn-warning" id="lunchmenuBtn" onclick="window.location.href = '/lunchmenupage'">Étlap</button>
+            <button type="button" class="btn btn-info" id="usermanagementBtn" onclick="window.location.href = '/usermanagement'">Felhasználók kezelése</button>
+            <!--<button type="button" class="btn btn-info text-white" id="grademenuBtn" onclick="window.location.href = '/gradebook'">Osztálykönyv</button>-->
+            <button type="button" class="btn btn-secondary" id="gallerymenuBtn" onclick="window.location.href = '/gallery'">Galéria</button>
+            <button type="button" class="btn btn-danger" id="logoutBtn" onclick="logout()">Kijelentkezés</button>
+        </div>
         <div class="row g-2 align-items-center">
             <div class="col-md-5">
             <select id="timetableSelect" class="form-select" onchange="populateTimetableActionDropdown()">
