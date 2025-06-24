@@ -16,7 +16,16 @@ namespace SchoolAPI.Controllers
         {
             List<TimetableEntry?> timetable = new List<TimetableEntry?>();
             string sql =
-                $"SELECT * FROM Timetable WHERE TimetableID = @TimetableID ORDER BY Hour ASC, CASE WHEN Day = 'Hétfő' THEN 1 WHEN Day = 'Kedd' THEN 2 WHEN Day = 'Szerda' THEN 3 WHEN Day = 'Csütörtök' THEN 4 WHEN Day = 'Péntek' THEN 5 END ASC";
+                @"SELECT * FROM Timetable 
+                WHERE TimetableID = @TimetableID 
+                ORDER BY CASE 
+                WHEN Day = 'Hétfő' THEN 1 
+                WHEN Day = 'Kedd' THEN 2 
+                WHEN Day = 'Szerda' THEN 3 
+                WHEN Day = 'Csütörtök' THEN 4 
+                WHEN Day = 'Péntek' THEN 5 
+                END ASC, 
+                Hour ASC";
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
                 using (var cmd = new SQLiteCommand(sql, connection))
@@ -61,7 +70,8 @@ namespace SchoolAPI.Controllers
             }
 
             string sql =
-                $"INSERT INTO Timetable (TimetableID, Day, Hour, Subject, Classroom, TeacherID) VALUES (@TimetableID, @Day, @Hour, @Subject, @Classroom, @TeacherID)";
+                @"INSERT INTO Timetable (TimetableID, Day, Hour, Subject, Classroom, TeacherID) 
+                VALUES (@TimetableID, @Day, @Hour, @Subject, @Classroom, @TeacherID)";
 
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
@@ -81,18 +91,37 @@ namespace SchoolAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteTimetable([FromForm] int timetableID)
+        public IActionResult DeleteTimetableAction(
+            [FromForm] string timetableID,
+            [FromForm] string day,
+            [FromForm] int hour,
+            [FromForm] string subject,
+            [FromForm] string classroom,
+            [FromForm] int teacherID
+        )
         {
-            string sql = $"DELETE FROM Timetable WHERE TimetableID = {timetableID}";
-
             using (var connection = DatabaseConnector.CreateNewConnection())
             {
+                string sql =
+                    @"DELETE FROM Timetable 
+                    WHERE TimetableID = @TimetableID 
+                    AND Day = @Day 
+                    AND Hour = @Hour 
+                    AND Subject = @Subject 
+                    AND Classroom = @Classroom 
+                    AND TeacherID = @TeacherID";
                 using (var cmd = new SQLiteCommand(sql, connection))
                 {
+                    cmd.Parameters.AddWithValue("@TimetableID", timetableID);
+                    cmd.Parameters.AddWithValue("@Day", day);
+                    cmd.Parameters.AddWithValue("@Hour", hour);
+                    cmd.Parameters.AddWithValue("@Subject", subject);
+                    cmd.Parameters.AddWithValue("@Classroom", classroom);
+                    cmd.Parameters.AddWithValue("@TeacherID", teacherID);
                     if (cmd.ExecuteNonQuery() == 0)
-                        return NotFound("Keresett órarend nem található.");
+                        return NotFound("Keresett órarendi bejegyzés nem található.");
 
-                    return Ok("Órarend sikeresen törölve!");
+                    return Ok("Órarendi bejegyzés sikeresen törölve!");
                 }
             }
         }
@@ -100,8 +129,7 @@ namespace SchoolAPI.Controllers
         public bool CheckForConflicts(string day, long hour, string classroom, long teacherID)
         {
             string sql =
-                @"
-                SELECT COUNT(*)
+                @"SELECT COUNT(*)
                 FROM Timetable
                 WHERE Day = @Day
                 AND Hour = @Hour

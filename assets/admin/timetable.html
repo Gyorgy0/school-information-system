@@ -80,13 +80,13 @@
     <div class="container">
         <div class="row g-2 align-items-center">
             <div class="col-md-5">
-            <select id="timetableSelect" class="form-select">
+            <select id="timetableSelect" class="form-select" onchange="populateTimetableActionDropdown()">
                 <option value="" disabled selected>Órarend...</option>
             </select>
         </div>
         <div class="col-md-2"></div>
         <div class="col-md-5">
-            <button class="form-control btn-signup" onclick="loadTimetable()">Órarend mutatása</button>
+            <button class="btn btn-signup w-100" onclick="loadTimetable()">Órarend mutatása</button>
         </div>
         <br>
         </div>
@@ -162,27 +162,19 @@
             </select>
         </div>
         <div>
-            <button type="button" class="btn btn-info w-100" style="white-space: nowrap;" onclick="addTimetable()">Bejegyzés hozzáadása</button>
+            <button type="button" class="btn btn-info w-100" style="white-space: nowrap;" onclick="addTimetableAction()">Bejegyzés hozzáadása</button>
         </div>
         <div class="row g-3 align-items-end">
         <h3>Órarend bejegyzés törlése</h3>
         </div>
-        <div class="col-12 col-md-4">
-            <label for="timetableid" class="form-label w-100">Órarend</label>
-            <select id="timetableid" class="form-select w-100">
-                <option value="1">Hétfő</option>
-                <option value="2">Kedd</option>
-                <option value="3">Szerda</option>
-                <option value="4">Csütörtök</option>
-                <option value="5">Péntek</option>
+        <div class="col-12">
+            <label for="removeTimetableActionSelect" class="form-label">Alkalom</label>
+            <select id="removeTimetableActionSelect" class="form-select w-100">
+                <option value="" disabled selected>Órarendi bejegyzés...</option>
             </select>
         </div>
-        <div class="col-12 col-md-8">
-            <label for="timetableaction" class="form-label">Alkalom</label>
-            <input id="timetableaction" type="text" class="form-control w-100" required>
-        </div>
         <div>
-            <button type="button" class="btn btn-danger w-100" style="white-space: nowrap;" onclick="removeTimetable()">Bejegyzés törlése</button>
+            <button type="button" class="btn btn-danger w-100" style="white-space: nowrap;" onclick="removeTimetableAction()">Bejegyzés törlése</button>
         </div>
         </form>
         <hr class="mt-3">
@@ -198,6 +190,7 @@
                 <h3>Tantárgy törlése</h3>
                 <label for="removeSubjectSelect" class="form-label">Tantárgy</label>
                 <select id="removeSubjectSelect" class="form-select">
+                    <option value="" disabled selected>Tantárgy...</option>
                 </select>
                 <button type="button" class="btn btn-danger w-100" onclick="removeSubject()">Tantárgy törlése</button>
             </div>
@@ -215,6 +208,7 @@
                 <h3>Terem törlése</h3>
                 <label for="removeClassroomSelect" class="form-label">Terem</label>
                 <select id="removeClassroomSelect" class="form-select">
+                    <option value="" disabled selected>Terem...</option>
                 </select>
                 <button type="button" class="btn btn-danger w-100" onclick="removeClassroom()">Terem törlése</button>
             </div>
@@ -232,6 +226,7 @@
                 <h3>Osztály törlése</h3>
                 <label for="removeClassSelect" class="form-label">Osztály</label>
                 <select id="removeClassSelect" class="form-select">
+                    <option value="" disabled selected>Osztály...</option>
                 </select>
                 <button type="button" class="btn btn-danger w-100" onclick="removeClass()">Osztály törlése</button>
             </div>
@@ -239,7 +234,6 @@
     </div>
 <script>
 $(document).ready(function () {
-    loadTimetable();
     populateSubjectDropdowns();
     populateClassroomDropdowns();
     populateClassDropdowns();
@@ -252,7 +246,9 @@ async function populateSubjectDropdowns() {
         const data = await res.json();
 
         const subjectSelect = document.getElementById('subjectSelect');
+        subjectSelect.innerHTML = '<option value="" disabled selected>Tantárgy...</option>';
         const removeSubjectSelect = document.getElementById('removeSubjectSelect');
+        removeSubjectSelect.innerHTML = '<option value="" disabled selected>Tantárgy...</option>';
 
         data.subjects.forEach(subjects => {
             subjectSelect.innerHTML += `<option value="${subjects}">${subjects}</option>`;
@@ -272,7 +268,9 @@ async function populateClassroomDropdowns() {
         const data = await res.json();
 
         const classroomSelect = document.getElementById('classroomSelect');
+        classroomSelect.innerHTML = '<option value="" disabled selected>Terem...</option>';
         const removeClassroomSelect = document.getElementById('removeClassroomSelect');
+        removeClassroomSelect.innerHTML = '<option value="" disabled selected>Terem...</option>';
 
         data.classrooms.forEach(classrooms => {
             classroomSelect.innerHTML += `<option value="${classrooms}">${classrooms}</option>`;
@@ -292,8 +290,11 @@ async function populateClassDropdowns() {
         const data = await res.json();
 
         const classSelect = document.getElementById('classSelect');
+        classSelect.innerHTML = '<option value="" disabled selected>Osztály...</option>';
         const timetableSelect = document.getElementById('timetableSelect');
+        timetableSelect.innerHTML = '<option value="" disabled selected>Osztály...</option>';
         const removeClassSelect = document.getElementById('removeClassSelect');
+        removeClassSelect.innerHTML = '<option value="" disabled selected>Osztály...</option>';
 
         data.classes.forEach(classes => {
             classSelect.innerHTML += `<option value="${classes}">${classes}</option>`;
@@ -314,7 +315,9 @@ async function populateTeacherDropdowns() {
         const data = await res.json();
 
         const classSelect = document.getElementById('classSelect');
+        classSelect.innerHTML = '<option value="" disabled selected>Tanár...</option>';
         const removeClassSelect = document.getElementById('removeClassSelect');
+        removeClassSelect.innerHTML = '<option value="" disabled selected>Tanár...</option>';
 
         data.classes.forEach(classes => {
             classSelect.innerHTML += `<option value="${classes}">${classes}</option>`;
@@ -323,8 +326,22 @@ async function populateTeacherDropdowns() {
 
     } catch (error) {
         console.error(error);
-        alert("Hiba történt az osztályok betöltésekor.");
+        alert("Hiba történt a tanárok betöltésekor.");
     }
+}
+
+async function populateTimetableActionDropdown() {
+    const removeTimetableActionSelect = document.getElementById("removeTimetableActionSelect");
+    removeTimetableActionSelect.innerHTML = `<option value="" disabled selected>Órarendi bejegyzés...</option>`;
+    const timetableID = $('#timetableSelect option:selected').text();
+    $.post('/Timetable/GetTimetable', { timetableID })
+    .done(function (data) {
+        data.forEach( action => {
+            removeTimetableActionSelect.innerHTML += `<option value="${action.day}<-!->${action.hour}<-!->${action.subject}<-!->${action.classroom}<-!->${action.teacherID}">${action.day} [${action.hour}. óra] - ${action.subject} (${action.classroom})</option>`
+        });
+    }).fail(function () {
+        alert("A keresett órarend nem található.");
+    });
 }
 
 function logout() {
@@ -342,7 +359,7 @@ function addSubject() {
     $.post('/Timetable/CreateSubject', { subjectname })
     .done(function () {
         alert("Tantárgy sikeresen hozzáadva!");
-        location.reload();
+        populateSubjectDropdowns();
     })
     .fail(function () {
         alert("Tantárgy hozzáadása sikertelen!");
@@ -354,7 +371,8 @@ function removeSubject() {
     $.post('/Timetable/DeleteSubject', { subjectname })
     .done(function () {
         alert("Tantárgy sikeresen törölve!");
-        location.reload();
+        populateSubjectDropdowns();
+        populateTimetableActionDropdown();
     })
     .fail(function () {
         alert("Tantárgy törlése sikertelen!");
@@ -366,7 +384,7 @@ function addClassroom() {
     $.post('/Timetable/CreateClassroom', { classroomname })
     .done(function () {
         alert("Terem sikeresen hozzáadva!");
-        location.reload();
+        populateClassroomDropdowns();
     })
     .fail(function () {
         alert("Terem hozzáadása sikertelen!");
@@ -378,7 +396,8 @@ function removeClassroom() {
     $.post('/Timetable/DeleteClassroom', { classroomname })
     .done(function () {
         alert("Terem sikeresen törölve!");
-        location.reload();
+        populateClassroomDropdowns();
+        populateTimetableActionDropdown();
     })
     .fail(function () {
         alert("Terem törlése sikertelen!");
@@ -390,7 +409,7 @@ function addClass() {
     $.post('/Timetable/CreateClass', { year })
     .done(function () {
         alert("Osztály sikeresen hozzáadva!");
-        location.reload();
+        populateClassDropdowns();
     })
     .fail(function () {
         alert("Osztály hozzáadása sikertelen!");
@@ -402,7 +421,8 @@ function removeClass() {
     $.post('/Timetable/DeleteClass', { classname })
     .done(function () {
         alert("Osztály sikeresen törölve!");
-        location.reload();
+        populateClassDropdowns();
+        populateTimetableActionDropdown();
     })
     .fail(function () {
         alert("Osztály törlése sikertelen!");
@@ -432,6 +452,7 @@ function loadTimetable() {
                         if (entry.hour === i && entry.day === document.getElementById("daySelect").options[j].text) {
                             tablerow += `<th><center>${entry.subject}<br>${entry.classroom}<br>${entry.teacherID}</center></th>`;
                             foundentry = true;
+                            data.splice(data.indexOf(entry), 1);
                             return;
                         }
                     });
@@ -442,11 +463,12 @@ function loadTimetable() {
             tablerow += ' </tr>';
             tableBody.append(tablerow);
         }
+        populateTimetableActionDropdown();
     }).fail(function () {
-        alert("Nem sikerült betölteni az órarendet.");
+        alert("A keresett órarend nem található.");
     });
 }
-function addTimetable() {
+function addTimetableAction() {
     const timetableID = $('#classSelect').val();
     const day = $('#daySelect option:selected').text();
     const hour = $('#hourSelect').val();
@@ -454,16 +476,48 @@ function addTimetable() {
     const classroom = $('#classroomSelect').val();
     const teacherID = $('#teacherSelect').val();
 
-    $.post('/Timetable/CreateTimetable', {
-        timetableID, day, hour, subject, classroom, teacherID
-    })
-    .done(function () {
-        alert("Órarend sikeresen hozzáadva!");
-        location.reload();
-    })
-    .fail(function (xhr) {
-        alert("Hiba történt a hozzáadás során: " + xhr.responseText);
-    });
+    if (timetableID === null || subject === null || classroom === null || teacherID === null) {
+        alert("Kérem töltse ki az új órarendi alkalom adatait!");
+    }
+    else {
+        $.post('/Timetable/CreateTimetable', {
+            timetableID, day, hour, subject, classroom, teacherID
+        })
+        .done(function () {
+            alert("Órarend sikeresen hozzáadva!");
+            populateTimetableActionDropdown();
+            loadTimetable();
+        })
+        .fail(function (xhr) {
+            alert("Hiba történt a hozzáadás során: " + xhr.responseText);
+        });
+    }
+}
+function removeTimetableAction() {
+    const timetableID = $('#timetableSelect').val();
+    const timetableAction = $('#removeTimetableActionSelect').val();
+    if (timetableAction !== null) {
+        const actionSelect = timetableAction.split("<-!->");
+        const day = actionSelect[0];
+        const hour = actionSelect[1];
+        const subject = actionSelect[2];
+        const classroom = actionSelect[3];
+        const teacherID = actionSelect[4];
+        $.post('/Timetable/DeleteTimetableAction', {
+            timetableID, day, hour, subject, classroom, teacherID
+        })
+        .done(function () {
+            alert("Órarendi bejegyzés sikeresen törölve!");
+            populateTimetableActionDropdown();
+            loadTimetable();
+        })
+        .fail(function (xhr) {
+            alert("Hiba történt a törlés során: " + xhr.responseText);
+        });
+    }
+    else {
+        alert("Kérem válasszon ki a törlés előtt egy órarendet, illetve egy órarendi alkalmat!!");
+    }
 }
 </script>
 </body>

@@ -49,7 +49,7 @@ public class UserController : Controller
     [HttpPost]
     public IActionResult Login([FromForm] string username, [FromForm] string password)
     {
-        Int64 userID = -1;
+        long userID = -1;
         string? role = null;
 
         // Csak az olvasásra használjuk a DB kapcsolatot, majd bezárjuk
@@ -152,7 +152,7 @@ public class UserController : Controller
 
     public static bool IsLoggedIn(string SessionCookie)
     {
-        Int64 userID = SessionManager.GetUserID(SessionCookie);
+        long userID = SessionManager.GetUserID(SessionCookie);
         return userID != -1;
     }
 
@@ -162,7 +162,7 @@ public class UserController : Controller
         try
         {
             var sessionId = Request.Cookies["id"];
-            Int64 userID = SessionManager.ValidateSession(sessionId);
+            long userID = SessionManager.ValidateSession(sessionId);
             return Json(userID);
         }
         catch (UnauthorizedAccessException)
@@ -187,7 +187,7 @@ public class UserController : Controller
                 }
             );
         }
-        Int64 userID = SessionManager.GetUserID(sessionId);
+        long userID = SessionManager.GetUserID(sessionId);
         if (userID == -1)
         {
             return Json(
@@ -229,10 +229,11 @@ public class UserController : Controller
         );
     }
 
-    [HttpGet]
-    public IActionResult GetUserList()
+    [HttpPost]
+    public IActionResult GetUserName(long userID)
     {
-        var users = new List<UserDto>();
+        string fullname = "";
+        var users;
         try
         {
             using (var connection = DatabaseConnector.CreateNewConnection())
