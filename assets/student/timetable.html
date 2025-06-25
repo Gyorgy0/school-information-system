@@ -122,6 +122,16 @@ $(document).ready(function () {
     getClass();
 });
 
+function logout() {
+    $.post('/User/Logout')
+        .done(function (response) {
+            window.location.href = '/';
+        })
+        .fail(function (xhr) {
+            alert('Hiba a kijelentkezés során: ' + xhr.responseText);
+        });
+}
+
 async function populateTeacherList() {
     try {
         const res = await fetch('/User/GetTeacherNames');
