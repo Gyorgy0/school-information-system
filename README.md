@@ -3,6 +3,10 @@
 ASP.NET Core web application for school administration and student services.
 It includes login/session handling, role-based pages (admin, teacher, student), timetable management,
 lunch menu management, courses, and school events.
+<p align="center">
+<img width="995" height="624" alt="image" src="https://github.com/user-attachments/assets/42c7133d-049a-4851-a079-21e64ff77702" />
+<p/>
+
 
 ## Prerequisites
 
@@ -43,7 +47,12 @@ dotnet run --project Edupage.csproj
 - Lunch menu planning with editable food options
 - School event management
 - Separate role-specific pages for main view, timetable, courses, lunch menu, user management, and gallery
-
+  
+<p align="center">
+<img width="1342" height="547" alt="b" src="https://github.com/user-attachments/assets/586bc59d-c4f5-4bf9-a602-eed2744cbf24" />
+<img width="1344" height="610" alt="imageeee" src="https://github.com/user-attachments/assets/00d4131b-70ab-4795-b1a5-d53204e6b444" />
+<p/>
+  
 ## Database Notes
 
 - SQLite file path: `Database/edupage.sqlite3`
